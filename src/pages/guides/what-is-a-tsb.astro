@@ -1,0 +1,61 @@
+---
+import Base from "../../layouts/Base.astro";
+import { article, faqPage } from "../../lib/schema.js";
+
+const faqs = [
+  {
+    q: "What is a TSB?",
+    a: "A TSB is a technical service bulletin, a manufacturer communication to dealers about a repair or a condition. NHTSA's current name for the download files is Manufacturer Communications. A TSB is not a recall.",
+  },
+  {
+    q: "Does VehicleFactbook list TSBs?",
+    a: "No. NHTSA's TSBS dictionary says the files are published in five-year chunks under the Manufacturer Communications name. The zip file names were not verified for this site, so no TSB rows are published.",
+  },
+];
+const description = "A TSB is a manufacturer technical service bulletin, not a recall. VehicleFactbook does not publish TSB rows because the download file names were not verified.";
+---
+
+<Base
+  title="What is a TSB"
+  description={description}
+  canonicalPath="/guides/what-is-a-tsb/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Guides", href: "/guides/" },
+    { label: "What is a TSB", href: "/guides/what-is-a-tsb/" },
+  ]}
+  jsonLd={[
+    article({
+      headline: "What is a TSB",
+      description,
+      url: "https://vehiclefactbook.com/guides/what-is-a-tsb/",
+      datePublished: "2026-10-24",
+      dateModified: "2026-10-24",
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap prose">
+    <h1>What is a TSB?</h1>
+    <div class="answer">
+      <p>
+        A TSB, or technical service bulletin, is a manufacturer communication to its dealers. It is not a safety recall. NHTSA's TSBS dictionary, dated in the file notes as September 25, 2026, says those downloads were renamed Manufacturer Communications and are split into five-year files. This site does not publish them: the zip names were not verified.
+      </p>
+    </div>
+    <p>
+      A recall in NHTSA's recall flat file is a campaign with a campaign number, a defect description, and a remedy. Those campaigns are what the model year pages count. A TSB can describe a repair that is not a recall. Treating a bulletin as if it were a recall would mix two different records.
+    </p>
+    <p>
+      NHTSA describes manufacturer communications separately from recalls. The recall side of this site starts from the flat files linked on the <a href="/methodology/">methodology</a> page. Until a Manufacturer Communications download name is confirmed, there is no TSB count here, and no page will imply one.
+    </p>
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

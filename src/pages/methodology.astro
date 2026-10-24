@@ -1,0 +1,133 @@
+---
+import Base from "../layouts/Base.astro";
+import Answer from "../components/Answer.astro";
+import { loadMeta } from "../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
+import { dataset } from "../lib/schema.js";
+import { site } from "../lib/site.js";
+
+const meta = loadMeta();
+const counts = meta.counts;
+const dates = meta.dates;
+const text = `Counts on this site come from NHTSA flat files dated ${formatDate(dates.recalls)} (recalls), ${formatDate(dates.complaints)} (complaints), and ${formatDate(dates.investigations)} (investigations), and from the EPA fuel-economy file dated ${formatDate(dates.epa)}. Complaint totals are distinct complaint numbers, not raw rows.`;
+const path = "/methodology/";
+---
+
+<Base
+  title="Methodology"
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[{ label: "Home", href: "/" }, { label: "Methodology", href: path }]}
+  jsonLd={[
+    dataset({
+      name: "VehicleFactbook methodology and source files",
+      description: "How VehicleFactbook counts NHTSA recalls, complaints, and investigations and how it joins them to EPA model years.",
+      url: new URL(path, site.url).href,
+      dateModified: dates.complaints,
+    }),
+  ]}
+>
+  <article class="wrap prose">
+    <h1>How the files are counted</h1>
+    <Answer text={text} />
+
+    <h2>Which vehicles get a page</h2>
+    <p>
+      The spine is the EPA fueleconomy.gov vehicles file, model year 2000 and newer: {formatNumber(counts.epaRowsMy2000)} rows, {formatNumber(counts.rawMakes)} case-sensitive make names, {formatNumber(counts.rawModels)} case-sensitive models, and {formatNumber(counts.mmySpine)} make, model, and model year combinations. File date {formatDate(dates.epa)}.
+    </p>
+    <p>
+      Spellings that normalize to the same name share a page. That is why the site publishes {formatNumber(counts.publishedMakes)} makes and {formatNumber(counts.publishedModels)} models. Mini and MINI are one make page. Nine model spellings fold the same way, including Nissan LEAF and Leaf, and Chevrolet TrailBlazer and Trailblazer. NHTSA's files also contain motorcycles, trailers, and equipment. Those are not given pages, because they are not in the EPA passenger-vehicle list.
+    </p>
+
+    <h2>Names do not match across agencies</h2>
+    <p>
+      EPA and NHTSA spell models differently. A model year is matched by normalizing punctuation and a short set of rules: exact name, then a manual list for a few Mazda and MINI names, then class names such as C-Class, series names such as 3 Series, a suffix such as Hybrid only when the remainder is an EPA model, and a prefix only when the next character is a letter so that CX-5 does not absorb CX-50. The manual list is <span class="mono">data/model-crosswalk.csv</span> in the site repository. It does not invent chassis-code maps.
+    </p>
+    <p>
+      Of {formatNumber(counts.mmySpine)} model years, {formatNumber(counts.matchedMmy)} match at least one NHTSA name and {formatNumber(counts.unmatchedMmy)} do not. An unmatched page still shows EPA fuel economy and says that no NHTSA name was matched. It does not borrow another vehicle's complaints.
+    </p>
+    <p>
+      When the EPA name itself is one of the matched NHTSA names, the headline counts are that name only. Other matched names, such as a hybrid, are listed separately and are not added in. When the EPA name is a class or series and no exact name exists, the headline is the sum of the matched names and the page says so. {formatNumber(counts.yearsPages)} models have a by-year page because at least three model years have a matched recall, complaint, or investigation.
+    </p>
+    <p>Match methods for the {formatNumber(counts.matchedMmy)} matched model years:</p>
+    <ul>
+      {
+        Object.entries(counts.matchMethods).map(([method, count]) => (
+          <li>
+            {method}: {formatNumber(count)}
+          </li>
+        ))
+      }
+    </ul>
+
+    <h2>Complaints</h2>
+    <p>
+      The complaint file dated {formatDate(dates.complaints)} has {formatNumber(counts.complaintRows)} rows and {formatNumber(counts.complaintVehicleRows)} vehicle rows. A complaint is repeated once per component, so the published count is distinct ODINO values: {formatNumber(counts.complaintVehicleOdino)} vehicle complaints in the whole file. The same rule is used on each model year page.
+    </p>
+    <p>
+      Crash and fire flags are yes if any row for that complaint says yes. The injury and death fields use the highest number on that complaint, then add those highs. A complaint can appear in more than one component, so component bars can add up to more than the complaint total. The top ten components are shown.
+    </p>
+    <p>
+      Names, partial VINs, cities, dealers, phone numbers, and the narrative text are not stored and are not published. Newer model years have had less time to accumulate complaints. The file's own documentation describes a format change in 2021. A low count on a new model year is "complaints received so far," dated with the file.
+    </p>
+
+    <h2>Recalls</h2>
+    <p>
+      Both NHTSA recall files are imported. The post-2010 file dated {formatDate(dates.recalls)} has {formatNumber(counts.recallRowsPost)} rows and {formatNumber(counts.vehicleCampaignsPost2010)} vehicle campaigns. The pre-2010 file has {formatNumber(counts.recallRowsPre)} rows and {formatNumber(counts.vehicleCampaignsPre2010)} vehicle campaigns, so model years 2000–2009 are not limited to the later file. Five short pre-2010 rows that do not have the full field list are skipped.
+    </p>
+    <p>
+      A model year page lists each campaign once. The potential-affected number on a campaign is a campaign-level figure, so it is not printed on a model year page where it could be read as a count for that model. Do-not-drive and park-outside badges are the file's Yes/No flags. The lists at <a href="/recalls/do-not-drive/">do not drive</a> ({formatNumber(counts.doNotDrive)} vehicle campaigns) and <a href="/recalls/park-outside/">park outside</a> ({formatNumber(counts.parkOutside)}) use those flags.
+    </p>
+    <p>
+      The <a href="/recalls/takata-airbag/">Takata list</a> ({formatNumber(counts.takata)} vehicle campaigns) is every vehicle campaign whose component, defect, consequence, or notes field contains the word Takata. Campaigns that do not use that word are missing from the list. The <a href="/recalls/this-week/">this week</a> page is the seven days ending on the newest report date in the file, not the calendar week when the site was built.
+    </p>
+    <p>
+      There is no expiration column. Whether a free repair still applies to one vehicle is a VIN question, and this site links to NHTSA's tool instead of answering it.
+    </p>
+
+    <h2>Investigations</h2>
+    <p>
+      The investigations file dated {formatDate(dates.investigations)} has {formatNumber(counts.investigationRows)} rows and {formatNumber(counts.investigationActions)} actions. {formatNumber(counts.investigationActionsNoCloseDate)} actions have no close date on any row. The page says "no close date in the NHTSA file." It does not say the investigation is still open. The investigations dictionary file is older than the data file. Subject lines are shortened. The long summary text is not copied onto the page. Action numbers are shown as text because this site does not have a verified public URL for each action.
+    </p>
+
+    <h2>Fuel economy</h2>
+    <p>
+      Each EPA row is one configuration. Combined city and highway figures of zero are left blank. feScore and ghgScore values of −1 are left blank and are not shown as a score. fuelCost08 is EPA's annual fuel cost for that configuration. EPA's documentation says the figure uses 15,000 miles and 55 percent city driving. This site does not replace it with its own gas price. Electric vehicles report MPGe in the combined field and kWh per 100 miles separately. A combined figure for an electric configuration is not labeled mpg.
+    </p>
+    <p>
+      The fuel-cost calculator asks you for a price. Until you enter one, it shows EPA's published annual figure and does not invent a national price.
+    </p>
+
+    <h2>Star ratings</h2>
+    <p>
+      Stars come from NHTSA's Safety Ratings API for model years 2011 and newer. Older stars use a different method and are not shown. "Not Rated" stays as text. Rollover possibility is printed as the API sends it, including values between 0 and 1, and is not turned into a percent. Crash-test photos link to static.nhtsa.gov and are not embedded. If a model year in the API could not be fetched, the page says no rating was matched rather than filling a number.
+    </p>
+    {
+      Object.keys(meta.ncap || {}).length ? (
+        <ul>
+          {Object.entries(meta.ncap).map(([year, info]) => (
+            <li>
+              Model year {year}: {formatNumber(info.variants)} variants, {formatNumber(info.failures)} fetch failures.
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No Safety Ratings cache was present when this copy of the site was built.</p>
+      )
+    }
+
+    <h2>What this site does not say</h2>
+    <p>
+      Complaint and recall counts are not sales-adjusted. There is no registration denominator in these files. The site does not label a vehicle or a model year as one to avoid, and it does not call one reliable, best, or worst. A higher complaint count can mean more vehicles were sold.
+    </p>
+
+    <h2>Not in this version</h2>
+    <ul>
+      <li>Manufacturer communications (technical service bulletins). NHTSA's TSBS dictionary says the files were renamed and split into five-year downloads. The zip names tried for this build were not verified, so nothing from those files is published.</li>
+      <li>A VIN check. Use <a href="https://www.nhtsa.gov/recalls">NHTSA's recall tool</a>.</li>
+      <li>Separate pages for each campaign, investigation, component, or pair of vehicles.</li>
+      <li>The {formatNumber(counts.unmatchedMmy)} unmatched model years still need a better name crosswalk. Their pages exist and say the name did not match.</li>
+    </ul>
+    <p>Source files are U.S. government works. The license reference used in the site's dataset markup is <a href="https://www.usa.gov/government-works">usa.gov/government-works</a>.</p>
+  </article>
+</Base>

@@ -1,0 +1,55 @@
+---
+import { formatDate } from "../lib/format.js";
+import { loadMeta } from "../lib/catalog.js";
+import { site } from "../lib/site.js";
+
+const dates = loadMeta().dates;
+const complaintDate = formatDate(dates.complaints);
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h2>Tools</h2>
+        <ul>
+          <li><a href="/recalls/lookup/">Recall and complaint lookup</a></li>
+          <li><a href="/tools/fuel-cost-calculator/">Fuel cost calculator</a></li>
+          <li><a href="/tools/trip-fuel-cost/">Trip fuel cost</a></li>
+          <li><a href="/tools/mpg-calculator/">MPG calculator</a></li>
+          <li><a href="/compare/">Compare two vehicles</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Recalls</h2>
+        <ul>
+          <li><a href="/recalls/this-week/">Recalls this week</a></li>
+          <li><a href="/recalls/do-not-drive/">Do not drive</a></li>
+          <li><a href="/recalls/park-outside/">Park outside</a></li>
+          <li><a href="/recalls/takata-airbag/">Takata airbag campaigns</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Guides</h2>
+        <ul>
+          <li><a href="/guides/what-is-a-tsb/">What is a TSB</a></li>
+          <li><a href="/guides/do-recalls-expire/">Do recalls expire</a></li>
+          <li><a href="/guides/open-recall-meaning/">Open recall meaning</a></li>
+          <li><a href="/guides/how-long-do-recalls-last/">How long recalls last</a></li>
+          <li><a href="/methodology/">How the files are counted</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Site</h2>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/privacy/">Privacy</a></li>
+          <li><a href="/disclosure/">Disclosure</a></li>
+          <li><a href="/contact/">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="small muted">Complaint file dated {complaintDate}. Counts are not sales-adjusted.</p>
+    <p class="operator">Operated by {site.legalName} · Data: NHTSA &amp; US EPA · Not affiliated with any government agency or automaker.</p>
+  </div>
+</footer>

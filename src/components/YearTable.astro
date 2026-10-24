@@ -1,0 +1,49 @@
+---
+import { span } from "../lib/format.js";
+
+const { rows = [], makeSlug, modelSlug, sortable = false } = Astro.props;
+
+function stars(row) {
+  if (row.y < 2011) return "Pre-2011";
+  if (row.starMin == null) return "—";
+  if (row.starMin === row.starMax) return String(row.starMin);
+  return `${row.starMin}–${row.starMax}`;
+}
+---
+
+<div class="table-wrap">
+  <table class={sortable ? "sortable" : undefined}>
+    <caption>One row per model year. Complaint and recall figures are matched raw counts.</caption>
+    <thead>
+      <tr>
+        <th>{sortable ? <button type="button">Year</button> : "Year"}</th>
+        <th class="num">{sortable ? <button type="button">Recalls</button> : "Recalls"}</th>
+        <th class="num">{sortable ? <button type="button">Complaints</button> : "Complaints"}</th>
+        <th class="num">{sortable ? <button type="button">Crash</button> : "Crash"}</th>
+        <th class="num">{sortable ? <button type="button">Fire</button> : "Fire"}</th>
+        <th class="num">{sortable ? <button type="button">Investigations</button> : "Investigations"}</th>
+        <th>{sortable ? <button type="button">Stars</button> : "Stars"}</th>
+        <th class="num">{sortable ? <button type="button">Comb mpg</button> : "Comb mpg"}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <td data-value={row.y}>
+              <a href={`/${makeSlug}/${modelSlug}/${row.y}/`}>{row.y}</a>
+              {row.match === "none" ? <span class="small muted"> · no NHTSA name match</span> : null}
+            </td>
+            <td class="num" data-value={row.recalls}>{row.recalls.toLocaleString("en-US")}</td>
+            <td class="num" data-value={row.complaints}>{row.complaints.toLocaleString("en-US")}</td>
+            <td class="num" data-value={row.crash}>{row.crash.toLocaleString("en-US")}</td>
+            <td class="num" data-value={row.fire}>{row.fire.toLocaleString("en-US")}</td>
+            <td class="num" data-value={row.investigations}>{row.investigations.toLocaleString("en-US")}</td>
+            <td data-value={row.starMax ?? -1}>{stars(row)}</td>
+            <td class="num" data-value={row.mpgMax ?? -1}>{span(row.mpgMin, row.mpgMax) || (row.mpgeMin != null ? `${span(row.mpgeMin, row.mpgeMax)} MPGe` : "—")}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

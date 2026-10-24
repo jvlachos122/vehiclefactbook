@@ -1,0 +1,66 @@
+---
+import Stars from "./Stars.astro";
+import { variantLabel } from "../lib/answer.js";
+
+const { variants = [], year, make, model, cap = 8 } = Astro.props;
+const shown = variants.slice(0, cap);
+
+function rate(value) {
+  if (value == null || value === "") return "—";
+  return String(value);
+}
+---
+
+{
+  year < 2011 ? (
+    <p>NHTSA star ratings from before model year 2011 use an older method and are not shown here.</p>
+  ) : shown.length ? (
+    <div class="table-wrap">
+      <table>
+        <caption>
+          NHTSA 5-star variants matched to this model year ({variants.length.toLocaleString("en-US")}). Rollover possibility is the API's published figure, shown as recorded.
+        </caption>
+        <thead>
+          <tr>
+            <th>Variant</th>
+            <th>Overall</th>
+            <th>Front</th>
+            <th>Side</th>
+            <th>Pole</th>
+            <th>Rollover</th>
+            <th>Photo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {shown.map((variant) => (
+            <tr>
+              <td>{variantLabel(variant.description, year, make, model)}</td>
+              <td><Stars rating={variant.overall} /></td>
+              <td>{rate(variant.front)}</td>
+              <td>{rate(variant.side)}</td>
+              <td>{rate(variant.pole)}</td>
+              <td>
+                {rate(variant.rollover)}
+                {variant.rolloverPossibility != null && variant.rolloverPossibility !== "" ? (
+                  <span class="small muted"> · possibility {variant.rolloverPossibility}</span>
+                ) : null}
+              </td>
+              <td>
+                {typeof variant.photo === "string" && variant.photo.startsWith("https://static.nhtsa.gov/") ? (
+                  <a href={variant.photo}>NHTSA photo</a>
+                ) : (
+                  "—"
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {variants.length > shown.length ? (
+        <p class="small muted">{(variants.length - shown.length).toLocaleString("en-US")} more variants are in the Safety Ratings API and are not listed in this table.</p>
+      ) : null}
+    </div>
+  ) : (
+    <p>No NHTSA 5-star rating in the Safety Ratings API is matched to this model year.</p>
+  )
+}

@@ -1,0 +1,53 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { webApp } from "../../lib/schema.js";
+
+const meta = loadMeta();
+const text = `Divide the miles you drove by the gallons you used. If you also pick a vehicle, the EPA combined figure beside your result is from the fuel-economy file dated ${formatDate(meta.dates.epa)} (${formatNumber(meta.counts.epaRowsMy2000)} rows for model year 2000 and newer). Electric configurations are labeled MPGe, not mpg.`;
+---
+
+<Base
+  title="MPG calculator"
+  description={metaDescription(text)}
+  canonicalPath="/tools/mpg-calculator/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "MPG calculator", href: "/tools/mpg-calculator/" },
+  ]}
+  jsonLd={[
+    webApp({
+      name: "MPG calculator",
+      description: "Miles divided by gallons, with an optional EPA combined mpg or MPGe beside the result.",
+      url: "https://vehiclefactbook.com/tools/mpg-calculator/",
+    }),
+  ]}
+>
+  <article class="wrap">
+    <h1>MPG calculator</h1>
+    <Answer text={text} />
+    <script is:inline>
+      if (location.search) {
+        const meta = document.createElement("meta");
+        meta.name = "robots";
+        meta.content = "noindex";
+        document.head.appendChild(meta);
+      }
+    </script>
+    <form class="controls" data-mpg>
+      <label>Miles driven <input type="number" name="miles" min="0" step="0.1" inputmode="decimal" /></label>
+      <label>Gallons used <input type="number" name="gallons" min="0" step="0.001" inputmode="decimal" /></label>
+      <label>Make (optional) <select name="make"><option value="">None</option></select></label>
+      <label>Model <select name="model"><option value="">None</option></select></label>
+      <label>Model year <select name="year"><option value="">None</option></select></label>
+      <label>Configuration <select name="config"><option value="">None</option></select></label>
+      <button type="submit">Calculate</button>
+    </form>
+    <div class="panel" data-mpg-result><p>Enter miles and gallons.</p></div>
+  </article>
+</Base>
+<script>
+  import "../../scripts/mpg.js";
+</script>

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+public/data/
+data/raw/
+data/tmp/
+__pycache__/
+*.pyc
+*.tmp
+.DS_Store
+.indexnow/

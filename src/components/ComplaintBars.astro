@@ -1,0 +1,37 @@
+---
+import { formatNumber } from "../lib/format.js";
+
+const { complaints } = Astro.props;
+const top = complaints?.top || [];
+const max = top.reduce((highest, item) => Math.max(highest, item.n || 0), 0);
+---
+
+{
+  complaints?.n ? (
+    <>
+      <p>
+        <b class="num">{formatNumber(complaints.n)}</b> distinct complaints.
+        Crash flag on <b class="num">{formatNumber(complaints.crash)}</b>, fire flag on{" "}
+        <b class="num">{formatNumber(complaints.fire)}</b>, injury field{" "}
+        <b class="num">{formatNumber(complaints.injured)}</b>, deaths field{" "}
+        <b class="num">{formatNumber(complaints.deaths)}</b>. A complaint can be counted under more than one component.
+        The injury and death figures are the file's numbers (the highest value on each complaint, then added), not a separate verified count of people.
+      </p>
+      {
+        top.length ? (
+          <ol class="bars">
+            {top.map((item) => (
+              <li>
+                <span>{item.component}</span>
+                <span class="bar" style={`--w:${max ? Math.max(4, Math.round((item.n / max) * 100)) : 0}%`} />
+                <b class="num">{formatNumber(item.n)}</b>
+              </li>
+            ))}
+          </ol>
+        ) : null
+      }
+    </>
+  ) : (
+    <p>No complaints are listed for this name.</p>
+  )
+}

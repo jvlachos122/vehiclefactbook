@@ -1,0 +1,59 @@
+---
+import Base from "../layouts/Base.astro";
+import Answer from "../components/Answer.astro";
+import { loadMeta } from "../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
+import { webApp } from "../lib/schema.js";
+
+const meta = loadMeta();
+const text = `Compare two of the ${formatNumber(meta.counts.publishedMmy)} published model years. Recall and complaint counts are from NHTSA files dated ${formatDate(meta.dates.recalls)} and ${formatDate(meta.dates.complaints)}. Fuel figures are from the EPA file dated ${formatDate(meta.dates.epa)}. The counts are not sales-adjusted, and this page does not pick a winner.`;
+---
+
+<Base
+  title="Compare two vehicles"
+  description={metaDescription(text)}
+  canonicalPath="/compare/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Compare", href: "/compare/" },
+  ]}
+  jsonLd={[
+    webApp({
+      name: "Compare two model years",
+      description: "Side-by-side EPA fuel economy, NHTSA star span, recall counts, and complaint counts for two model years.",
+      url: "https://vehiclefactbook.com/compare/",
+    }),
+  ]}
+>
+  <article class="wrap">
+    <h1>Compare two model years</h1>
+    <Answer text={text} />
+    <script is:inline>
+      if (location.search) {
+        const meta = document.createElement("meta");
+        meta.name = "robots";
+        meta.content = "noindex";
+        document.head.appendChild(meta);
+      }
+    </script>
+    <p>There is one indexed address for this tool. A query string that preselects vehicles is not a separate page.</p>
+    <div class="controls" data-compare>
+      <fieldset>
+        <legend>First vehicle</legend>
+        <label>Make <select name="make-a"><option value="">Select a make</option></select></label>
+        <label>Model <select name="model-a"><option value="">Select a model</option></select></label>
+        <label>Year <select name="year-a"><option value="">Select a year</option></select></label>
+      </fieldset>
+      <fieldset>
+        <legend>Second vehicle</legend>
+        <label>Make <select name="make-b"><option value="">Select a make</option></select></label>
+        <label>Model <select name="model-b"><option value="">Select a model</option></select></label>
+        <label>Year <select name="year-b"><option value="">Select a year</option></select></label>
+      </fieldset>
+    </div>
+    <div class="panel" data-compare-result><p>Select two model years.</p></div>
+  </article>
+</Base>
+<script>
+  import "../scripts/compare.js";
+</script>

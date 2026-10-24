@@ -1,0 +1,30 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import AdvisoryTable from "../../components/AdvisoryTable.astro";
+import { loadAdvisories, loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+
+const meta = loadMeta();
+const campaigns = loadAdvisories().takata;
+const text = `The recall file dated ${formatDate(meta.dates.recalls)} has ${formatNumber(campaigns.length)} vehicle campaigns whose component, defect, consequence, or notes text contains the word Takata. Campaigns that never use that word are not in this list.`;
+---
+
+<Base
+  title="Takata airbag campaigns"
+  description={metaDescription(text)}
+  canonicalPath="/recalls/takata-airbag/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Takata airbag", href: "/recalls/takata-airbag/" },
+  ]}
+>
+  <article class="wrap">
+    <h1>Takata airbag campaigns</h1>
+    <Answer text={text} />
+    <p>
+      This list is a wording match, not NHTSA's own Takata program roster. A campaign can be an airbag campaign and still be absent here if the four fields searched do not say Takata. Confirm a vehicle at <a href="https://www.nhtsa.gov/recalls">NHTSA's VIN tool</a>.
+    </p>
+    <AdvisoryTable campaigns={campaigns} />
+  </article>
+</Base>

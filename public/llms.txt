@@ -1,0 +1,28 @@
+# VehicleFactbook
+
+> Recalls, complaint counts, investigations, EPA fuel economy, and NHTSA 5-star ratings by make, model, and model year. Figures are copied from U.S. government files. Complaint counts are distinct NHTSA complaint numbers (ODINO). They are not sales-adjusted rates, and this site does not label a vehicle avoid, best, worst, or reliable.
+
+Operated by Three Pines Company LLC. Not affiliated with any government agency or automaker.
+
+## Datasets
+
+- NHTSA ODI recalls, post-2010 and pre-2010 flat files (public domain): https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip and FLAT_RCL_PRE_2010.zip
+- NHTSA ODI complaints flat file (aggregates only; names, VINs, cities, dealers, and narratives are not republished): https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip
+- NHTSA ODI investigations flat file: https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip
+- EPA / fueleconomy.gov vehicles.csv: https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip
+- NHTSA 5-Star Safety Ratings API for model years 2011 and newer: https://api.nhtsa.gov/SafetyRatings
+
+Manufacturer communications (TSBs) are not imported. The file-name list for those downloads was not verified.
+
+## URLs
+
+- / tools and lookup: /tools/fuel-cost-calculator/ /tools/trip-fuel-cost/ /tools/mpg-calculator/ /compare/ /recalls/lookup/
+- /{make}/ make hub
+- /{make}/{model}/ model hub
+- /{make}/{model}/years/ complaint and recall counts by model year, only when at least three model years have matched NHTSA records
+- /{make}/{model}/{year}/ one model year
+- /recalls/do-not-drive/ /recalls/park-outside/ /recalls/takata-airbag/ /recalls/this-week/
+- /guides/what-is-a-tsb/ /guides/do-recalls-expire/ /guides/open-recall-meaning/ /guides/how-long-do-recalls-last/
+- /methodology/ /about/ /privacy/ /disclosure/ /contact/
+
+VIN-level open-recall checks are not offered here. Use https://www.nhtsa.gov/recalls

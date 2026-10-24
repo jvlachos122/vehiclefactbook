@@ -1,0 +1,64 @@
+---
+import { formatNumber, money } from "../lib/format.js";
+
+const { configs = [], cap = 12 } = Astro.props;
+const shown = configs.slice(0, cap);
+
+function num(value, digits = 0) {
+  if (value == null || value === "") return "—";
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "—";
+  if (digits) return number.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  return formatNumber(number);
+}
+---
+
+{
+  shown.length ? (
+    <div class="table-wrap">
+      <table>
+        <caption>EPA configurations. Electric rows show MPGe in the combined column and kWh/100 mi separately. Annual fuel cost is EPA's published fuelCost08 figure.</caption>
+        <thead>
+          <tr>
+            <th>Configuration</th>
+            <th>Fuel</th>
+            <th class="num">City</th>
+            <th class="num">Hwy</th>
+            <th class="num">Comb</th>
+            <th class="num">kWh/100 mi</th>
+            <th class="num">Range</th>
+            <th class="num">Annual fuel cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {shown.map((config) => (
+            <tr>
+              <td>
+                {config.model || "—"}
+                <span class="small muted">
+                  {" "}
+                  · {[config.displ ? `${config.displ}L` : "", config.trany, config.drive].filter(Boolean).join(" · ")}
+                </span>
+              </td>
+              <td>
+                {config.fuel || "—"}
+                {config.atv ? <span class="small muted"> · {config.atv}</span> : null}
+              </td>
+              <td class="num">{num(config.cityMpg)}</td>
+              <td class="num">{num(config.hwy)}</td>
+              <td class="num">{num(config.comb)}</td>
+              <td class="num">{num(config.kwh, 1)}</td>
+              <td class="num">{num(config.range)}</td>
+              <td class="num">{config.cost ? money(config.cost) : "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {configs.length > shown.length ? (
+        <p class="small muted">{(configs.length - shown.length).toLocaleString("en-US")} more configurations are in the EPA file and are not listed in this table. The fuel-cost calculator lists every configuration.</p>
+      ) : null}
+    </div>
+  ) : (
+    <p>No EPA configurations are stored for this model year.</p>
+  )
+}

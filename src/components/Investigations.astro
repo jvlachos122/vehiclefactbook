@@ -1,0 +1,44 @@
+---
+import { plain, formatDate } from "../lib/format.js";
+
+const { investigations = [], cap = 6 } = Astro.props;
+const shown = investigations.slice(0, cap);
+---
+
+{
+  shown.length ? (
+    <div class="table-wrap">
+      <table>
+        <caption>
+          Investigations in the NHTSA file ({investigations.length.toLocaleString("en-US")}). "No close date" means the file has no close date. It is not a statement that the investigation is still active.
+        </caption>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Subject</th>
+            <th>Opened</th>
+            <th>Closed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {shown.map((item) => (
+            <tr>
+              <td class="mono">{item.action}</td>
+              <td>
+                {plain(item.subject, 180)}
+                {item.component ? <span class="small muted"> · {plain(item.component, 120)}</span> : null}
+              </td>
+              <td>{formatDate(item.opened) || "—"}</td>
+              <td>{item.closeDateInFile ? formatDate(item.closed) || "Date in file" : "No close date in the file"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {investigations.length > shown.length ? (
+        <p class="small muted">{(investigations.length - shown.length).toLocaleString("en-US")} more actions are in the file and are not listed in this table.</p>
+      ) : null}
+    </div>
+  ) : (
+    <p>No investigations are matched to this name.</p>
+  )
+}

@@ -1,0 +1,64 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber } from "../../lib/format.js";
+import { article, faqPage } from "../../lib/schema.js";
+
+const meta = loadMeta();
+const faqs = [
+  {
+    q: "What does open recall mean?",
+    a: "In ordinary use, an open recall means NHTSA's VIN tool still shows a campaign whose remedy has not been recorded for that vehicle. A campaign listed in the flat file is an announced recall. Listing it is not the same thing as saying every vehicle of that model year is unrepaired.",
+  },
+  {
+    q: "Can this site tell me if my car is unrepaired?",
+    a: "No. The flat file has no per-vehicle completion flag. Check the VIN with NHTSA's recall tool.",
+  },
+];
+const description = `An open recall usually means one vehicle's remedy is not recorded yet. VehicleFactbook's ${formatNumber(meta.counts.vehicleCampaignsPost2010)} post-2010 vehicle campaigns are announced campaigns, not unrepaired VIN counts.`;
+---
+
+<Base
+  title="What an open recall means"
+  description={description}
+  canonicalPath="/guides/open-recall-meaning/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Guides", href: "/guides/" },
+    { label: "Open recall", href: "/guides/open-recall-meaning/" },
+  ]}
+  jsonLd={[
+    article({
+      headline: "What an open recall means",
+      description,
+      url: "https://vehiclefactbook.com/guides/open-recall-meaning/",
+      datePublished: "2026-10-24",
+      dateModified: "2026-10-24",
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap prose">
+    <h1>What an open recall means</h1>
+    <div class="answer">
+      <p>
+        NHTSA's recall file dated {formatDate(meta.dates.recalls)} lists {formatNumber(meta.counts.vehicleCampaignsPost2010)} vehicle campaigns from 2010 on. A row in that file means the campaign was announced for the model years named on it. It does not mean the remedy is still unfinished on every vehicle. "Open recall" in a VIN check means NHTSA has not recorded the remedy for that vehicle.
+      </p>
+    </div>
+    <p>
+      This site's model year pages count campaigns and complaints. They do not count how many vehicles have been repaired. That completion record is kept by VIN. NHTSA's tool is <a href="https://www.nhtsa.gov/recalls">nhtsa.gov/recalls</a>.
+    </p>
+    <p>
+      A do-not-drive or park-outside flag is a separate field on the campaign. {formatNumber(meta.counts.doNotDrive)} vehicle campaigns in the current files are marked do not drive, and {formatNumber(meta.counts.parkOutside)} are marked park outside. Those flags are about the campaign, not a count of vehicles that have not been repaired.
+    </p>
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

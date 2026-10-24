@@ -1,0 +1,70 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { webApp } from "../../lib/schema.js";
+
+const meta = loadMeta();
+const text = `The lookup covers ${formatNumber(meta.counts.publishedMmy)} model years from the EPA file dated ${formatDate(meta.dates.epa)}. Complaint counts come from the NHTSA file dated ${formatDate(meta.dates.complaints)} (${formatNumber(meta.counts.complaintVehicleOdino)} distinct vehicle complaints in the whole file). Pick a make, model, and model year to open that page.`;
+---
+
+<Base
+  title="Recall and complaint lookup"
+  description={metaDescription(text)}
+  canonicalPath="/recalls/lookup/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Lookup", href: "/recalls/lookup/" },
+  ]}
+  jsonLd={[
+    webApp({
+      name: "Recall and complaint lookup",
+      description: text,
+      url: "https://vehiclefactbook.com/recalls/lookup/",
+    }),
+  ]}
+>
+  <article class="wrap">
+    <h1>Recall and complaint lookup</h1>
+    <Answer text={text} />
+    <script is:inline>
+      if (location.search) {
+        const meta = document.createElement("meta");
+        meta.name = "robots";
+        meta.content = "noindex";
+        document.head.appendChild(meta);
+      }
+    </script>
+    <form class="controls" data-lookup>
+      <label>
+        Make
+        <select name="make" required>
+          <option value="">Select a make</option>
+        </select>
+      </label>
+      <label>
+        Model
+        <select name="model" required>
+          <option value="">Select a model</option>
+        </select>
+      </label>
+      <label>
+        Model year
+        <select name="year" required>
+          <option value="">Select a year</option>
+        </select>
+      </label>
+      <button type="submit">Look up</button>
+    </form>
+    <div class="panel" data-lookup-result>
+      <p>Choose a make, model, and model year. The counts shown are the same numbers as on that model year page.</p>
+    </div>
+    <p>
+      This is not a VIN check. For a specific vehicle, use <a href="https://www.nhtsa.gov/recalls">NHTSA's recall tool</a>.
+    </p>
+  </article>
+</Base>
+<script>
+  import "../../scripts/lookup.js";
+</script>

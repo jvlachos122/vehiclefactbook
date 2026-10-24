@@ -1,0 +1,17 @@
+{
+  "name": "VehicleFactbook",
+  "short_name": "VehicleFactbook",
+  "description": "Recalls, complaint counts, ratings, and MPG by model year from NHTSA and EPA files.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F6F2",
+  "theme_color": "#15213B",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+---
+const path = Astro.url.pathname;
+const links = [
+  { href: "/recalls/lookup/", label: "Lookup" },
+  { href: "/tools/fuel-cost-calculator/", label: "Fuel cost" },
+  { href: "/tools/mpg-calculator/", label: "MPG" },
+  { href: "/compare/", label: "Compare" },
+  { href: "/guides/", label: "Guides" },
+];
+function current(href) {
+  return path === href || (href !== "/" && path.startsWith(href));
+}
+---
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/">VehicleFactbook</a>
+    <nav class="nav" aria-label="Primary">
+      {
+        links.map((link) => (
+          <a href={link.href} aria-current={current(link.href) ? "page" : undefined}>
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>

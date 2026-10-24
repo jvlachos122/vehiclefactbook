@@ -1,0 +1,122 @@
+name: Refresh data
+
+on:
+  schedule:
+    - cron: "0 11 * * 1"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Rebuild even when the source zip hashes match
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: vehiclefactbook-pages
+  cancel-in-progress: false
+
+env:
+  ASTRO_TELEMETRY_DISABLED: "1"
+  VF_RAW: /tmp/vf-raw
+  VF_ZIPS: /tmp/vf-raw
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    outputs:
+      committed: ${{ steps.rebuild.outputs.committed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: bash scripts/fetch.sh
+      - id: guard
+        run: |
+          status=$(python3 scripts/guard.py | tail -n 1)
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          echo "Source status: $status"
+      - id: rebuild
+        if: steps.guard.outputs.status == 'changed' || (github.event_name == 'workflow_dispatch' && inputs.force == true)
+        run: |
+          python3 scripts/ncap.py --latest 3
+          python3 scripts/build_data.py
+          rm -f \
+            /tmp/vf-raw/extracted/FLAT_CMPL.txt \
+            /tmp/vf-raw/extracted/FLAT_RCL_POST_2010.txt \
+            /tmp/vf-raw/extracted/FLAT_RCL_PRE_2010.txt \
+            /tmp/vf-raw/extracted/FLAT_INV.txt \
+            /tmp/vf-raw/extracted/vehicles.csv
+          npm run validate:data
+          npm test
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --staged --quiet; then
+            echo "Aggregated data unchanged."
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore(data): refresh $(date -u +%F)"
+            git push origin HEAD:main
+            echo "committed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build site
+        if: steps.rebuild.outputs.committed == 'true'
+        run: |
+          npm run build
+          npm run check:links
+          npm run check:html
+          npm run check:third-party
+          node scripts/indexnow.mjs --write-manifest .indexnow/manifest.json
+      - uses: actions/upload-artifact@v4
+        if: steps.rebuild.outputs.committed == 'true'
+        with:
+          name: indexnow-manifest
+          path: .indexnow/manifest.json
+          retention-days: 30
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.rebuild.outputs.committed == 'true'
+        with:
+          path: dist
+
+  deploy:
+    needs: refresh
+    if: needs.refresh.outputs.committed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  indexnow:
+    needs: deploy
+    if: needs.refresh.outputs.committed == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous IndexNow manifest
+        uses: actions/cache@v4
+        with:
+          path: .indexnow/previous-manifest.json
+          key: indexnow-manifest-${{ github.run_id }}
+          restore-keys: |
+            indexnow-manifest-
+      - uses: actions/download-artifact@v4
+        with:
+          name: indexnow-manifest
+          path: .indexnow
+      - name: Submit changed URLs to IndexNow
+        run: |
+          node scripts/indexnow.mjs --submit \
+            --manifest .indexnow/manifest.json \
+            --previous .indexnow/previous-manifest.json
+          cp .indexnow/manifest.json .indexnow/previous-manifest.json

@@ -1,0 +1,28 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../lib/site.js";
+---
+
+<Base
+  title="Privacy"
+  description="VehicleFactbook sets no cookies, runs no analytics, and loads no third-party scripts. Complaint files are published as counts only, without names, VINs, cities, dealers, or narratives."
+  canonicalPath="/privacy/"
+  breadcrumbs={[{ label: "Home", href: "/" }, { label: "Privacy", href: "/privacy/" }]}
+>
+  <article class="wrap prose">
+    <h1>Privacy</h1>
+    <div class="answer">
+      <p>This site sets no cookies, runs no analytics, and loads no third-party scripts, stylesheets, images, or fonts. Complaint records are published as counts only.</p>
+    </div>
+    <p>
+      The pages are static files. The calculators and the comparison tool run in your browser and do not send the vehicle you select to {site.name}. There is no account and no search box that submits a query to a server.
+    </p>
+    <p>
+      NHTSA's complaint file contains names, partial VINs, cities, dealers, and free-text narratives. Those fields are dropped when the counts are built and are not stored in this site's data files. Campaign summaries on recall pages are the public defect descriptions from NHTSA's recall file, not complaint narratives.
+    </p>
+    <p>
+      The site is hosted on GitHub Pages. GitHub may keep ordinary server access logs for the host. This site does not add its own tracking to those logs. GitHub's own privacy statement is at <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">docs.github.com</a>.
+    </p>
+    <p>There is no public contact form and no mailing list.</p>
+  </article>
+</Base>

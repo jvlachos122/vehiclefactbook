@@ -1,0 +1,87 @@
+---
+import "@fontsource/ibm-plex-sans/latin-400.css";
+import "@fontsource/ibm-plex-sans/latin-600.css";
+import "@fontsource/ibm-plex-mono/latin-400.css";
+import "@fontsource/source-serif-4/latin-400.css";
+import "@fontsource/source-serif-4/latin-700.css";
+import plex400 from "@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2?url";
+import serif700 from "@fontsource/source-serif-4/files/source-serif-4-latin-700-normal.woff2?url";
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { site } from "../lib/site.js";
+
+const {
+  title,
+  description,
+  home = false,
+  noindex = false,
+  canonicalPath = "",
+  breadcrumbs = [],
+  jsonLd = [],
+} = Astro.props;
+
+const fullTitle = home ? title : `${title} · ${site.name}`;
+const canonical = new URL(canonicalPath || Astro.url.pathname, site.url).href;
+const graph = [];
+if (breadcrumbs.length) {
+  graph.push({
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbs.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.label,
+      item: new URL(item.href, site.url).href,
+    })),
+  });
+}
+for (const entry of jsonLd) graph.push(entry);
+const structured = graph.length
+  ? JSON.stringify({ "@context": "https://schema.org", "@graph": graph }).replace(/</g, "\\u003c")
+  : "";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex" /> : null}
+    <link rel="preload" href={plex400} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={serif700} as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#15213B" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={site.locale} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    {structured ? <script type="application/ld+json" set:html={structured} /> : null}
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Header />
+    {
+      breadcrumbs.length ? (
+        <nav class="wrap crumbs" aria-label="Breadcrumb">
+          <ol>
+            {breadcrumbs.map((item) => (
+              <li>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      ) : null
+    }
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

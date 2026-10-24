@@ -1,0 +1,219 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Answer from "../../../components/Answer.astro";
+import DataNote from "../../../components/DataNote.astro";
+import RecallList from "../../../components/RecallList.astro";
+import ComplaintBars from "../../../components/ComplaintBars.astro";
+import Investigations from "../../../components/Investigations.astro";
+import NcapTable from "../../../components/NcapTable.astro";
+import ConfigTable from "../../../components/ConfigTable.astro";
+import { findYear, loadMeta, loadModel, mmyPaths } from "../../../lib/catalog.js";
+import { mmyAnswer } from "../../../lib/answer.js";
+import { formatNumber, metaDescription, nhtsaVehicleUrl } from "../../../lib/format.js";
+import { dataset } from "../../../lib/schema.js";
+import { site } from "../../../lib/site.js";
+
+export function getStaticPaths() {
+  return mmyPaths();
+}
+
+const { makeSlug, modelSlug, year } = Astro.props;
+const meta = loadMeta();
+const found = findYear(makeSlug, modelSlug, year);
+const detail = loadModel(makeSlug, modelSlug);
+const yearDetail = detail.years[String(year)];
+const make = found.make;
+const model = found.model;
+const row = found.row;
+const title = `${year} ${make.name} ${model.name} recalls, complaints, and fuel economy`;
+const text = mmyAnswer({
+  make: make.name,
+  model: model.name,
+  year,
+  row,
+  detail: yearDetail,
+  dates: meta.dates,
+});
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: make.name, href: `/${make.slug}/` },
+  { label: model.name, href: `/${make.slug}/${model.slug}/` },
+  { label: String(year), href: `/${make.slug}/${model.slug}/${year}/` },
+];
+const ordered = [...model.years].sort((a, b) => a.y - b.y);
+const index = ordered.findIndex((item) => item.y === year);
+const prev = index > 0 ? ordered[index - 1] : null;
+const next = index >= 0 && index < ordered.length - 1 ? ordered[index + 1] : null;
+const groups = yearDetail.splitNames ? yearDetail.also || [] : [];
+const primary = yearDetail.splitNames
+  ? [...groups].sort((a, b) => (b.complaints?.n || 0) - (a.complaints?.n || 0))[0]
+  : null;
+const calculator = `/tools/fuel-cost-calculator/?make=${make.slug}&model=${model.slug}&year=${year}`;
+const path = `/${make.slug}/${model.slug}/${year}/`;
+---
+
+<Base
+  title={title}
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    dataset({
+      name: `${year} ${make.name} ${model.name}`,
+      description: `NHTSA recall, complaint, and investigation counts and EPA fuel economy for the ${year} ${make.name} ${model.name}.`,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.complaints,
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">Model year</p>
+    <h1>{year} {make.name} {model.name}</h1>
+    <Answer text={text} />
+    <DataNote />
+    <ul class="year-strip">
+      {
+        ordered.map((item) => (
+          <li>
+            <a class="year-chip" href={`/${make.slug}/${model.slug}/${item.y}/`} aria-current={item.y === year ? "page" : undefined}>
+              <b>{item.y}</b>
+              <span class="small muted">{formatNumber(item.complaints)} complaints</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      row.match === "none" ? (
+        <p>
+          NHTSA's files do not have a make and model name matched to this EPA model year. Counts below are not filled in from a different vehicle. EPA figures for this name are still listed.
+        </p>
+      ) : null
+    }
+
+    {
+      yearDetail.splitNames ? (
+        <>
+          <h2>Matched NHTSA names</h2>
+          <p>
+            The EPA model name is not itself a name in the NHTSA file for {year}. The counts in the answer are the sum of the names below. Overlap between those names is not removed.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <caption>NHTSA names assigned to this EPA model year</caption>
+              <thead>
+                <tr>
+                  <th>NHTSA name</th>
+                  <th class="num">Recalls</th>
+                  <th class="num">Complaints</th>
+                  <th class="num">Investigations</th>
+                </tr>
+              </thead>
+              <tbody>
+                {groups.map((group) => (
+                  <tr>
+                    <td>{group.name}</td>
+                    <td class="num">{(group.recalls || []).length.toLocaleString("en-US")}</td>
+                    <td class="num">{formatNumber(group.complaints?.n || 0)}</td>
+                    <td class="num">{(group.investigations || []).length.toLocaleString("en-US")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {
+            primary ? (
+              <>
+                <h2>Recalls for {primary.name}</h2>
+                <RecallList recalls={primary.recalls} />
+                <h2>Complaints for {primary.name}</h2>
+                <ComplaintBars complaints={primary.complaints} />
+                <h2>Investigations for {primary.name}</h2>
+                <Investigations investigations={primary.investigations} />
+              </>
+            ) : null
+          }
+        </>
+      ) : (
+        <>
+          <h2 id="recalls">Recalls</h2>
+          <RecallList recalls={yearDetail.recalls} />
+          <h2 id="complaints">Complaints</h2>
+          <ComplaintBars complaints={yearDetail.complaints} />
+          {
+            (yearDetail.also || []).length ? (
+              <>
+                <h2>Other NHTSA names</h2>
+                <p>These names matched the same EPA model but are not included in the headline counts above.</p>
+                <div class="table-wrap">
+                  <table>
+                    <caption>Other matched NHTSA names</caption>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th class="num">Recalls</th>
+                        <th class="num">Complaints</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {yearDetail.also.map((group) => (
+                        <tr>
+                          <td>{group.name}</td>
+                          <td class="num">{(group.recalls || []).length.toLocaleString("en-US")}</td>
+                          <td class="num">{formatNumber(group.complaints?.n || 0)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : null
+          }
+          <h2 id="investigations">Investigations</h2>
+          <Investigations investigations={yearDetail.investigations} />
+        </>
+      )
+    }
+
+    <h2 id="ratings">Safety ratings</h2>
+    <NcapTable variants={yearDetail.ncap} year={year} make={make.name} model={model.name} />
+
+    <h2 id="fuel">Fuel economy</h2>
+    <ConfigTable configs={yearDetail.configs} />
+    <p>
+      <a href={calculator}>Open this model year in the fuel-cost calculator</a>. The calculator starts with no fuel price filled in.
+    </p>
+
+    <h2>Check a vehicle</h2>
+    <p>
+      This page is not a VIN lookup. NHTSA's recall tool checks a specific vehicle:
+      <a href="https://www.nhtsa.gov/recalls">nhtsa.gov/recalls</a>.
+      NHTSA's page for this model year is
+      <a href={nhtsaVehicleUrl(year, make.name, model.name)}>{year} {make.name} {model.name} at NHTSA</a>.
+      Complaint narratives stay on NHTSA's site and are not copied here.
+    </p>
+    {
+      model.yearsPage ? (
+        <p>
+          <a href={`/${make.slug}/${model.slug}/years/`}>All {make.name} {model.name} model years</a>
+        </p>
+      ) : null
+    }
+    <div class="pager">
+      {
+        prev ? (
+          <a href={`/${make.slug}/${model.slug}/${prev.y}/`}>← {prev.y}</a>
+        ) : (
+          <span></span>
+        )
+      }
+      {
+        next ? (
+          <a href={`/${make.slug}/${model.slug}/${next.y}/`}>{next.y} →</a>
+        ) : (
+          <span></span>
+        )
+      }
+    </div>
+  </article>
+</Base>

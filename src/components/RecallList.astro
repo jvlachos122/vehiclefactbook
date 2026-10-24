@@ -1,0 +1,33 @@
+---
+import Badges from "./Badges.astro";
+import { campaignUrl, plain, formatDate } from "../lib/format.js";
+
+const { recalls = [], cap = 10 } = Astro.props;
+const shown = recalls.slice(0, cap);
+const hidden = recalls.length - shown.length;
+---
+
+{
+  shown.length ? (
+    <div>
+      {shown.map((recall) => (
+        <article class="recall-card">
+          <h3>
+            <a href={campaignUrl(recall.camp)}>{recall.camp}</a>
+            {recall.date ? <span class="muted"> · {formatDate(recall.date)}</span> : null}
+          </h3>
+          <Badges dnd={recall.dnd} park={recall.park} />
+          {recall.component ? <p class="small">{plain(recall.component, 140)}</p> : null}
+          {recall.summary ? <p>{plain(recall.summary, 280)}</p> : null}
+        </article>
+      ))}
+      {hidden > 0 ? (
+        <p class="small muted">
+          {hidden.toLocaleString("en-US")} more recalls are in the NHTSA file for this name and are not listed here. Campaign numbers above link to NHTSA.
+        </p>
+      ) : null}
+    </div>
+  ) : (
+    <p>No recalls are listed for this name in the matched NHTSA file.</p>
+  )
+}

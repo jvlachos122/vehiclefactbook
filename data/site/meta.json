@@ -1,0 +1,166 @@
+{
+  "generatedAt": "2026-10-23T00:00:00Z",
+  "dates": {
+    "recalls": "2026-10-23",
+    "complaints": "2026-10-23",
+    "investigations": "2026-10-23",
+    "epa": "2026-09-29"
+  },
+  "counts": {
+    "epaRowsMy2000": 32430,
+    "rawMakes": 87,
+    "rawModels": 1025,
+    "publishedMakes": 86,
+    "publishedModels": 1016,
+    "mmySpine": 8158,
+    "publishedMmy": 8158,
+    "matchedMmy": 6815,
+    "unmatchedMmy": 1343,
+    "matchMethods": {
+      "exact": 6198,
+      "series": 79,
+      "prefix": 108,
+      "trim": 14,
+      "suffix": 67,
+      "manual": 64,
+      "class": 255,
+      "code": 30
+    },
+    "yearsPages": 640,
+    "recallRowsPost": 246638,
+    "recallRowsPre": 81715,
+    "vehicleCampaignsPost2010": 13712,
+    "vehicleCampaignsPre2010": 12721,
+    "complaintRows": 2259403,
+    "complaintVehicleRows": 2186961,
+    "complaintVehicleOdino": 1608391,
+    "investigationRows": 154439,
+    "investigationActions": 5351,
+    "investigationActionsNoCloseDate": 224,
+    "doNotDrive": 205,
+    "parkOutside": 103,
+    "takata": 31,
+    "thisWeek": 14
+  },
+  "ncap": {
+    "2011": {
+      "variants": 706,
+      "makes": 38,
+      "models": 431,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:11:30Z"
+    },
+    "2012": {
+      "variants": 720,
+      "makes": 39,
+      "models": 435,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:20:21Z"
+    },
+    "2013": {
+      "variants": 734,
+      "makes": 39,
+      "models": 466,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:20:54Z"
+    },
+    "2014": {
+      "variants": 694,
+      "makes": 38,
+      "models": 452,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:21:29Z"
+    },
+    "2015": {
+      "variants": 790,
+      "makes": 39,
+      "models": 518,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:23:06Z"
+    },
+    "2016": {
+      "variants": 751,
+      "makes": 38,
+      "models": 473,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:23:40Z"
+    },
+    "2017": {
+      "variants": 793,
+      "makes": 39,
+      "models": 490,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:24:13Z"
+    },
+    "2018": {
+      "variants": 800,
+      "makes": 39,
+      "models": 505,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:25:46Z"
+    },
+    "2019": {
+      "variants": 855,
+      "makes": 41,
+      "models": 561,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:26:27Z"
+    },
+    "2020": {
+      "variants": 812,
+      "makes": 38,
+      "models": 553,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:27:13Z"
+    },
+    "2021": {
+      "variants": 822,
+      "makes": 37,
+      "models": 538,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:27:57Z"
+    },
+    "2022": {
+      "variants": 879,
+      "makes": 38,
+      "models": 592,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:29:43Z"
+    },
+    "2023": {
+      "variants": 871,
+      "makes": 40,
+      "models": 620,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:30:46Z"
+    },
+    "2024": {
+      "variants": 846,
+      "makes": 42,
+      "models": 585,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:31:48Z"
+    },
+    "2025": {
+      "variants": 727,
+      "makes": 38,
+      "models": 517,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:32:56Z"
+    },
+    "2026": {
+      "variants": 667,
+      "makes": 38,
+      "models": 453,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:33:44Z"
+    },
+    "2027": {
+      "variants": 388,
+      "makes": 24,
+      "models": 265,
+      "failures": 0,
+      "fetchedAt": "2026-10-24T00:34:17Z"
+    }
+  }
+}

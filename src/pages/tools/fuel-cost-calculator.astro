@@ -1,0 +1,56 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { webApp } from "../../lib/schema.js";
+
+const meta = loadMeta();
+const text = `EPA's fuel-economy file dated ${formatDate(meta.dates.epa)} has ${formatNumber(meta.counts.epaRowsMy2000)} rows for model year 2000 and newer. Pick a configuration to see that row's combined mpg, or MPGe and kWh/100 mi for an electric vehicle, and EPA's published annual fuel cost. The price box starts empty. This calculator does not supply a gas price.`;
+---
+
+<Base
+  title="Fuel cost calculator"
+  description={metaDescription(text)}
+  canonicalPath="/tools/fuel-cost-calculator/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Fuel cost", href: "/tools/fuel-cost-calculator/" },
+  ]}
+  jsonLd={[
+    webApp({
+      name: "Fuel cost calculator",
+      description: "Annual fuel cost from EPA combined mpg or kWh/100 mi and a price you enter.",
+      url: "https://vehiclefactbook.com/tools/fuel-cost-calculator/",
+    }),
+  ]}
+>
+  <article class="wrap">
+    <h1>Fuel cost calculator</h1>
+    <Answer text={text} />
+    <script is:inline>
+      if (location.search) {
+        const meta = document.createElement("meta");
+        meta.name = "robots";
+        meta.content = "noindex";
+        document.head.appendChild(meta);
+      }
+    </script>
+    <form class="controls" data-fuel data-mode="annual">
+      <label>Make <select name="make"><option value="">Select a make</option></select></label>
+      <label>Model <select name="model"><option value="">Select a model</option></select></label>
+      <label>Model year <select name="year"><option value="">Select a year</option></select></label>
+      <label>Configuration <select name="config"><option value="">Select a configuration</option></select></label>
+      <label>Miles <input type="number" name="miles" min="0" step="1" value="15000" inputmode="numeric" /></label>
+      <label>Price per gallon (USD) <input type="number" name="price" min="0" step="0.01" inputmode="decimal" /></label>
+      <label>Price per kWh (USD) <input type="number" name="kwhPrice" min="0" step="0.01" inputmode="decimal" /></label>
+      <button type="submit">Calculate</button>
+    </form>
+    <p class="small muted">Miles starts at 15,000 because that is the distance EPA uses for fuelCost08. Change it if you want a different distance. Leave price blank to see only EPA's published annual figure.</p>
+    <div class="panel" data-fuel-result><p>Select a configuration.</p></div>
+    <p>For one trip, use the <a href="/tools/trip-fuel-cost/">trip fuel cost</a> calculator. For miles divided by gallons, use the <a href="/tools/mpg-calculator/">MPG calculator</a>.</p>
+  </article>
+</Base>
+<script>
+  import "../../scripts/fuel.js";
+</script>

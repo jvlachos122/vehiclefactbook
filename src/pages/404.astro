@@ -1,0 +1,20 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base
+  title="Page not found"
+  description="That page is not on VehicleFactbook. Look up a make, model, and model year, or use the fuel-cost calculator."
+  noindex
+  canonicalPath="/404.html"
+  breadcrumbs={[{ label: "Home", href: "/" }, { label: "Not found", href: "/404.html" }]}
+>
+  <article class="wrap">
+    <h1>Page not found</h1>
+    <div class="answer"><p>VehicleFactbook has no page at this address. The lookup covers the EPA model years published on the site.</p></div>
+    <p class="actions">
+      <a class="button" href="/recalls/lookup/">Recall and complaint lookup</a>
+      <a class="button button-ghost" href="/">Home</a>
+    </p>
+  </article>
+</Base>

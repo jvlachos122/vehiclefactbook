@@ -1,0 +1,27 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../lib/site.js";
+---
+
+<Base
+  title="Disclosure"
+  description="VehicleFactbook is operated by Three Pines Company LLC. There are no affiliate relationships, no advertisements, and no paid placements."
+  canonicalPath="/disclosure/"
+  breadcrumbs={[{ label: "Home", href: "/" }, { label: "Disclosure", href: "/disclosure/" }]}
+>
+  <article class="wrap prose">
+    <h1>Disclosure</h1>
+    <div class="answer">
+      <p>VehicleFactbook is operated by {site.legalName}. There are no affiliate relationships, no advertisements, and no paid placements on this site.</p>
+    </div>
+    <p>
+      Pages link to NHTSA, the EPA, fueleconomy.gov, and other government sources so a reader can open the record. Those are citations. They are not paid links, and this site does not earn a commission if you follow them.
+    </p>
+    <p>
+      If that changes, this page will say who the relationship is with and which links are commercial. Nothing on the site is a commercial link today.
+    </p>
+    <p>
+      {site.name} is not affiliated with any government agency or automaker. Recall and safety questions about a specific vehicle belong with NHTSA, at <a href="https://www.nhtsa.gov/recalls">nhtsa.gov/recalls</a>.
+    </p>
+  </article>
+</Base>

@@ -1,0 +1,61 @@
+---
+import Base from "../../layouts/Base.astro";
+import { article, faqPage } from "../../lib/schema.js";
+
+const faqs = [
+  {
+    q: "How long do recalls last?",
+    a: "NHTSA's resources page says a recall never expires. The November 2024 NHTSA booklet says the manufacturer must provide the free remedy only if the vehicle was not more than 15 years old, from first retail sale, on the date the defect was determined. The manufacturer may still repair an older vehicle. The recall flat file does not store an end date.",
+  },
+  {
+    q: "Does a model year page drop old campaigns?",
+    a: "No. If the campaign names that model year and the name matched, the campaign stays in the count. Age of the vehicle is not used as a filter.",
+  },
+];
+const description = "A recall does not expire, according to NHTSA. The free remedy in NHTSA's November 2024 booklet is tied to a 15-year vehicle age at the time the defect is determined. The flat file has no end date.";
+---
+
+<Base
+  title="How long do recalls last"
+  description={description}
+  canonicalPath="/guides/how-long-do-recalls-last/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Guides", href: "/guides/" },
+    { label: "How long recalls last", href: "/guides/how-long-do-recalls-last/" },
+  ]}
+  jsonLd={[
+    article({
+      headline: "How long do recalls last?",
+      description,
+      url: "https://vehiclefactbook.com/guides/how-long-do-recalls-last/",
+      datePublished: "2026-10-24",
+      dateModified: "2026-10-24",
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap prose">
+    <h1>How long do recalls last?</h1>
+    <div class="answer">
+      <p>
+        NHTSA's resources page says a recall never expires (<a href="https://www.nhtsa.gov/resources-investigations-recalls">nhtsa.gov/resources-investigations-recalls</a>). The November 2024 NHTSA recall booklet says the free remedy is required when the vehicle is not more than 15 years old, measured from the first retail sale, on the date the defect is determined. Manufacturers may still repair older vehicles. The flat file this site uses has no expiration field, so model year pages do not drop campaigns for age.
+      </p>
+    </div>
+    <p>
+      "How long" therefore has two answers in NHTSA's own material, and they are not interchangeable. The campaign remains a recall. The free-remedy obligation is the 15-year rule in the booklet, and it is measured from the sale date to the date the defect was determined, not from today back to the model year. This site does not compute that interval.
+    </p>
+    <p>
+      The practical check for one car is still the VIN. <a href="https://www.nhtsa.gov/recalls">NHTSA's tool</a> reports the campaigns it has for that vehicle. A related explanation is on <a href="/guides/do-recalls-expire/">do recalls expire</a>.
+    </p>
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

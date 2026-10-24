@@ -1,0 +1,24 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../lib/site.js";
+---
+
+<Base
+  title="Contact"
+  description="VehicleFactbook does not publish a public email address yet. Safety issues about a vehicle go to NHTSA's recall tool, not to this site."
+  canonicalPath="/contact/"
+  breadcrumbs={[{ label: "Home", href: "/" }, { label: "Contact", href: "/contact/" }]}
+>
+  <article class="wrap prose">
+    <h1>Contact</h1>
+    <div class="answer">
+      <p>{site.name} is operated by {site.legalName}. No public email address is published yet. This site does not take safety reports.</p>
+    </div>
+    <p>
+      To check whether a specific vehicle still needs a recall repair, use NHTSA's tool at <a href="https://www.nhtsa.gov/recalls">nhtsa.gov/recalls</a>. To report a safety problem with a vehicle, use the reporting instructions NHTSA publishes on <a href="https://www.nhtsa.gov/">nhtsa.gov</a>.
+    </p>
+    <p>
+      Questions about a number on this site should start with the <a href="/methodology/">methodology</a> page, which names the file and the date behind the count.
+    </p>
+  </article>
+</Base>

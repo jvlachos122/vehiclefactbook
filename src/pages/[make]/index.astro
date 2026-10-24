@@ -1,0 +1,84 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import { findMake, loadMeta, makePaths } from "../../lib/catalog.js";
+import { makeAnswer, rollup } from "../../lib/answer.js";
+import { formatNumber, metaDescription } from "../../lib/format.js";
+import { dataset } from "../../lib/schema.js";
+import { site } from "../../lib/site.js";
+
+export function getStaticPaths() {
+  return makePaths();
+}
+
+const meta = loadMeta();
+const make = findMake(Astro.params.make);
+const models = [...make.models].sort((a, b) => a.name.localeCompare(b.name));
+const text = makeAnswer(make.name, models, meta.dates);
+const totals = rollup(models);
+const path = `/${make.slug}/`;
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: make.name, href: path },
+];
+---
+
+<Base
+  title={`${make.name} recalls, complaints, and safety ratings`}
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    dataset({
+      name: `${make.name} recalls, complaints, and fuel economy`,
+      description: `NHTSA recall and complaint counts and EPA fuel economy for ${make.name} models from model year 2000 on.`,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.complaints,
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">Make</p>
+    <h1>{make.name} recalls, complaints, and safety ratings</h1>
+    <Answer text={text} />
+    <DataNote />
+    <ul class="stats">
+      <li class="stat"><b>{formatNumber(totals.models)}</b><span>Models</span></li>
+      <li class="stat"><b>{formatNumber(totals.mmy)}</b><span>Model years</span></li>
+      <li class="stat"><b>{formatNumber(totals.recalls)}</b><span>Recall rows, summed</span></li>
+      <li class="stat"><b>{formatNumber(totals.complaints)}</b><span>Complaints, summed</span></li>
+      <li class="stat"><b>{formatNumber(totals.dnd)}</b><span>Do-not-drive rows</span></li>
+      <li class="stat"><b>{formatNumber(totals.park)}</b><span>Park-outside rows</span></li>
+    </ul>
+    <h2>Models</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{make.name} models in the EPA file for model year 2000 and newer</caption>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th class="num">Years</th>
+            <th class="num">Recall rows</th>
+            <th class="num">Complaints</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            models.map((model) => {
+              const modelTotals = rollup([model]);
+              return (
+                <tr>
+                  <td><a href={`/${make.slug}/${model.slug}/`}>{model.name}</a></td>
+                  <td class="num">{modelTotals.minY}–{modelTotals.maxY}</td>
+                  <td class="num">{formatNumber(modelTotals.recalls)}</td>
+                  <td class="num">{formatNumber(modelTotals.complaints)}</td>
+                </tr>
+              );
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+</Base>

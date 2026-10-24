@@ -1,0 +1,50 @@
+---
+import Badges from "./Badges.astro";
+import { campaignUrl, plain, formatDate, formatNumber } from "../lib/format.js";
+
+const { campaigns = [], badges = true } = Astro.props;
+---
+
+<div class="table-wrap">
+  <table>
+    <caption>{campaigns.length.toLocaleString("en-US")} vehicle campaigns</caption>
+    <thead>
+      <tr>
+        <th>Report date</th>
+        <th>Campaign</th>
+        <th>Component</th>
+        <th class="num">Model years listed</th>
+        <th>Example on this site</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        campaigns.map((campaign) => (
+          <tr>
+            <td>{formatDate(campaign.date) || "—"}</td>
+            <td>
+              <a href={campaignUrl(campaign.camp)}>{campaign.camp}</a>
+              {badges ? <Badges dnd={campaign.dnd} park={campaign.park} /> : null}
+            </td>
+            <td>{plain(campaign.component, 80)}</td>
+            <td class="num">{formatNumber(campaign.vehicles)}</td>
+            <td>
+              {(campaign.examples || []).slice(0, 2).map((example, index) => (
+                <>
+                  {index ? ", " : ""}
+                  <a href={example.href}>
+                    {example.year} {example.make} {example.model}
+                  </a>
+                </>
+              ))}
+              {(campaign.examples || []).length > 2 ? (
+                <span class="small muted"> +{(campaign.examples.length - 2).toLocaleString("en-US")} more linked</span>
+              ) : null}
+              {!(campaign.examples || []).length ? "—" : null}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,27 @@
+---
+const { rating } = Astro.props;
+const value = /^\d$/.test(String(rating || "")) ? Number(rating) : null;
+const label = value == null ? "Not rated" : `${value} stars`;
+---
+
+<span class="stars" role="img" aria-label={label}>
+  {
+    value == null ? (
+      <span>Not rated</span>
+    ) : (
+      <>
+        {Array.from({ length: 5 }, (_, index) => (
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path
+              d="M8 1.4 9.9 5.8l4.7.4-3.6 3.1 1.1 4.6L8 11.6 3.9 13.9 5 9.3 1.4 6.2l4.7-.4L8 1.4z"
+              fill={index < value ? "#15213B" : "none"}
+              stroke="#15213B"
+              stroke-width="1"
+            />
+          </svg>
+        ))}
+        <span class="num">{value}</span>
+      </>
+    )
+  }
+</span>

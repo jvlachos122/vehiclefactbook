@@ -1,0 +1,32 @@
+{
+  "name": "vehiclefactbook",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "fetch": "bash scripts/fetch.sh",
+    "dev": "node scripts/prepare-public-data.mjs && astro dev",
+    "prebuild": "node scripts/prepare-public-data.mjs",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/build-log.mjs",
+    "preview": "astro preview",
+    "validate:data": "node scripts/validate-data.mjs && python3 scripts/qa.py",
+    "test": "node --test && python3 scripts/test_norm.py",
+    "check:links": "node scripts/check-links.mjs",
+    "check:html": "node scripts/check-html.mjs",
+    "check:third-party": "node scripts/check-third-party.mjs",
+    "check": "npm run validate:data && npm test && npm run build && npm run check:links && npm run check:html && npm run check:third-party"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/source-serif-4": "^5.3.1",
+    "astro": "^5.18.2"
+  },
+  "devDependencies": {
+    "html-validate": "^11.17.0"
+  }
+}

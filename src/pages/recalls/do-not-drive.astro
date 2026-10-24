@@ -1,0 +1,30 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import AdvisoryTable from "../../components/AdvisoryTable.astro";
+import { loadAdvisories, loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+
+const meta = loadMeta();
+const campaigns = loadAdvisories().doNotDrive;
+const text = `NHTSA's recall file dated ${formatDate(meta.dates.recalls)} marks ${formatNumber(campaigns.length)} vehicle campaigns do not drive. The table lists each campaign number, which links to NHTSA. A model year link appears only when that name is on an EPA page on this site.`;
+---
+
+<Base
+  title="Do not drive recalls"
+  description={metaDescription(text)}
+  canonicalPath="/recalls/do-not-drive/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Do not drive", href: "/recalls/do-not-drive/" },
+  ]}
+>
+  <article class="wrap">
+    <h1>Do not drive recalls</h1>
+    <Answer text={text} />
+    <p>
+      The flag is the DO_NOT_DRIVE field on a vehicle campaign. It is not a count of vehicles still unrepaired, and it is not limited to the EPA model years this site publishes. "Model years listed" is the number of make, model, and year rows on that campaign in the file.
+    </p>
+    <AdvisoryTable campaigns={campaigns} badges={false} />
+  </article>
+</Base>

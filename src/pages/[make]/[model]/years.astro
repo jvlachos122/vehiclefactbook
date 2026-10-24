@@ -1,0 +1,60 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Answer from "../../../components/Answer.astro";
+import DataNote from "../../../components/DataNote.astro";
+import YearTable from "../../../components/YearTable.astro";
+import { findModel, loadMeta, yearsPaths } from "../../../lib/catalog.js";
+import { yearsAnswer } from "../../../lib/answer.js";
+import { metaDescription } from "../../../lib/format.js";
+import { dataset } from "../../../lib/schema.js";
+import { site } from "../../../lib/site.js";
+
+export function getStaticPaths() {
+  return yearsPaths();
+}
+
+const { makeSlug, modelSlug } = Astro.props;
+const meta = loadMeta();
+const { make, model } = findModel(makeSlug, modelSlug);
+const years = [...model.years].sort((a, b) => a.y - b.y);
+const text = yearsAnswer(make.name, model.name, years, meta.dates);
+const path = `/${make.slug}/${model.slug}/years/`;
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: make.name, href: `/${make.slug}/` },
+  { label: model.name, href: `/${make.slug}/${model.slug}/` },
+  { label: "By year", href: path },
+];
+---
+
+<Base
+  title={`${make.name} ${model.name} by model year: recalls, complaints, ratings`}
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    dataset({
+      name: `${make.name} ${model.name} by model year`,
+      description: `Raw NHTSA recall and complaint counts, investigations, star ratings, and EPA combined mpg by model year for the ${make.name} ${model.name}.`,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.complaints,
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">By model year</p>
+    <h1>{make.name} {model.name} by model year: recalls, complaints, ratings</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      The table lists raw counts from NHTSA's files. A larger complaint count can mean more vehicles were sold, and newer model years have had less time for complaints to be reported. The counts are not divided by sales. This page does not rank one model year above another.
+    </p>
+    <YearTable rows={years} makeSlug={make.slug} modelSlug={model.slug} sortable />
+    <p>
+      Star columns say "Pre-2011" for older model years because those ratings use a different NHTSA method. Overall stars for 2011 and newer are the matched Safety Ratings variants. A dash means no overall star was matched.
+    </p>
+  </article>
+</Base>
+<script>
+  import "../../../scripts/sort-table.js";
+</script>

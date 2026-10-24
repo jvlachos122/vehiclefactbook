@@ -1,0 +1,9 @@
+epa_make,epa_model,nhtsa_model,notes
+Mazda,2,MAZDA2,"EPA baseModel is 2. NHTSA MODELTXT for those cars is MAZDA2. The mazda-digit rule applies the same link."
+Mazda,3,MAZDA3,"EPA baseModel is 3. NHTSA MODELTXT is MAZDA3."
+Mazda,5,MAZDA5,"EPA baseModel is 5. NHTSA MODELTXT is MAZDA5."
+Mazda,6,MAZDA6,"EPA baseModel is 6. NHTSA MODELTXT is MAZDA6."
+Mazda,MX-5 Miata,MIATA,"NHTSA also records this car as MIATA. Longer EPA name wins if another Mazda model claims the same string."
+MINI,Clubman,COOPERCLUBMAN,"NHTSA model names for Clubman include COOPER CLUBMAN. The mini-clubman rule also matches any NHTSA model containing CLUBMAN."
+MINI,Clubman,COOPERSCLUBMAN,"NHTSA MODELTXT COOPER S CLUBMAN."
+MINI,Clubman,COOPERCLUBMANS,"NHTSA MODELTXT seen alongside other Clubman names."

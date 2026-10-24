@@ -1,0 +1,108 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Answer from "../../../components/Answer.astro";
+import DataNote from "../../../components/DataNote.astro";
+import YearTable from "../../../components/YearTable.astro";
+import { findModel, loadMeta, modelPaths } from "../../../lib/catalog.js";
+import { modelAnswer } from "../../../lib/answer.js";
+import { formatNumber, metaDescription, money, span } from "../../../lib/format.js";
+import { dataset } from "../../../lib/schema.js";
+import { site } from "../../../lib/site.js";
+
+export function getStaticPaths() {
+  return modelPaths();
+}
+
+const { makeSlug, modelSlug } = Astro.props;
+const meta = loadMeta();
+const { make, model } = findModel(makeSlug, modelSlug);
+const years = [...model.years].sort((a, b) => a.y - b.y);
+const text = modelAnswer(make.name, model.name, years, meta.dates);
+const path = `/${make.slug}/${model.slug}/`;
+const latest = years[years.length - 1];
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: make.name, href: `/${make.slug}/` },
+  { label: model.name, href: path },
+];
+---
+
+<Base
+  title={`${make.name} ${model.name} recalls and complaints by year`}
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    dataset({
+      name: `${make.name} ${model.name}`,
+      description: `Recall counts, complaint counts, and EPA fuel economy by model year for the ${make.name} ${model.name}.`,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.complaints,
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">{make.name}</p>
+    <h1>{make.name} {model.name}</h1>
+    <Answer text={text} />
+    <DataNote />
+    {
+      model.yearsPage ? (
+        <p>
+          <a href={`${path}years/`}>{make.name} {model.name} by model year</a> puts the same counts in one sortable table.
+        </p>
+      ) : (
+        <p>A separate by-year page is published only when at least three model years have matched NHTSA records. This model does not meet that count.</p>
+      )
+    }
+    <h2>Model years</h2>
+    <YearTable rows={years} makeSlug={make.slug} modelSlug={model.slug} />
+    <h2>Fuel economy by model year</h2>
+    <p>
+      Combined mpg below is EPA's figure for non-electric configurations in the file dated {meta.dates.epa}. Electric configurations are shown as MPGe when that is the only figure. Annual fuel cost is EPA's published fuelCost08 range for the configurations of that year.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>EPA combined fuel economy and annual fuel cost by model year</caption>
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th class="num">Comb mpg</th>
+            <th class="num">MPGe</th>
+            <th class="num">kWh/100 mi</th>
+            <th class="num">Range</th>
+            <th class="num">Annual fuel cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            years.map((year) => (
+              <tr>
+                <td><a href={`${path}${year.y}/`}>{year.y}</a></td>
+                <td class="num">{span(year.mpgMin, year.mpgMax) || "—"}</td>
+                <td class="num">{span(year.mpgeMin, year.mpgeMax) || "—"}</td>
+                <td class="num">{span(year.kwhMin, year.kwhMax) || "—"}</td>
+                <td class="num">{year.rangeMax ? formatNumber(year.rangeMax) : "—"}</td>
+                <td class="num">
+                  {year.costMin != null && year.costMax != null
+                    ? year.costMin === year.costMax
+                      ? money(year.costMin)
+                      : `${money(year.costMin)}–${money(year.costMax)}`
+                    : "—"}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    {
+      latest ? (
+        <p class="actions">
+          <a class="button" href={`/tools/fuel-cost-calculator/?make=${make.slug}&model=${model.slug}&year=${latest.y}`}>Fuel cost for {latest.y}</a>
+          <a class="button button-ghost" href={`/compare/?a=${make.slug}/${model.slug}/${latest.y}`}>Compare {latest.y}</a>
+        </p>
+      ) : null
+    }
+  </article>
+</Base>

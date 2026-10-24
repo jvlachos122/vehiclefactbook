@@ -1,0 +1,6 @@
+---
+const { dnd = false, park = false } = Astro.props;
+---
+
+{dnd ? <span class="badge">Do not drive</span> : null}
+{park ? <span class="badge">Park outside</span> : null}

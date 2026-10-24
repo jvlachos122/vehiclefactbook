@@ -1,0 +1,29 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber } from "../../lib/format.js";
+
+const meta = loadMeta();
+---
+
+<Base
+  title="Guides"
+  description="Short explanations of technical service bulletins, whether a recall expires, what an open recall means, and how long a recall remedy lasts, with the government source named."
+  canonicalPath="/guides/"
+  breadcrumbs={[{ label: "Home", href: "/" }, { label: "Guides", href: "/guides/" }]}
+>
+  <article class="wrap prose">
+    <h1>Guides</h1>
+    <div class="answer">
+      <p>
+        These notes use NHTSA's published descriptions and the recall file dated {formatDate(meta.dates.recalls)}, which lists {formatNumber(meta.counts.vehicleCampaignsPost2010)} vehicle campaigns from 2010 on and {formatNumber(meta.counts.vehicleCampaignsPre2010)} in the older file. This site has not imported manufacturer communications.
+      </p>
+    </div>
+    <ul>
+      <li><a href="/guides/what-is-a-tsb/">What is a TSB</a></li>
+      <li><a href="/guides/do-recalls-expire/">Do recalls expire</a></li>
+      <li><a href="/guides/open-recall-meaning/">What an open recall means</a></li>
+      <li><a href="/guides/how-long-do-recalls-last/">How long recalls last</a></li>
+    </ul>
+  </article>
+</Base>

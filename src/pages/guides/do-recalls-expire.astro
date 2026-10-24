@@ -1,0 +1,67 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatDate } from "../../lib/format.js";
+import { article, faqPage } from "../../lib/schema.js";
+
+const recallDate = formatDate(loadMeta().dates.recalls);
+const faqs = [
+  {
+    q: "Do recalls expire?",
+    a: "NHTSA's recalls resources page says that once a vehicle has been recalled, that recall never expires. A separate NHTSA booklet says the free remedy is required only when the vehicle is not more than 15 years old, counted from the date of first retail sale, on the date the defect is determined. Manufacturers may still repair older vehicles. The flat file has no expiration column.",
+  },
+  {
+    q: "How old are the campaigns in the file?",
+    a: `The pre-2010 recall file includes campaigns from the 1960s. One row is campaign 66V026000, a 1967 Ford Bronco steering campaign. The files used on this site are dated ${recallDate}.`,
+  },
+];
+const description = "NHTSA says a recall does not expire, and a 2024 booklet limits the required free remedy to vehicles not more than 15 years old when the defect is determined. The flat file has no expiration column.";
+---
+
+<Base
+  title="Do recalls expire"
+  description={description}
+  canonicalPath="/guides/do-recalls-expire/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Guides", href: "/guides/" },
+    { label: "Do recalls expire", href: "/guides/do-recalls-expire/" },
+  ]}
+  jsonLd={[
+    article({
+      headline: "Do recalls expire?",
+      description,
+      url: "https://vehiclefactbook.com/guides/do-recalls-expire/",
+      datePublished: "2026-10-24",
+      dateModified: "2026-10-24",
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap prose">
+    <h1>Do recalls expire?</h1>
+    <div class="answer">
+      <p>
+        NHTSA's recalls resources page says: once a vehicle has been recalled, that recall never expires (<a href="https://www.nhtsa.gov/resources-investigations-recalls">nhtsa.gov/resources-investigations-recalls</a>). A November 2024 NHTSA booklet says the free remedy applies only if the vehicle is not more than 15 years old, from the date of first retail sale, on the date the defect is determined, and that manufacturers may still repair older vehicles. The recall flat file dated {recallDate} has no expiration column.
+      </p>
+    </div>
+    <p>
+      Those are two different statements. The campaign can remain a recall after the 15-year mark. The requirement that the manufacturer provide the remedy for free is the rule in the booklet, tied to the vehicle's age when the defect was determined. This site does not calculate that age. It does not have the first retail sale date, and it does not label a campaign expired.
+    </p>
+    <p>
+      The pre-2010 file still contains early campaigns. Campaign 66V026000 is a 1967 Ford Bronco row in that file, with the steering component and the defect text NHTSA published. Its presence in the file is not a claim about whether a particular truck can still be repaired.
+    </p>
+    <p>
+      To ask whether one vehicle identification number still needs a repair, use <a href="https://www.nhtsa.gov/recalls">NHTSA's VIN tool</a>. Completion is recorded per vehicle, not as a column this site can reprint.
+    </p>
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

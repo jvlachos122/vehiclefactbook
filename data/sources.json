@@ -1,0 +1,42 @@
+{
+  "recalls_post_2010": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip",
+    "sha256": "e61e6f10a0e39d4d1398d92e962898c9756cc3298532d4172368463b3f4ac56f",
+    "bytes": 14943419,
+    "lastModified": "Fri, 23 Oct 2026 07:05:42 GMT",
+    "fileDate": "2026-10-23",
+    "textFile": "FLAT_RCL_POST_2010.txt"
+  },
+  "recalls_pre_2010": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip",
+    "sha256": "a690edcea9380126507379365b2c041eada75bcfc5744784e50a111e49e6fc7a",
+    "bytes": 7422026,
+    "lastModified": "Fri, 23 Oct 2026 07:05:42 GMT",
+    "fileDate": "2026-10-23",
+    "textFile": "FLAT_RCL_PRE_2010.txt"
+  },
+  "complaints": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip",
+    "sha256": "06eaad333973efdb6fa05d31cd868d4b97261e27d6724a3ce022c81f6915b76f",
+    "bytes": 374962443,
+    "lastModified": "Fri, 23 Oct 2026 18:20:55 GMT",
+    "fileDate": "2026-10-23",
+    "textFile": "FLAT_CMPL.txt"
+  },
+  "investigations": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip",
+    "sha256": "0750ca29d03096fe35c105b9a69096af602061f3f60a54d860ead52c2fa4cf98",
+    "bytes": 4301583,
+    "lastModified": "Fri, 23 Oct 2026 17:18:16 GMT",
+    "fileDate": "2026-10-23",
+    "textFile": "FLAT_INV.txt"
+  },
+  "epa": {
+    "url": "https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip",
+    "sha256": "33d32caa0343cdb11c47be631e8a80b7ed7c351ee8503646a4e96485bd67b22f",
+    "bytes": 2212193,
+    "lastModified": "Tue, 29 Sep 2026 19:47:00 GMT",
+    "fileDate": "2026-09-29",
+    "textFile": "vehicles.csv"
+  }
+}

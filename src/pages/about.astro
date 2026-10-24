@@ -1,0 +1,32 @@
+---
+import Base from "../layouts/Base.astro";
+import Answer from "../components/Answer.astro";
+import { loadMeta } from "../lib/catalog.js";
+import { homeAnswer } from "../lib/answer.js";
+import { metaDescription } from "../lib/format.js";
+import { site } from "../lib/site.js";
+
+const meta = loadMeta();
+const text = `${site.name} is operated by ${site.legalName}. ${homeAnswer(meta.counts, meta.dates)}`;
+---
+
+<Base
+  title="About"
+  description={metaDescription(text)}
+  canonicalPath="/about/"
+  breadcrumbs={[{ label: "Home", href: "/" }, { label: "About", href: "/about/" }]}
+>
+  <article class="wrap prose">
+    <h1>About VehicleFactbook</h1>
+    <Answer text={text} />
+    <p>
+      VehicleFactbook publishes recall campaigns, complaint counts, investigation records, EPA fuel economy, and NHTSA 5-star ratings for passenger-vehicle model years in the EPA fuel-economy file from model year 2000 on. The figures are copied from those public files. The site does not sell vehicles, score reliability, or adjust complaint counts by how many vehicles were sold.
+    </p>
+    <p>
+      {site.name} is operated by {site.legalName}. It is not a government website and it is not affiliated with NHTSA, the EPA, or any automaker.
+    </p>
+    <p>
+      How a count is produced is written on the <a href="/methodology/">methodology</a> page. The <a href="/disclosure/">disclosure</a> page states that there are no affiliate relationships and no ads.
+    </p>
+  </article>
+</Base>

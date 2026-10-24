@@ -1,0 +1,86 @@
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: vehiclefactbook-pages
+  cancel-in-progress: false
+
+env:
+  ASTRO_TELEMETRY_DISABLED: "1"
+
+jobs:
+  build:
+    if: github.event_name == 'pull_request' || github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run validate:data
+      - run: npm test
+      - run: npm run build
+      - run: npm run check:links
+      - run: npm run check:html
+      - run: npm run check:third-party
+      - name: Write IndexNow manifest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: node scripts/indexnow.mjs --write-manifest .indexnow/manifest.json
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          name: indexnow-manifest
+          path: .indexnow/manifest.json
+          retention-days: 30
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  indexnow:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+    needs: deploy
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous IndexNow manifest
+        uses: actions/cache@v4
+        with:
+          path: .indexnow/previous-manifest.json
+          key: indexnow-manifest-${{ github.run_id }}
+          restore-keys: |
+            indexnow-manifest-
+      - uses: actions/download-artifact@v4
+        with:
+          name: indexnow-manifest
+          path: .indexnow
+      - name: Submit changed URLs to IndexNow
+        run: |
+          node scripts/indexnow.mjs --submit \
+            --manifest .indexnow/manifest.json \
+            --previous .indexnow/previous-manifest.json
+          cp .indexnow/manifest.json .indexnow/previous-manifest.json

@@ -1,0 +1,30 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import AdvisoryTable from "../../components/AdvisoryTable.astro";
+import { loadAdvisories, loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+
+const meta = loadMeta();
+const campaigns = loadAdvisories().parkOutside;
+const text = `NHTSA's recall file dated ${formatDate(meta.dates.recalls)} marks ${formatNumber(campaigns.length)} vehicle campaigns park outside. Each campaign number links to NHTSA.`;
+---
+
+<Base
+  title="Park outside recalls"
+  description={metaDescription(text)}
+  canonicalPath="/recalls/park-outside/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Park outside", href: "/recalls/park-outside/" },
+  ]}
+>
+  <article class="wrap">
+    <h1>Park outside recalls</h1>
+    <Answer text={text} />
+    <p>
+      The flag is the PARK_OUTSIDE field. The same notes as the do-not-drive list apply: this is not a count of unrepaired vehicles, and example links are only EPA model years published here.
+    </p>
+    <AdvisoryTable campaigns={campaigns} badges={false} />
+  </article>
+</Base>

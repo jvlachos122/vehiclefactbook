@@ -60,6 +60,84 @@ MODEL_SUFFIXES = (
 
 TRIM_SUFFIXES = ("5500", "4500", "3500", "2500", "1500", "LTZ", "SRW", "DRW", "HD", "LT")
 
+# Removed once, from the end of an EPA name, and only when the remainder equals
+# one NHTSA name. Cargo, passenger, van, wagon, hearse, and limo are omitted:
+# EPA splits those into different models, and the unsuffixed NHTSA name covers
+# more than one of them. Longest suffix wins (EAWD before AWD).
+_EPA_SUFFIX_WORDS = (
+    "EXTENDEDCAB",
+    "REGULARCAB",
+    "DOUBLECAB",
+    "ELECTRICDRIVE",
+    "PLUGINHYBRID",
+    "CREWCAB",
+    "QUADCAB",
+    "CLUBCAB",
+    "SUPERCAB",
+    "KINGCAB",
+    "MEGACAB",
+    "CONVERTIBLE",
+    "CABRIOLET",
+    "SPORTBACK",
+    "HATCHBACK",
+    "LIFTBACK",
+    "ROADSTER",
+    "FUELCELL",
+    "PICKUP",
+    "COUPE",
+    "SEDAN",
+    "SPIDER",
+    "4MATIC",
+    "XDRIVE",
+    "QUATTRO",
+    "SHAWD",
+    "HYBRID",
+    "EAWD",
+    "E4WD",
+    "PRIME",
+    "PHEV",
+    "4WD",
+    "2WD",
+    "4X4",
+    "4X2",
+    "AWD",
+    "FWD",
+    "RWD",
+    "BEV",
+    "HEV",
+    "SRT8",
+    "5500",
+    "4500",
+    "3500",
+    "2500",
+    "1500",
+    "V12",
+    "V10",
+    "AMG",
+    "EV",
+    "V8",
+    "V6",
+    "SRT",
+)
+EPA_SUFFIXES = tuple(sorted(_EPA_SUFFIX_WORDS, key=len, reverse=True))
+
+# A slash in an EPA base model is EPA's own combined name ("Golf/GTI").
+# Each part can claim an equal NHTSA name. Bare body words are not parts.
+GENERIC_SLASH_PARTS = {
+    "CABRIOLET",
+    "CHALLENGE",
+    "CONVERTIBLE",
+    "COUPE",
+    "HATCHBACK",
+    "KIT",
+    "PICKUP",
+    "ROADSTER",
+    "SEDAN",
+    "SPIDER",
+    "VAN",
+    "WAGON",
+}
+
 
 def norm_make(value: str) -> str:
     text = (value or "").upper().replace("&", " AND ").replace("-BENZ", " ")
@@ -105,6 +183,28 @@ def strip_trims(value: str) -> str:
     return text
 
 
+def epa_stem(value: str) -> str | None:
+    """Strip one trailing EPA suffix. None when the remainder would be too short."""
+    for suffix in EPA_SUFFIXES:
+        if value.endswith(suffix) and len(value) > len(suffix) + 1:
+            return value[: -len(suffix)]
+    return None
+
+
+def slash_parts(raw: str) -> list[str]:
+    if not raw or "/" not in raw:
+        return []
+    parts = []
+    for piece in raw.split("/"):
+        norm = norm_model(piece)
+        if not norm or norm in GENERIC_SLASH_PARTS or norm.isdigit():
+            continue
+        if len(norm) < 3 and not any(ch.isdigit() for ch in norm):
+            continue
+        parts.append(norm)
+    return parts
+
+
 def class_match(stem: str, cand: str) -> bool:
     if not stem:
         return False
@@ -137,7 +237,13 @@ def load_manual(path: Path) -> dict[tuple[str, str], set[str]]:
     return manual
 
 
-def claims_for(make_norm: str, epa_model: str, cand: str, manual: set[str]) -> int | None:
+def claims_for(
+    make_norm: str,
+    epa_model: str,
+    cand: str,
+    manual: set[str],
+    epa_raw: str = "",
+) -> int | None:
     """Return a rank (lower is stronger) if this EPA model claims the NHTSA name."""
     if cand == epa_model:
         return 0
@@ -174,6 +280,20 @@ def claims_for(make_norm: str, epa_model: str, cand: str, manual: set[str]) -> i
     if epa_model.isalpha() and 2 <= len(epa_model) <= 3:
         if cand.startswith(epa_model) and len(cand) > len(epa_model) and cand[len(epa_model)].isdigit():
             return 9
+    for part in slash_parts(epa_raw):
+        if cand == part:
+            return 10
+    stem = epa_stem(epa_model)
+    if stem is not None and cand == stem:
+        return 11
+    # Mazda "SPEED3" → "MAZDASPEED3", Polestar "2" → "POLESTAR2".
+    # Exact concatenation only, so Mazda 3 does not claim MAZDASPEED3.
+    token = make_norm.replace(" ", "")
+    if token and cand == token + epa_model and cand != epa_model:
+        if make_norm == "POLESTAR" and epa_model.isdigit() and len(epa_model) <= 2:
+            return 12
+        if make_norm == "MAZDA" and len(epa_model) >= 3:
+            return 12
     return None
 
 
@@ -188,7 +308,16 @@ RANK_METHOD = {
     7: "trim",
     8: "prefix",
     9: "code",
+    10: "slash",
+    11: "epa-suffix",
+    12: "make-prefix",
 }
+
+# These ranks tie whenever two EPA models claim the same name, even if the
+# EPA strings differ in length. A longer name must not beat a shorter one
+# when both are equally specific (Express Passenger vs Express Cargo, or two
+# reviewed rows for the same NHTSA name).
+TIE_RANKS = {1, 10, 11, 12}
 
 
 def assign_year(
@@ -199,18 +328,37 @@ def assign_year(
 ) -> tuple[dict[str, list[str]], dict[str, str], set[str]]:
     """Assign each NHTSA model to at most one EPA model.
 
-    epa_models is a list of (model_id, normalized model). model_id is the
-    caller's key (usually the display base model).
+    epa_models is a list of (model_id, normalized model) or
+    (model_id, normalized model, raw EPA model). model_id is the caller's key
+    (usually the display base model). The raw name is what slash-splitting reads.
 
     Returns (model_id → [nhtsa names], model_id → method, unclaimed nhtsa names).
     """
+    parsed = []
+    for entry in epa_models:
+        if len(entry) == 3:
+            parsed.append(entry)
+        else:
+            parsed.append((entry[0], entry[1], ""))
+    norms = [epa_norm for _model_id, epa_norm, _raw in parsed]
+
     buckets: dict[str, list[tuple[int, int, str]]] = {}
     for cand in nhtsa_models:
         options = []
-        for model_id, epa_norm in epa_models:
-            rank = claims_for(make_norm, epa_norm, cand, manual_for_make.get(epa_norm, set()))
-            if rank is not None:
-                options.append((rank, -len(epa_norm), model_id))
+        for model_id, epa_norm, epa_raw in parsed:
+            rank = claims_for(make_norm, epa_norm, cand, manual_for_make.get(epa_norm, set()), epa_raw)
+            if rank is None:
+                continue
+            # "458 Spider" must not take a bare "458" while "458 Italia" is a
+            # separate model that year. "DBX V8" likewise leaves "DBX" alone
+            # when "DBX 707" is present. The sibling's own name is longer and
+            # starts with the same stem.
+            if rank == 11 and any(
+                other != epa_norm and other.startswith(cand) and len(other) > len(cand) for other in norms
+            ):
+                continue
+            length_key = 0 if rank in TIE_RANKS else -len(epa_norm)
+            options.append((rank, length_key, model_id))
         if not options:
             continue
         options.sort()

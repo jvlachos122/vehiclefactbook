@@ -41,7 +41,7 @@ const path = "/methodology/";
 
     <h2>Names do not match across agencies</h2>
     <p>
-      EPA and NHTSA spell models differently. A model year is matched by normalizing punctuation and a short set of rules: exact name, then a manual list for a few Mazda and MINI names, then class names such as C-Class, series names such as 3 Series, a suffix such as Hybrid only when the remainder is an EPA model, and a prefix only when the next character is a letter so that CX-5 does not absorb CX-50. The manual list is <span class="mono">data/model-crosswalk.csv</span> in the site repository. It does not invent chassis-code maps.
+      EPA and NHTSA spell models differently. A model year is matched only when a rule or a reviewed row points at the same vehicle. Punctuation and case are removed first. An exact name wins. A reviewed row in <span class="mono">data/model-crosswalk.csv</span> wins over a weaker guess, and it counts only in model years where that NHTSA name is actually present. Class names such as C-Class and series names such as 3 Series follow. A pickup, cab, or body suffix is taken off the EPA name only when what remains equals one NHTSA name, and not when another EPA model that year starts with the same stem. Cargo and passenger splits are not folded together. A slash in an EPA base model, such as Golf/GTI, can match each part that is itself an NHTSA name. A prefix matches only when the next character is a letter, so CX-5 does not absorb CX-50 and Q5 does not absorb Q50. If two EPA models claim one NHTSA name equally, neither gets it.
     </p>
     <p>
       Of {formatNumber(counts.mmySpine)} model years, {formatNumber(counts.matchedMmy)} match at least one NHTSA name and {formatNumber(counts.unmatchedMmy)} do not. An unmatched page still shows EPA fuel economy and says that no NHTSA name was matched. It does not borrow another vehicle's complaints.
@@ -126,7 +126,7 @@ const path = "/methodology/";
       <li>Manufacturer communications (technical service bulletins). NHTSA's TSBS dictionary says the files were renamed and split into five-year downloads. The zip names tried for this build were not verified, so nothing from those files is published.</li>
       <li>A VIN check. Use <a href="https://www.nhtsa.gov/recalls">NHTSA's recall tool</a>.</li>
       <li>Separate pages for each campaign, investigation, component, or pair of vehicles.</li>
-      <li>The {formatNumber(counts.unmatchedMmy)} unmatched model years still need a better name crosswalk. Their pages exist and say the name did not match.</li>
+      <li>The {formatNumber(counts.unmatchedMmy)} unmatched model years have no NHTSA row this site will attach, or the name is ambiguous between two EPA models. Their pages exist, show EPA fuel economy, and say the name did not match.</li>
     </ul>
     <p>Source files are U.S. government works. The license reference used in the site's dataset markup is <a href="https://www.usa.gov/government-works">usa.gov/government-works</a>.</p>
   </article>

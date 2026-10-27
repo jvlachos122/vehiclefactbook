@@ -1,34 +1,34 @@
 {
   "recalls_post_2010": {
     "url": "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip",
-    "sha256": "e61e6f10a0e39d4d1398d92e962898c9756cc3298532d4172368463b3f4ac56f",
-    "bytes": 14943419,
-    "lastModified": "Fri, 23 Oct 2026 07:05:42 GMT",
-    "fileDate": "2026-10-23",
+    "sha256": "bcd81f35fae61ece442825a582567a437407e281f9521e05577f304a582b7563",
+    "bytes": 15068880,
+    "lastModified": "Mon, 26 Oct 2026 07:04:21 GMT",
+    "fileDate": "2026-10-26",
     "textFile": "FLAT_RCL_POST_2010.txt"
   },
   "recalls_pre_2010": {
     "url": "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip",
-    "sha256": "a690edcea9380126507379365b2c041eada75bcfc5744784e50a111e49e6fc7a",
-    "bytes": 7422026,
-    "lastModified": "Fri, 23 Oct 2026 07:05:42 GMT",
-    "fileDate": "2026-10-23",
+    "sha256": "b57c28ff7661a90e10fcbeacb0fabbf8c8e44eb31062991de641aa64c81794d0",
+    "bytes": 7442686,
+    "lastModified": "Mon, 26 Oct 2026 07:04:21 GMT",
+    "fileDate": "2026-10-26",
     "textFile": "FLAT_RCL_PRE_2010.txt"
   },
   "complaints": {
     "url": "https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip",
-    "sha256": "06eaad333973efdb6fa05d31cd868d4b97261e27d6724a3ce022c81f6915b76f",
-    "bytes": 374962443,
-    "lastModified": "Fri, 23 Oct 2026 18:20:55 GMT",
-    "fileDate": "2026-10-23",
+    "sha256": "b6e8c0130a2da45567fc024e6799a2624a18985d75d1d851ab6cbc7f209f11f8",
+    "bytes": 375063316,
+    "lastModified": "Sun, 25 Oct 2026 10:19:30 GMT",
+    "fileDate": "2026-10-25",
     "textFile": "FLAT_CMPL.txt"
   },
   "investigations": {
     "url": "https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip",
-    "sha256": "0750ca29d03096fe35c105b9a69096af602061f3f60a54d860ead52c2fa4cf98",
-    "bytes": 4301583,
-    "lastModified": "Fri, 23 Oct 2026 17:18:16 GMT",
-    "fileDate": "2026-10-23",
+    "sha256": "6bb4141f58fe04f3a3c7f81b04db1cff98ec69b122a49532788290dc130a5f1c",
+    "bytes": 4301580,
+    "lastModified": "Sun, 25 Oct 2026 09:10:23 GMT",
+    "fileDate": "2026-10-25",
     "textFile": "FLAT_INV.txt"
   },
   "epa": {

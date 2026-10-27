@@ -33,20 +33,20 @@ The weekly workflow does this on its own. It commits only when the zip hashes di
 
 ## Counts in this build
 
-Taken from the files dated 2026-10-23 (NHTSA) and 2026-09-29 (EPA):
+Taken from the files dated 2026-10-26 (NHTSA recalls), 2026-10-25 (NHTSA complaints and investigations), and 2026-09-29 (EPA):
 
 | Figure | Count |
 |---|---|
 | EPA rows, model year 2000 and newer | 32,430 |
 | EPA make names / models / model years | 87 / 1,025 / 8,158 |
 | Published makes / models / model years | 86 / 1,016 / 8,158 |
-| Model years matched to an NHTSA name | 6,815 |
-| Model years with no NHTSA name match | 1,343 |
-| By-year pages (at least 3 matched years) | 640 |
-| Vehicle campaigns, 2010 and later | 13,712 |
+| Model years matched to an NHTSA name | 7,108 |
+| Model years with no NHTSA name match | 1,050 |
+| By-year pages (at least 3 matched years) | 671 |
+| Vehicle campaigns, 2010 and later | 13,717 |
 | Vehicle campaigns in the pre-2010 file | 12,721 |
-| Complaint rows / distinct vehicle complaints | 2,259,403 / 1,608,391 |
-| Investigation rows / actions with no close date | 154,439 / 224 |
+| Complaint rows / distinct vehicle complaints | 2,259,830 / 1,608,672 |
+| Investigation rows / actions with no close date | 154,439 / 222 |
 | Do-not-drive / park-outside / Takata wording | 205 / 103 / 31 |
 
 Mini and MINI share one make page. Nine model spellings share a page with another spelling of the same name, including Nissan LEAF and Leaf. That is the difference between 87 and 86, and between 1,025 and 1,016.
@@ -59,7 +59,7 @@ Mini and MINI share one make page. Nine model spellings share a page with anothe
 - Static compare-pair pages. `/compare/` is one page.
 - A separate "mpg by year" template. That table is a section on the model page.
 - Sales-adjusted rates, prices, reviews, or a label telling someone to avoid a vehicle.
-- The 1,343 unmatched model years still need a better name crosswalk. Their pages exist and say the name did not match.
+- 1,050 model years stay unmatched. A reviewed crosswalk in `data/model-crosswalk.csv`, plus suffix and slash rules, attaches an NHTSA name only when it is the same vehicle. Cargo and passenger splits, coupe and roadster splits, and a shared prefix such as BMW M stay unmatched. Those pages still show EPA fuel economy and say the name did not match.
 
 ## Go live
 

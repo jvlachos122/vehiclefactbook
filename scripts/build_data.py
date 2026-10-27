@@ -353,7 +353,7 @@ def build_targets(makes: dict, keys, manual: dict):
         years = sorted({year for model in make["models"].values() for year in model["years"]})
         for year in years:
             epa_models = [
-                (model_slug, model["norm"])
+                (model_slug, model["norm"], model["name"])
                 for model_slug, model in make["models"].items()
                 if year in model["years"]
             ]
@@ -363,7 +363,7 @@ def build_targets(makes: dict, keys, manual: dict):
                 keys.get((make["norm"], year), set()),
                 manual_for,
             )
-            for model_slug, _norm in epa_models:
+            for model_slug, _norm, _name in epa_models:
                 total += 1
                 names = assigned.get(model_slug) or []
                 method = methods.get(model_slug, "none")
@@ -1004,7 +1004,7 @@ def attach_ncap(makes, details, manual):
             if not nhtsa_models:
                 continue
             epa_models = [
-                (model_slug, model["norm"])
+                (model_slug, model["norm"], model["name"])
                 for model_slug, model in make["models"].items()
                 if year in model["years"]
             ]

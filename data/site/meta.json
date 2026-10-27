@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-23T00:00:00Z",
+  "generatedAt": "2026-10-26T00:00:00Z",
   "dates": {
-    "recalls": "2026-10-23",
-    "complaints": "2026-10-23",
-    "investigations": "2026-10-23",
+    "recalls": "2026-10-26",
+    "complaints": "2026-10-25",
+    "investigations": "2026-10-25",
     "epa": "2026-09-29"
   },
   "counts": {
@@ -14,33 +14,35 @@
     "publishedModels": 1016,
     "mmySpine": 8158,
     "publishedMmy": 8158,
-    "matchedMmy": 6815,
-    "unmatchedMmy": 1343,
+    "matchedMmy": 7108,
+    "unmatchedMmy": 1050,
     "matchMethods": {
-      "exact": 6198,
+      "exact": 6199,
       "series": 79,
-      "prefix": 108,
+      "prefix": 106,
+      "slash": 101,
+      "epa-suffix": 58,
+      "manual": 199,
       "trim": 14,
       "suffix": 67,
-      "manual": 64,
       "class": 255,
       "code": 30
     },
-    "yearsPages": 640,
-    "recallRowsPost": 246638,
+    "yearsPages": 671,
+    "recallRowsPost": 246844,
     "recallRowsPre": 81715,
-    "vehicleCampaignsPost2010": 13712,
+    "vehicleCampaignsPost2010": 13717,
     "vehicleCampaignsPre2010": 12721,
-    "complaintRows": 2259403,
-    "complaintVehicleRows": 2186961,
-    "complaintVehicleOdino": 1608391,
+    "complaintRows": 2259830,
+    "complaintVehicleRows": 2187386,
+    "complaintVehicleOdino": 1608672,
     "investigationRows": 154439,
     "investigationActions": 5351,
-    "investigationActionsNoCloseDate": 224,
+    "investigationActionsNoCloseDate": 222,
     "doNotDrive": 205,
     "parkOutside": 103,
     "takata": 31,
-    "thisWeek": 14
+    "thisWeek": 17
   },
   "ncap": {
     "2011": {

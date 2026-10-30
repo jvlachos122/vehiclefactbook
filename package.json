@@ -13,7 +13,7 @@
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/build-log.mjs",
     "preview": "astro preview",
     "validate:data": "node scripts/validate-data.mjs && python3 scripts/qa.py",
-    "test": "node --test && python3 scripts/test_norm.py",
+    "test": "node --test && python3 scripts/test_norm.py && python3 scripts/test_ncap.py",
     "check:links": "node scripts/check-links.mjs",
     "check:html": "node scripts/check-html.mjs",
     "check:third-party": "node scripts/check-third-party.mjs",

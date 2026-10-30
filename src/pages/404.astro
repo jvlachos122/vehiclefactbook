@@ -1,5 +1,11 @@
 ---
 import Base from "../layouts/Base.astro";
+import Answer from "../components/Answer.astro";
+import { loadMeta } from "../lib/catalog.js";
+import { formatDate, formatNumber } from "../lib/format.js";
+
+const meta = loadMeta();
+const text = `VehicleFactbook has no page at this address. The lookup covers ${formatNumber(meta.counts.publishedMmy)} model years from the EPA fuel-economy file dated ${formatDate(meta.dates.epa)}.`;
 ---
 
 <Base
@@ -11,7 +17,7 @@ import Base from "../layouts/Base.astro";
 >
   <article class="wrap">
     <h1>Page not found</h1>
-    <div class="answer"><p>VehicleFactbook has no page at this address. The lookup covers the EPA model years published on the site.</p></div>
+    <Answer text={text} />
     <p class="actions">
       <a class="button" href="/recalls/lookup/">Recall and complaint lookup</a>
       <a class="button button-ghost" href="/">Home</a>

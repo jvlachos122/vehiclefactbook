@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HtmlValidate } from "html-validate";
+import { auditHtml } from "../src/lib/jsonld-audit.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -45,9 +46,13 @@ const validator = new HtmlValidate({
 });
 
 const files = walk(dist);
+let jsonLdBlocks = 0;
 for (const file of files) {
   const html = readFileSync(file, "utf8");
-  const rel = file.slice(dist.length);
+  const rel = file.slice(dist.length).replaceAll("\\", "/");
+  const audit = auditHtml(html, rel);
+  jsonLdBlocks += audit.blocks;
+  for (const problem of audit.errors) errors.push(`${rel}: ${problem}`);
   const size = statSync(file).size;
   if (size > 60 * 1024) errors.push(`${rel}: ${size} bytes exceeds 60 KB`);
   if (!html.startsWith("<!DOCTYPE html>")) errors.push(`${rel}: missing doctype`);
@@ -86,4 +91,4 @@ if (errors.length) {
   console.error(`${errors.length} HTML problems`);
   process.exit(1);
 }
-console.log(`HTML OK across ${files.length} files.`);
+console.log(`HTML OK across ${files.length} files. JSON-LD blocks: ${jsonLdBlocks}.`);

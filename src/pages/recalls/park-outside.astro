@@ -4,19 +4,30 @@ import Answer from "../../components/Answer.astro";
 import AdvisoryTable from "../../components/AdvisoryTable.astro";
 import { loadAdvisories, loadMeta } from "../../lib/catalog.js";
 import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { recallListDataset } from "../../lib/schema.js";
 
 const meta = loadMeta();
 const campaigns = loadAdvisories().parkOutside;
+const path = "/recalls/park-outside/";
 const text = `NHTSA's recall file dated ${formatDate(meta.dates.recalls)} marks ${formatNumber(campaigns.length)} vehicle campaigns park outside. Each campaign number links to NHTSA.`;
 ---
 
 <Base
   title="Park outside recalls"
   description={metaDescription(text)}
-  canonicalPath="/recalls/park-outside/"
+  canonicalPath={path}
   breadcrumbs={[
     { label: "Home", href: "/" },
-    { label: "Park outside", href: "/recalls/park-outside/" },
+    { label: "Park outside", href: path },
+  ]}
+  jsonLd={[
+    recallListDataset({
+      name: "NHTSA park-outside vehicle campaigns",
+      description: text,
+      path,
+      dateModified: meta.dates.recalls,
+      dates: campaigns.map((campaign) => campaign.date),
+    }),
   ]}
 >
   <article class="wrap">

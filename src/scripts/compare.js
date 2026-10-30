@@ -25,7 +25,7 @@ if (root && output) {
   }
 
   function stars(year) {
-    if (!year || year.y < 2011) return year ? "Pre-2011 method, not shown" : "—";
+    if (!year || year.y < 2011) return year ? "Pre-2011 rating, not comparable" : "—";
     if (year.star?.[0] == null) return "No matched overall star";
     if (year.star[0] === year.star[1]) return String(year.star[0]);
     return `${year.star[0]}–${year.star[1]}`;

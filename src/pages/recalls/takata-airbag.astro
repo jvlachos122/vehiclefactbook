@@ -4,19 +4,30 @@ import Answer from "../../components/Answer.astro";
 import AdvisoryTable from "../../components/AdvisoryTable.astro";
 import { loadAdvisories, loadMeta } from "../../lib/catalog.js";
 import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { recallListDataset } from "../../lib/schema.js";
 
 const meta = loadMeta();
 const campaigns = loadAdvisories().takata;
+const path = "/recalls/takata-airbag/";
 const text = `The recall file dated ${formatDate(meta.dates.recalls)} has ${formatNumber(campaigns.length)} vehicle campaigns whose component, defect, consequence, or notes text contains the word Takata. Campaigns that never use that word are not in this list.`;
 ---
 
 <Base
   title="Takata airbag campaigns"
   description={metaDescription(text)}
-  canonicalPath="/recalls/takata-airbag/"
+  canonicalPath={path}
   breadcrumbs={[
     { label: "Home", href: "/" },
-    { label: "Takata airbag", href: "/recalls/takata-airbag/" },
+    { label: "Takata airbag", href: path },
+  ]}
+  jsonLd={[
+    recallListDataset({
+      name: "NHTSA Takata-wording vehicle campaigns",
+      description: text,
+      path,
+      dateModified: meta.dates.recalls,
+      dates: campaigns.map((campaign) => campaign.date),
+    }),
   ]}
 >
   <article class="wrap">

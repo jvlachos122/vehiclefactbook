@@ -4,7 +4,7 @@ import { span } from "../lib/format.js";
 const { rows = [], makeSlug, modelSlug, sortable = false } = Astro.props;
 
 function stars(row) {
-  if (row.y < 2011) return "Pre-2011";
+  if (row.y < 2011) return "Pre-2011 rating, not comparable";
   if (row.starMin == null) return "—";
   if (row.starMin === row.starMax) return String(row.starMin);
   return `${row.starMin}–${row.starMax}`;

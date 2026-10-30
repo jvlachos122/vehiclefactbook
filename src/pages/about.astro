@@ -2,12 +2,15 @@
 import Base from "../layouts/Base.astro";
 import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
-import { homeAnswer } from "../lib/answer.js";
-import { metaDescription } from "../lib/format.js";
+import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
 import { site } from "../lib/site.js";
 
 const meta = loadMeta();
-const text = `${site.name} is operated by ${site.legalName}. ${homeAnswer(meta.counts, meta.dates)}`;
+const text = [
+  `${site.name} is operated by ${site.legalName}.`,
+  `It publishes ${formatNumber(meta.counts.publishedMakes)} makes, ${formatNumber(meta.counts.publishedModels)} models, and ${formatNumber(meta.counts.publishedMmy)} model years from the EPA fuel-economy file dated ${formatDate(meta.dates.epa)}.`,
+  `NHTSA's recall file dated ${formatDate(meta.dates.recalls)} is the source for campaign counts, and the complaint file dated ${formatDate(meta.dates.complaints)} is the source for ${formatNumber(meta.counts.complaintVehicleOdino)} distinct vehicle complaints.`,
+].join(" ");
 ---
 
 <Base

@@ -1,6 +1,6 @@
 ---
 import Stars from "./Stars.astro";
-import { variantLabel } from "../lib/answer.js";
+import { pre2011RatingSentence, variantLabel } from "../lib/answer.js";
 
 const { variants = [], year, make, model, cap = 8 } = Astro.props;
 const shown = variants.slice(0, cap);
@@ -13,7 +13,7 @@ function rate(value) {
 
 {
   year < 2011 ? (
-    <p>NHTSA star ratings from before model year 2011 use an older method and are not shown here.</p>
+    <p>{pre2011RatingSentence()}</p>
   ) : shown.length ? (
     <div class="table-wrap">
       <table>

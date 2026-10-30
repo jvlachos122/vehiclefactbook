@@ -100,7 +100,7 @@ const path = "/methodology/";
 
     <h2>Star ratings</h2>
     <p>
-      Stars come from NHTSA's Safety Ratings API for model years 2011 and newer. Older stars use a different method and are not shown. "Not Rated" stays as text. Rollover possibility is printed as the API sends it, including values between 0 and 1, and is not turned into a percent. Crash-test photos link to static.nhtsa.gov and are not embedded. If a model year in the API could not be fetched, the page says no rating was matched rather than filling a number.
+      Stars come from NHTSA's Safety Ratings API for model years 2011 and newer. Older stars are a pre-2011 rating, not comparable, and are not shown. "Not rated" stays as text. Rollover possibility is printed as the API sends it, including values between 0 and 1, and is not turned into a percent. Crash-test photos link to static.nhtsa.gov and are not embedded. If a model year in the API could not be fetched, the page says no rating was matched rather than filling a number.
     </p>
     {
       Object.keys(meta.ncap || {}).length ? (

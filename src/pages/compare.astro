@@ -6,7 +6,7 @@ import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
 import { webApp } from "../lib/schema.js";
 
 const meta = loadMeta();
-const text = `Compare two of the ${formatNumber(meta.counts.publishedMmy)} published model years. Recall and complaint counts are from NHTSA files dated ${formatDate(meta.dates.recalls)} and ${formatDate(meta.dates.complaints)}. Fuel figures are from the EPA file dated ${formatDate(meta.dates.epa)}. The counts are not sales-adjusted, and this page does not pick a winner.`;
+const text = `Compare two of the ${formatNumber(meta.counts.publishedMmy)} published model years. Recall and complaint counts are from NHTSA files dated ${formatDate(meta.dates.recalls)} and ${formatDate(meta.dates.complaints)}, and fuel figures are from the EPA file dated ${formatDate(meta.dates.epa)}. The counts are not sales-adjusted, and this page does not pick a winner.`;
 ---
 
 <Base

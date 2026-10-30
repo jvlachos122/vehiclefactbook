@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { homeAnswer, mmyAnswer, variantLabel, yearsAnswer } from "../src/lib/answer.js";
+import { homeAnswer, mmyAnswer, pre2011RatingSentence, variantLabel, yearsAnswer } from "../src/lib/answer.js";
+
+function sentenceCount(text) {
+  return text.split(/(?<=[.?!])\s+/).filter((sentence) => sentence.trim()).length;
+}
 
 const dates = { recalls: "2026-10-23", complaints: "2026-10-23", epa: "2026-09-29", investigations: "2026-10-23" };
 
@@ -45,6 +49,7 @@ test("exact model year answer uses the headline counts", () => {
   assert.match(text, /4 DR FWD 5 stars overall/);
   assert.match(text, /26–47 mpg combined/);
   assert.match(text, /Sep 29, 2026/);
+  assert.ok(sentenceCount(text) <= 3);
   assert.doesNotMatch(text, /\b(avoid|reliable|unreliable|best|worst)\b/i);
 });
 
@@ -71,6 +76,7 @@ test("unmatched model year says the name did not match", () => {
   });
   assert.match(text, /do not have a make and model name matched/);
   assert.match(text, /15 mpg combined/);
+  assert.ok(sentenceCount(text) <= 3);
   assert.doesNotMatch(text, /\bavoid\b/i);
 });
 
@@ -93,7 +99,34 @@ test("home answer uses the file counts", () => {
   assert.match(text, /8,158 model years/);
   assert.match(text, /1,608,391 distinct vehicle complaints/);
   assert.match(text, /Mini and MINI/);
+  assert.equal(sentenceCount(text), 3);
   assert.doesNotMatch(text, /\b(avoid|reliable|best|worst)\b/i);
+});
+
+test("pre-2011 answer says the rating is not comparable", () => {
+  const text = mmyAnswer({
+    make: "Honda",
+    model: "Civic",
+    year: 2008,
+    dates,
+    row: {
+      match: "exact",
+      recalls: 2,
+      complaints: 40,
+      dnd: 0,
+      park: 0,
+      investigations: 0,
+      invOpen: 0,
+      mpgMin: 25,
+      mpgMax: 36,
+      costMin: 1800,
+      costMax: 2500,
+    },
+    detail: { ncap: [{ description: "2008 Honda Civic", overall: "5" }], complaints: { top: [] } },
+  });
+  assert.equal(text.includes(pre2011RatingSentence()), true);
+  assert.match(text, /pre-2011 rating, not comparable/);
+  assert.doesNotMatch(text, /5 stars overall/);
 });
 
 test("years answer names the high and low counts as facts", () => {
@@ -108,5 +141,6 @@ test("years answer names the high and low counts as facts", () => {
   );
   assert.match(text, /4 \(2026\) to 1,000 \(2016\)/);
   assert.match(text, /not rates/);
+  assert.equal(sentenceCount(text), 3);
   assert.doesNotMatch(text, /\b(avoid|best|worst|reliable)\b/i);
 });

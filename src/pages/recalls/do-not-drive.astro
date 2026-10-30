@@ -4,19 +4,30 @@ import Answer from "../../components/Answer.astro";
 import AdvisoryTable from "../../components/AdvisoryTable.astro";
 import { loadAdvisories, loadMeta } from "../../lib/catalog.js";
 import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { recallListDataset } from "../../lib/schema.js";
 
 const meta = loadMeta();
 const campaigns = loadAdvisories().doNotDrive;
+const path = "/recalls/do-not-drive/";
 const text = `NHTSA's recall file dated ${formatDate(meta.dates.recalls)} marks ${formatNumber(campaigns.length)} vehicle campaigns do not drive. The table lists each campaign number, which links to NHTSA. A model year link appears only when that name is on an EPA page on this site.`;
 ---
 
 <Base
   title="Do not drive recalls"
   description={metaDescription(text)}
-  canonicalPath="/recalls/do-not-drive/"
+  canonicalPath={path}
   breadcrumbs={[
     { label: "Home", href: "/" },
-    { label: "Do not drive", href: "/recalls/do-not-drive/" },
+    { label: "Do not drive", href: path },
+  ]}
+  jsonLd={[
+    recallListDataset({
+      name: "NHTSA do-not-drive vehicle campaigns",
+      description: text,
+      path,
+      dateModified: meta.dates.recalls,
+      dates: campaigns.map((campaign) => campaign.date),
+    }),
   ]}
 >
   <article class="wrap">

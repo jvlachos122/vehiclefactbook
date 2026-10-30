@@ -6,7 +6,7 @@ import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
 import { webApp } from "../../lib/schema.js";
 
 const meta = loadMeta();
-const text = `EPA's fuel-economy file dated ${formatDate(meta.dates.epa)} has ${formatNumber(meta.counts.epaRowsMy2000)} rows for model year 2000 and newer. Pick a configuration to see that row's combined mpg, or MPGe and kWh/100 mi for an electric vehicle, and EPA's published annual fuel cost. The price box starts empty. This calculator does not supply a gas price.`;
+const text = `EPA's fuel-economy file dated ${formatDate(meta.dates.epa)} has ${formatNumber(meta.counts.epaRowsMy2000)} rows for model year 2000 and newer. Pick a configuration to see that row's combined mpg, or MPGe and kWh/100 mi for an electric vehicle, and EPA's published annual fuel cost. The price box starts empty, and this calculator does not supply a gas price.`;
 ---
 
 <Base

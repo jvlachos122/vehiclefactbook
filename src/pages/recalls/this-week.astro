@@ -4,20 +4,31 @@ import Answer from "../../components/Answer.astro";
 import Badges from "../../components/Badges.astro";
 import { loadMeta, loadRecent } from "../../lib/catalog.js";
 import { campaignUrl, plain, formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { recallListDataset } from "../../lib/schema.js";
 
 const meta = loadMeta();
 const recent = loadRecent();
 const campaigns = recent.campaigns || [];
+const path = "/recalls/this-week/";
 const text = `NHTSA's newest recall report date in the file dated ${formatDate(meta.dates.recalls)} is ${formatDate(recent.newestReportDate)}. The ${formatNumber(campaigns.length)} vehicle campaigns below have a report date from ${formatDate(recent.windowStart)} through that day. This is the seven-day window ending on the newest date in the file, not the calendar week of the site build.`;
 ---
 
 <Base
   title="Recalls this week"
   description={metaDescription(text)}
-  canonicalPath="/recalls/this-week/"
+  canonicalPath={path}
   breadcrumbs={[
     { label: "Home", href: "/" },
-    { label: "This week", href: "/recalls/this-week/" },
+    { label: "This week", href: path },
+  ]}
+  jsonLd={[
+    recallListDataset({
+      name: "NHTSA vehicle campaigns in the newest report week",
+      description: text,
+      path,
+      dateModified: meta.dates.recalls,
+      dates: [recent.windowStart, recent.newestReportDate],
+    }),
   ]}
 >
   <article class="wrap">

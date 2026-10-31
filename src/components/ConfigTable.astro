@@ -1,7 +1,7 @@
 ---
 import { formatNumber, money } from "../lib/format.js";
 
-const { configs = [], cap = 12 } = Astro.props;
+const { configs = [], cap = 12, calculator = "" } = Astro.props;
 const shown = configs.slice(0, cap);
 
 function num(value, digits = 0) {
@@ -31,7 +31,7 @@ function num(value, digits = 0) {
           </tr>
         </thead>
         <tbody>
-          {shown.map((config) => (
+          {shown.map((config, index) => (
             <tr>
               <td>
                 {config.model || "—"}
@@ -39,6 +39,11 @@ function num(value, digits = 0) {
                   {" "}
                   · {[config.displ ? `${config.displ}L` : "", config.trany, config.drive].filter(Boolean).join(" · ")}
                 </span>
+                {calculator ? (
+                  <div class="small">
+                    <a href={`${calculator}&config=${index}`}>Fuel cost for this configuration</a>
+                  </div>
+                ) : null}
               </td>
               <td>
                 {config.fuel || "—"}

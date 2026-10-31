@@ -1,12 +1,31 @@
 ---
+import { readFileSync } from "node:fs";
 import Base from "../../layouts/Base.astro";
 import Answer from "../../components/Answer.astro";
+import EiaPriceTable from "../../components/EiaPriceTable.astro";
 import { loadMeta } from "../../lib/catalog.js";
+import { loadPriceSnapshot, EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE } from "../../lib/eia-prices.js";
+import { clientPriceRows, formatPeriod, fuelPageAnswer } from "../../lib/fuel-cost.js";
 import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
 import { webApp } from "../../lib/schema.js";
 
 const meta = loadMeta();
-const text = `EPA's fuel-economy file dated ${formatDate(meta.dates.epa)} has ${formatNumber(meta.counts.epaRowsMy2000)} rows for model year 2000 and newer. Pick a configuration to see that row's combined mpg, or MPGe and kWh/100 mi for an electric vehicle, and EPA's published annual fuel cost. The price box starts empty, and this calculator does not supply a gas price.`;
+const prices = loadPriceSnapshot(readFileSync(new URL("../../../data/eia-fuel-prices.csv", import.meta.url), "utf8"));
+const gas = prices.find((row) => row.product === "gasoline" && row.area === "US");
+const diesel = prices.find((row) => row.product === "diesel" && row.area === "US");
+const elec = prices.find((row) => row.product === "electricity" && row.area === "US");
+if (!gas || !diesel || !elec) throw new Error("EIA snapshot is missing a U.S. price");
+const text = fuelPageAnswer({
+  epaDate: formatDate(meta.dates.epa),
+  epaRows: formatNumber(meta.counts.epaRowsMy2000),
+  gasPeriod: formatDate(gas.period),
+  electricPeriod: formatPeriod(elec.period),
+  retrieved: formatDate(gas.retrieved),
+});
+const priceJson = JSON.stringify(clientPriceRows(prices)).replace(/</g, "\\u003c");
+const gasolineRows = prices.filter((row) => row.product === "gasoline");
+const dieselRows = prices.filter((row) => row.product === "diesel");
+const electricRows = prices.filter((row) => row.product === "electricity");
 ---
 
 <Base
@@ -20,7 +39,7 @@ const text = `EPA's fuel-economy file dated ${formatDate(meta.dates.epa)} has ${
   jsonLd={[
     webApp({
       name: "Fuel cost calculator",
-      description: "Annual fuel cost from EPA combined mpg or kWh/100 mi and a price you enter.",
+      description: "Trip and annual fuel cost from EPA combined mpg or kWh/100 mi, with an optional city and highway split and EIA average prices you can replace.",
       url: "https://vehiclefactbook.com/tools/fuel-cost-calculator/",
     }),
   ]}
@@ -36,19 +55,151 @@ const text = `EPA's fuel-economy file dated ${formatDate(meta.dates.epa)} has ${
         document.head.appendChild(meta);
       }
     </script>
-    <form class="controls" data-fuel data-mode="annual">
+    <p class="small">
+      EPA fuel-economy file dated {formatDate(meta.dates.epa)}. Price snapshot retrieved {formatDate(gas.retrieved)}.
+      Regular gasoline and diesel are the week of {formatDate(gas.period)} from the
+      <a href={EIA_GASOLINE_SOURCE}>Gasoline and Diesel Fuel Update</a>
+      (U.S. regular {gas.price} dollars per gallon, U.S. diesel {diesel.price} dollars per gallon, both including taxes).
+      Residential electricity is {formatPeriod(elec.period)} from
+      <a href={EIA_ELECTRICITY_SOURCE}>Electric Power Monthly Table 5.6.A</a>
+      (U.S. total {elec.price} cents per kWh; EIA marks 2026 preliminary).
+      EIA's <a href={EIA_LICENSE}>copyright and reuse note</a> places its data publications in the public domain.
+    </p>
+    <h2 id="trip">Annual or trip</h2>
+    <form class="controls" data-fuel>
+      <fieldset class="span mode-choices">
+        <legend>Distance</legend>
+        <label class="choice"><input type="radio" name="mode" value="annual" checked /> Annual</label>
+        <label class="choice"><input type="radio" name="mode" value="trip" /> Trip</label>
+      </fieldset>
       <label>Make <select name="make"><option value="">Select a make</option></select></label>
       <label>Model <select name="model"><option value="">Select a model</option></select></label>
       <label>Model year <select name="year"><option value="">Select a year</option></select></label>
       <label>Configuration <select name="config"><option value="">Select a configuration</option></select></label>
       <label>Miles <input type="number" name="miles" min="0" step="1" value="15000" inputmode="numeric" /></label>
-      <label>Price per gallon (USD) <input type="number" name="price" min="0" step="0.01" inputmode="decimal" /></label>
-      <label>Price per kWh (USD) <input type="number" name="kwhPrice" min="0" step="0.01" inputmode="decimal" /></label>
-      <button type="submit">Calculate</button>
+      <label>Driving mix
+        <select name="mix">
+          <option value="combined">EPA combined</option>
+          <option value="city">City only</option>
+          <option value="highway">Highway only</option>
+          <option value="split">City and highway split</option>
+        </select>
+      </label>
+      <label data-city-share hidden>
+        City percent of miles
+        <input type="number" name="cityShare" min="0" max="100" step="1" value="55" inputmode="numeric" />
+      </label>
+      <label>Gasoline or diesel area <select name="fuelArea"><option value="US">U.S.</option></select></label>
+      <label>Price per gallon (USD) <input type="number" name="price" min="0" step="0.001" inputmode="decimal" /></label>
+      <p class="small span" data-gallon-note>Select a configuration.</p>
+      <p class="small muted span" data-gallon-detail></p>
+      <button class="button-ghost" type="button" data-reset="gallon" hidden>Use EIA gallon price</button>
+      <label>Electricity area <select name="elecArea"><option value="US">U.S.</option></select></label>
+      <label>Price per kWh (USD) <input type="number" name="kwhPrice" min="0" step="0.0001" inputmode="decimal" /></label>
+      <p class="small span" data-kwh-note>Select a configuration.</p>
+      <p class="small muted span" data-kwh-detail></p>
+      <button class="button-ghost" type="button" data-reset="kwh" hidden>Use EIA electricity price</button>
+      <div class="actions span">
+        <button type="submit">Calculate</button>
+      </div>
+      <details class="span">
+        <summary>Compare a second vehicle</summary>
+        <div class="controls">
+          <label>Make <select name="make2"><option value="">Select a make</option></select></label>
+          <label>Model <select name="model2"><option value="">Select a model</option></select></label>
+          <label>Model year <select name="year2"><option value="">Select a year</option></select></label>
+          <label>Configuration <select name="config2"><option value="">Select a configuration</option></select></label>
+        </div>
+      </details>
     </form>
-    <p class="small muted">Miles starts at 15,000 because that is the distance EPA uses for fuelCost08. Change it if you want a different distance. Leave price blank to see only EPA's published annual figure.</p>
-    <div class="panel" data-fuel-result><p>Select a configuration.</p></div>
-    <p>For one trip, use the <a href="/tools/trip-fuel-cost/">trip fuel cost</a> calculator. For miles divided by gallons, use the <a href="/tools/mpg-calculator/">MPG calculator</a>.</p>
+    <script is:inline>
+      if (location.hash === "#trip" || new URLSearchParams(location.search).get("mode") === "trip") {
+        const trip = document.querySelector('[data-fuel] [name="mode"][value="trip"]');
+        const miles = document.querySelector('[data-fuel] [name="miles"]');
+        if (trip) trip.checked = true;
+        if (miles && miles.value === "15000") miles.value = "";
+      }
+    </script>
+    <p class="small muted">
+      Annual mode starts at 15,000 miles because that is the distance EPA uses for fuelCost08, with 55 percent city driving.
+      Trip mode starts with the miles box empty. A split uses city and highway mpg directly. Combined uses the published combined mpg.
+      Premium and midgrade gasoline have no EIA default. Clearing a price leaves the calculated cost blank.
+    </p>
+    <div class="table-wrap" data-fuel-result aria-live="polite">
+      <table>
+        <caption>Calculated fuel cost. EPA's annual fuel cost is the published fuelCost08 figure and is not recomputed from the price.</caption>
+        <tbody>
+          <tr>
+            <td>Select a configuration.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <h2>Formula</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>Formulas for a price you enter. Cost per mile is the cost divided by the miles. EPA's published annual fuel cost is shown beside the result and is not recomputed.</caption>
+        <thead>
+          <tr>
+            <th>Situation</th>
+            <th>Calculation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Combined mpg</td>
+            <td>miles ÷ EPA combined mpg × dollars per gallon</td>
+          </tr>
+          <tr>
+            <td>City only</td>
+            <td>miles ÷ EPA city mpg × dollars per gallon</td>
+          </tr>
+          <tr>
+            <td>Highway only</td>
+            <td>miles ÷ EPA highway mpg × dollars per gallon</td>
+          </tr>
+          <tr>
+            <td>City and highway split</td>
+            <td>city miles ÷ city mpg, plus highway miles ÷ highway mpg, then × dollars per gallon</td>
+          </tr>
+          <tr>
+            <td>Electric</td>
+            <td>miles × EPA combined kWh/100 mi ÷ 100 × dollars per kWh</td>
+          </tr>
+          <tr>
+            <td>Cost per mile</td>
+            <td>cost ÷ miles</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>For miles divided by gallons, use the <a href="/tools/mpg-calculator/">MPG calculator</a>.</p>
+    <details class="panel">
+      <summary>EIA prices used when the box matches the average</summary>
+      <p>
+        Retrieved {formatDate(gas.retrieved)}. Gasoline and diesel prices include all taxes. Electricity prices for 2026 are preliminary.
+        The same figures are committed in <code>data/eia-fuel-prices.csv</code>.
+      </p>
+      <EiaPriceTable
+        caption={`Regular gasoline, week of ${formatDate(gas.period)}, from the `}
+        rows={gasolineRows}
+        sourceHref={EIA_GASOLINE_SOURCE}
+        sourceLabel="Gasoline and Diesel Fuel Update"
+      />
+      <EiaPriceTable
+        caption={`On-highway diesel, week of ${formatDate(diesel.period)}, from the `}
+        rows={dieselRows}
+        sourceHref={EIA_GASOLINE_SOURCE}
+        sourceLabel="Gasoline and Diesel Fuel Update"
+      />
+      <EiaPriceTable
+        caption={`Residential electricity, ${formatPeriod(elec.period)}, cents per kWh, from `}
+        rows={electricRows}
+        sourceHref={EIA_ELECTRICITY_SOURCE}
+        sourceLabel="Table 5.6.A"
+      />
+    </details>
+    <script type="application/json" id="eia-prices" is:inline set:html={priceJson} />
   </article>
 </Base>
 <script>

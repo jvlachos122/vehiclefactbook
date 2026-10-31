@@ -1,18 +1,29 @@
 ---
+import { readFileSync } from "node:fs";
 import Base from "../../layouts/Base.astro";
 import Answer from "../../components/Answer.astro";
 import { loadMeta } from "../../lib/catalog.js";
+import { loadPriceSnapshot } from "../../lib/eia-prices.js";
+import { tripFuelAnswer } from "../../lib/fuel-cost.js";
 import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
 import { webApp } from "../../lib/schema.js";
 
 const meta = loadMeta();
-const text = `Trip cost uses the same EPA file dated ${formatDate(meta.dates.epa)} (${formatNumber(meta.counts.epaRowsMy2000)} rows for model year 2000 and newer). Enter trip miles and a price. Nothing is prefilled for price, and trip miles start empty.`;
+const prices = loadPriceSnapshot(readFileSync(new URL("../../../data/eia-fuel-prices.csv", import.meta.url), "utf8"));
+const retrieved = prices.find((row) => row.retrieved)?.retrieved;
+if (!retrieved) throw new Error("EIA snapshot has no retrieved date");
+const text = tripFuelAnswer({
+  epaDate: formatDate(meta.dates.epa),
+  epaRows: formatNumber(meta.counts.epaRowsMy2000),
+  retrieved: formatDate(retrieved),
+});
 ---
 
 <Base
   title="Trip fuel cost"
   description={metaDescription(text)}
   canonicalPath="/tools/trip-fuel-cost/"
+  refreshPath="/tools/fuel-cost-calculator/#trip"
   breadcrumbs={[
     { label: "Home", href: "/" },
     { label: "Trip fuel cost", href: "/tools/trip-fuel-cost/" },
@@ -20,7 +31,7 @@ const text = `Trip cost uses the same EPA file dated ${formatDate(meta.dates.epa
   jsonLd={[
     webApp({
       name: "Trip fuel cost",
-      description: "Trip fuel cost from EPA combined mpg or kWh/100 mi, trip miles, and a price you enter.",
+      description: "Trip fuel cost from EPA combined mpg or kWh/100 mi, trip miles, and a price you can replace.",
       url: "https://vehiclefactbook.com/tools/trip-fuel-cost/",
     }),
   ]}
@@ -28,28 +39,42 @@ const text = `Trip cost uses the same EPA file dated ${formatDate(meta.dates.epa
   <article class="wrap">
     <h1>Trip fuel cost</h1>
     <Answer text={text} />
+    <p>
+      <a href="/tools/fuel-cost-calculator/#trip">Open the fuel-cost calculator in trip mode</a>.
+      Annual mode on that page starts at 15,000 miles.
+    </p>
+    <h2>Formula</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>Trip cost uses the same formulas as the annual calculation. Only the miles change.</caption>
+        <thead>
+          <tr>
+            <th>Situation</th>
+            <th>Calculation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Combined mpg</td>
+            <td>trip miles ÷ EPA combined mpg × dollars per gallon</td>
+          </tr>
+          <tr>
+            <td>City and highway split</td>
+            <td>city miles ÷ city mpg, plus highway miles ÷ highway mpg, then × dollars per gallon</td>
+          </tr>
+          <tr>
+            <td>Electric</td>
+            <td>trip miles × EPA combined kWh/100 mi ÷ 100 × dollars per kWh</td>
+          </tr>
+          <tr>
+            <td>Cost per mile</td>
+            <td>cost ÷ trip miles</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <script is:inline>
-      if (location.search) {
-        const meta = document.createElement("meta");
-        meta.name = "robots";
-        meta.content = "noindex";
-        document.head.appendChild(meta);
-      }
+      location.replace("/tools/fuel-cost-calculator/#trip");
     </script>
-    <form class="controls" data-fuel data-mode="trip">
-      <label>Make <select name="make"><option value="">Select a make</option></select></label>
-      <label>Model <select name="model"><option value="">Select a model</option></select></label>
-      <label>Model year <select name="year"><option value="">Select a year</option></select></label>
-      <label>Configuration <select name="config"><option value="">Select a configuration</option></select></label>
-      <label>Trip miles <input type="number" name="miles" min="0" step="1" inputmode="numeric" /></label>
-      <label>Price per gallon (USD) <input type="number" name="price" min="0" step="0.01" inputmode="decimal" /></label>
-      <label>Price per kWh (USD) <input type="number" name="kwhPrice" min="0" step="0.01" inputmode="decimal" /></label>
-      <button type="submit">Calculate</button>
-    </form>
-    <div class="panel" data-fuel-result><p>Select a configuration and enter trip miles.</p></div>
-    <p>Annual mode, with EPA's 15,000-mile starting point, is the <a href="/tools/fuel-cost-calculator/">fuel cost calculator</a>.</p>
   </article>
 </Base>
-<script>
-  import "../../scripts/fuel.js";
-</script>

@@ -49,6 +49,7 @@ const primary = yearDetail.splitNames
   ? [...groups].sort((a, b) => (b.complaints?.n || 0) - (a.complaints?.n || 0))[0]
   : null;
 const calculator = `/tools/fuel-cost-calculator/?make=${make.slug}&model=${model.slug}&year=${year}`;
+const calculatorWithConfig = yearDetail.configs.length ? `${calculator}&config=0` : calculator;
 const path = `/${make.slug}/${model.slug}/${year}/`;
 ---
 
@@ -179,9 +180,11 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
     <NcapTable variants={yearDetail.ncap} year={year} make={make.name} model={model.name} />
 
     <h2 id="fuel">Fuel economy</h2>
-    <ConfigTable configs={yearDetail.configs} />
+    <ConfigTable configs={yearDetail.configs} calculator={calculator} />
     <p>
-      <a href={calculator}>Open this model year in the fuel-cost calculator</a>. The calculator starts with no fuel price filled in.
+      <a href={calculatorWithConfig}>Open this model year in the fuel-cost calculator</a>.
+      Each listed configuration has its own link, and that link selects the row.
+      When the fuel is regular gasoline, diesel, or electricity, the price box starts with an EIA average you can replace.
     </p>
 
     <h2>Check a vehicle</h2>

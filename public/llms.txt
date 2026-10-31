@@ -10,13 +10,14 @@ Operated by Three Pines Company LLC. Not affiliated with any government agency o
 - NHTSA ODI complaints flat file (aggregates only; names, VINs, cities, dealers, and narratives are not republished): https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip
 - NHTSA ODI investigations flat file: https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip
 - EPA / fueleconomy.gov vehicles.csv: https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip
+- EIA weekly retail regular gasoline and on-highway diesel (Gasoline and Diesel Fuel Update) and average residential electricity by state (Electric Power Monthly Table 5.6.A), committed as data/eia-fuel-prices.csv. EIA's copyright and reuse note places these publications in the public domain: https://www.eia.gov/about/copyrights_reuse.php
 - NHTSA 5-Star Safety Ratings API for model years 2011 and newer: https://api.nhtsa.gov/SafetyRatings
 
 Manufacturer communications (TSBs) are not imported. The file-name list for those downloads was not verified.
 
 ## URLs
 
-- / tools and lookup: /tools/fuel-cost-calculator/ /tools/trip-fuel-cost/ /tools/mpg-calculator/ /compare/ /recalls/lookup/
+- / tools and lookup: /tools/fuel-cost-calculator/ (trip mode at #trip) /tools/trip-fuel-cost/ /tools/mpg-calculator/ /compare/ /recalls/lookup/
 - /{make}/ make hub
 - /{make}/{model}/ model hub
 - /{make}/{model}/years/ complaint and recall counts by model year, only when at least three model years have matched NHTSA records

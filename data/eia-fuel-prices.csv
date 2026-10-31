@@ -1,0 +1,83 @@
+product,area,area_name,price,unit,period,retrieved,source_url,license_url,note
+gasoline,US,U.S.,4.269,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,PADD1,East Coast (PADD1),4.022,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,PADD1A,New England (PADD1A),4.199,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,PADD1B,Central Atlantic (PADD1B),4.251,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,PADD1C,Lower Atlantic (PADD1C),3.832,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,PADD2,Midwest (PADD2),4.269,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,PADD3,Gulf Coast (PADD3),3.702,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,PADD4,Rocky Mountain (PADD4),4.458,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,PADD5,West Coast (PADD5),5.417,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,PADD5XCA,West Coast less California,4.868,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,CA,California,5.888,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,CO,Colorado,4.458,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,FL,Florida,4.017,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,MA,Massachusetts,4.145,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,MN,Minnesota,4.146,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,NY,New York,4.249,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,OH,Ohio,4.380,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,TX,Texas,3.632,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+gasoline,WA,Washington,5.203,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,US,U.S.,6.352,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,PADD1,East Coast (PADD1),6.079,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,PADD1A,New England (PADD1A),6.421,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,PADD1B,Central Atlantic (PADD1B),6.496,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,PADD1C,Lower Atlantic (PADD1C),5.890,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,PADD2,Midwest (PADD2),6.480,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,PADD3,Gulf Coast (PADD3),5.951,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,PADD4,Rocky Mountain (PADD4),6.521,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,PADD5,West Coast (PADD5),7.329,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,PADD5XCA,West Coast less California,6.614,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+diesel,CA,California,8.155,USD per gallon,2026-10-26,2026-10-31,https://www.eia.gov/petroleum/gasdiesel/,https://www.eia.gov/about/copyrights_reuse.php,includes all taxes
+electricity,CT,Connecticut,24.51,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,ME,Maine,32.11,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,MA,Massachusetts,30.48,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,NH,New Hampshire,27.64,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,RI,Rhode Island,28.18,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,VT,Vermont,23.84,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,NJ,New Jersey,24.61,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,NY,New York,28.65,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,PA,Pennsylvania,21.77,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,IL,Illinois,19.32,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,IN,Indiana,17.02,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,MI,Michigan,22.99,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,OH,Ohio,19.38,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,WI,Wisconsin,19.41,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,IA,Iowa,17.06,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,KS,Kansas,15.47,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,MN,Minnesota,17.20,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,MO,Missouri,16.02,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,NE,Nebraska,13.54,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,ND,North Dakota,13.31,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,SD,South Dakota,15.15,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,DE,Delaware,18.70,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,DC,District of Columbia,25.98,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,FL,Florida,14.99,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,GA,Georgia,15.90,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,MD,Maryland,21.40,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,NC,North Carolina,14.95,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,SC,South Carolina,15.76,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,VA,Virginia,17.64,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,WV,West Virginia,16.31,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,AL,Alabama,16.33,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,KY,Kentucky,13.80,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,MS,Mississippi,14.43,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,TN,Tennessee,13.42,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,AR,Arkansas,14.37,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,LA,Louisiana,12.87,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,OK,Oklahoma,14.82,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,TX,Texas,15.91,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,AZ,Arizona,15.05,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,CO,Colorado,17.17,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,ID,Idaho,13.37,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,MT,Montana,15.57,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,NV,Nevada,12.72,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,NM,New Mexico,16.51,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,UT,Utah,13.31,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,WY,Wyoming,14.43,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,CA,California,29.75,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,OR,Oregon,15.92,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,WA,Washington,14.63,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,AK,Alaska,29.41,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,HI,Hawaii,47.18,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary
+electricity,US,U.S. Total,18.16,cents per kWh,2026-08,2026-10-31,https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_06_a,https://www.eia.gov/about/copyrights_reuse.php,preliminary

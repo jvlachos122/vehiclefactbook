@@ -1,7 +1,10 @@
 ---
+import { readFileSync } from "node:fs";
 import Base from "../layouts/Base.astro";
 import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
+import { EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE, loadPriceSnapshot } from "../lib/eia-prices.js";
+import { formatPeriod } from "../lib/fuel-cost.js";
 import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
 import { dataset } from "../lib/schema.js";
 import { site } from "../lib/site.js";
@@ -9,6 +12,9 @@ import { site } from "../lib/site.js";
 const meta = loadMeta();
 const counts = meta.counts;
 const dates = meta.dates;
+const eiaPrices = loadPriceSnapshot(readFileSync(new URL("../../data/eia-fuel-prices.csv", import.meta.url), "utf8"));
+const eiaGas = eiaPrices.find((row) => row.product === "gasoline" && row.area === "US");
+const eiaElectric = eiaPrices.find((row) => row.product === "electricity" && row.area === "US");
 const text = `Counts on this site come from NHTSA flat files dated ${formatDate(dates.recalls)} (recalls), ${formatDate(dates.complaints)} (complaints), and ${formatDate(dates.investigations)} (investigations), and from the EPA fuel-economy file dated ${formatDate(dates.epa)}. Complaint totals are distinct complaint numbers, not raw rows.`;
 const path = "/methodology/";
 ---
@@ -92,10 +98,10 @@ const path = "/methodology/";
 
     <h2>Fuel economy</h2>
     <p>
-      Each EPA row is one configuration. Combined city and highway figures of zero are left blank. feScore and ghgScore values of −1 are left blank and are not shown as a score. fuelCost08 is EPA's annual fuel cost for that configuration. EPA's documentation says the figure uses 15,000 miles and 55 percent city driving. This site does not replace it with its own gas price. Electric vehicles report MPGe in the combined field and kWh per 100 miles separately. A combined figure for an electric configuration is not labeled mpg.
+      Each EPA row is one configuration. Combined city and highway figures of zero are left blank. feScore and ghgScore values of −1 are left blank and are not shown as a score. fuelCost08 is EPA's annual fuel cost for that configuration. EPA's documentation says the figure uses 15,000 miles and 55 percent city driving. The calculator still shows that published figure and does not replace it. Electric vehicles report MPGe in the combined field and kWh per 100 miles separately. A combined figure for an electric configuration is not labeled mpg.
     </p>
     <p>
-      The fuel-cost calculator asks you for a price. Until you enter one, it shows EPA's published annual figure and does not invent a national price.
+      The fuel-cost calculator also multiplies the miles you enter by the EPA rate and by a price. For regular gasoline and diesel, the price box can start from the weekly retail average, including taxes, in EIA's <a href={EIA_GASOLINE_SOURCE}>Gasoline and Diesel Fuel Update</a>. For electricity, it can start from the residential price in <a href={EIA_ELECTRICITY_SOURCE}>Electric Power Monthly Table 5.6.A</a>. The committed snapshot is data/eia-fuel-prices.csv, retrieved {formatDate(eiaGas.retrieved)}. Gasoline and diesel use the week of {formatDate(eiaGas.period)}. Electricity uses {formatPeriod(eiaElectric.period)}, and EIA marks those 2026 values preliminary. Premium gasoline, midgrade gasoline, and other fuels have no default. Clearing the price leaves the calculated cost blank and leaves fuelCost08 as published. <a href={EIA_LICENSE}>EIA's copyright and reuse note</a> places U.S. government publications on its site in the public domain.
     </p>
 
     <h2>Star ratings</h2>

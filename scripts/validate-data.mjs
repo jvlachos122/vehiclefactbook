@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { loadPriceSnapshot } from "../src/lib/eia-prices.js";
 
 const root = join(import.meta.dirname, "..");
 const required = [
@@ -12,6 +13,7 @@ const required = [
   "data/recent.json",
   "data/model-crosswalk.csv",
   "data/unmatched.csv",
+  "data/eia-fuel-prices.csv",
 ];
 for (const path of required) {
   if (!existsSync(join(root, path))) {
@@ -100,6 +102,20 @@ function keys(value, file) {
 }
 for (const file of walk(join(root, "data"))) keys(JSON.parse(readFileSync(file, "utf8")), file);
 
+let eiaRows;
+try {
+  eiaRows = loadPriceSnapshot(readFileSync(join(root, "data/eia-fuel-prices.csv"), "utf8"));
+} catch (error) {
+  console.error(error.message);
+  process.exit(1);
+}
+for (const key of ["gasoline", "diesel", "electricity"]) {
+  if (!eiaRows.some((row) => row.product === key && row.area === "US")) {
+    console.error(`EIA price snapshot is missing the U.S. ${key} row`);
+    process.exit(1);
+  }
+}
+
 console.log(
-  `data OK: spine ${counts.mmySpine}, matched ${counts.matchedMmy}, makes ${counts.rawMakes} raw / ${counts.publishedMakes} published, models ${counts.rawModels} raw / ${counts.publishedModels} published`,
+  `data OK: spine ${counts.mmySpine}, matched ${counts.matchedMmy}, makes ${counts.rawMakes} raw / ${counts.publishedMakes} published, models ${counts.rawModels} raw / ${counts.publishedModels} published, EIA prices ${eiaRows.length}`,
 );

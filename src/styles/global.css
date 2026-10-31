@@ -137,6 +137,12 @@ a:hover { color: var(--steel-dark); }
 .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0; }
 
 .controls { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin: 1rem 0; }
+.controls .span { grid-column: 1 / -1; }
+.controls label.choice { display: flex; align-items: center; gap: 0.5rem; }
+.controls label.choice input { width: auto; }
+.mode-choices { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; align-items: center; }
+details.span, details.panel { border: 1px solid var(--rule); padding: 0.6rem 0.8rem; background: var(--paper-2); }
+details.span summary, details.panel summary { cursor: pointer; min-height: var(--tap); display: flex; align-items: center; }
 fieldset { border: 1px solid var(--rule); margin: 0; padding: 0.8rem; }
 legend { font-weight: 600; padding: 0 0.3rem; }
 label { display: grid; gap: 0.25rem; font-size: 0.95rem; }

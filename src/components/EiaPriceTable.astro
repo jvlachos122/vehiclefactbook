@@ -1,0 +1,33 @@
+---
+const { caption, rows = [], sourceHref = "", sourceLabel = "" } = Astro.props;
+const ordered = [...rows.filter((row) => row.area === "US"), ...rows.filter((row) => row.area !== "US")];
+---
+
+<div class="table-wrap">
+  <table>
+    <caption>
+      {caption}
+      {sourceHref ? <a href={sourceHref}>{sourceLabel}</a> : null}
+    </caption>
+    <thead>
+      <tr>
+        <th>Area</th>
+        <th class="num">Price</th>
+        <th>Unit</th>
+        <th>Period</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        ordered.map((row) => (
+          <tr>
+            <td>{row.area_name}</td>
+            <td class="num">{row.price}</td>
+            <td>{row.unit}</td>
+            <td>{row.period}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

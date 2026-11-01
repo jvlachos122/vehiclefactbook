@@ -1,0 +1,85 @@
+---
+import CampaignTable from "./CampaignTable.astro";
+import { formatDate, formatNumber } from "../lib/format.js";
+import { FLAG_CAVEAT, MAKE_RECALL_CAP, modelsInCampaigns } from "../lib/make-recalls.js";
+import { nhtsaVinTool } from "../lib/site.js";
+
+const { makeName, makeSlug, campaigns = [], recallDate } = Astro.props;
+const shown = campaigns.slice(0, MAKE_RECALL_CAP);
+const rest = campaigns.slice(MAKE_RECALL_CAP);
+const restModels = modelsInCampaigns(rest);
+const doNotDrive = campaigns.filter((campaign) => campaign.dnd);
+const parkOutside = campaigns.filter((campaign) => campaign.park);
+const fileDate = formatDate(recallDate);
+const newestCaption =
+  shown.length === campaigns.length
+    ? `${formatNumber(campaigns.length)} ${makeName} campaigns matched to model years on this site, newest report date first. NHTSA recall file dated ${fileDate}.`
+    : `${formatNumber(shown.length)} newest of ${formatNumber(campaigns.length)} ${makeName} campaigns matched to model years on this site. NHTSA recall file dated ${fileDate}.`;
+---
+
+<h2 id="recalls">{makeName} recalls</h2>
+<p>
+  This page is not a VIN lookup. NHTSA's recall tool checks a specific vehicle:
+  <a href={nhtsaVinTool}>nhtsa.gov/recalls</a>.
+</p>
+<p>{FLAG_CAVEAT}</p>
+<div class="panel">
+  <h3>Do not drive</h3>
+  <p>
+    NHTSA marks {formatNumber(doNotDrive.length)} of these {makeName} campaigns do not drive.
+    The file-wide list is <a href="/recalls/do-not-drive/">do not drive recalls</a>.
+  </p>
+  {
+    doNotDrive.length ? (
+      <CampaignTable
+        campaigns={doNotDrive}
+        makeSlug={makeSlug}
+        caption={`${formatNumber(doNotDrive.length)} ${makeName} campaigns marked do not drive`}
+      />
+    ) : null
+  }
+</div>
+<div class="panel">
+  <h3>Park outside</h3>
+  <p>
+    NHTSA marks {formatNumber(parkOutside.length)} of these {makeName} campaigns park outside.
+    The file-wide list is <a href="/recalls/park-outside/">park outside recalls</a>.
+  </p>
+  {
+    parkOutside.length ? (
+      <CampaignTable
+        campaigns={parkOutside}
+        makeSlug={makeSlug}
+        caption={`${formatNumber(parkOutside.length)} ${makeName} campaigns marked park outside`}
+      />
+    ) : null
+  }
+</div>
+{
+  shown.length ? (
+    <>
+      <h3>Newest campaigns</h3>
+      <CampaignTable campaigns={shown} makeSlug={makeSlug} caption={newestCaption} summary />
+      {
+        rest.length ? (
+          <p>
+            {formatNumber(rest.length)} more campaigns are matched to {makeName} model years and are not listed in the table above.
+            {
+              restModels.length ? (
+                <>
+                  {" Model pages for those campaigns: "}
+                  {restModels.map((model, index) => (
+                    <span>{index ? ", " : ""}<a href={`/${makeSlug}/${model.slug}/`}>{model.name}</a></span>
+                  ))}
+                  .
+                </>
+              ) : null
+            }
+          </p>
+        ) : null
+      }
+    </>
+  ) : (
+    <p>No recall campaigns are matched to {makeName} model years in the NHTSA recall file dated {fileDate}.</p>
+  )
+}

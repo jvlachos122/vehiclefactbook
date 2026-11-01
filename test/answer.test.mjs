@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { homeAnswer, mmyAnswer, pre2011RatingSentence, variantLabel, yearsAnswer } from "../src/lib/answer.js";
-
-function sentenceCount(text) {
-  return text.split(/(?<=[.?!])\s+/).filter((sentence) => sentence.trim()).length;
-}
+import { homeAnswer, makeAnswer, mmyAnswer, pre2011RatingSentence, variantLabel, yearsAnswer } from "../src/lib/answer.js";
+import { sentenceCount } from "../src/lib/jsonld-audit.js";
 
 const dates = { recalls: "2026-10-23", complaints: "2026-10-23", epa: "2026-09-29", investigations: "2026-10-23" };
 
@@ -127,6 +124,61 @@ test("pre-2011 answer says the rating is not comparable", () => {
   assert.equal(text.includes(pre2011RatingSentence()), true);
   assert.match(text, /pre-2011 rating, not comparable/);
   assert.doesNotMatch(text, /5 stars overall/);
+});
+
+test("make answer states distinct campaigns, flags, and the file date", () => {
+  const models = [
+    {
+      years: [
+        { y: 2018, recalls: 2, complaints: 10, dnd: 1, park: 0, mpgMin: 20, mpgMax: 30 },
+        { y: 2019, recalls: 1, complaints: 4, dnd: 0, park: 1, mpgMin: 22, mpgMax: 22 },
+      ],
+    },
+  ];
+  const text = makeAnswer(
+    "Honda",
+    models,
+    dates,
+    { total: 2, minDate: "2018-05-01", maxDate: "2024-11-02", dnd: 1, park: 1 },
+  );
+  assert.match(text, /recall file dated Oct 23, 2026/);
+  assert.match(text, /2 vehicle campaigns matched to Honda model years/);
+  assert.match(text, /report dates from May 1, 2018 through Nov 2, 2024/);
+  assert.match(text, /1 campaign marked do not drive and 1 campaign marked park outside/);
+  assert.match(text, /Across 1 model and 2 model years/);
+  assert.match(text, /3 recall rows and 14 complaints/);
+  assert.match(text, /raw counts, not rates, and more complaints can mean more cars sold/);
+  assert.match(text, /EPA rates non-electric configurations 20–30 mpg combined/);
+  assert.equal(sentenceCount(text), 3);
+  assert.doesNotMatch(text, /\b(avoid|reliable|unreliable|best|worst)\b/i);
+  assert.doesNotMatch(text, /%|per 1,?000|per vehicle/);
+});
+
+test("make answer with one report date does not invent a range", () => {
+  const text = makeAnswer(
+    "Azure Dynamics",
+    [{ years: [{ y: 2012, recalls: 0, complaints: 0, mpgMin: null, mpgMax: null }] }],
+    dates,
+    { total: 1, minDate: "2024-01-15", maxDate: "2024-01-15", dnd: 0, park: 0 },
+  );
+  assert.match(text, /1 vehicle campaign matched to Azure Dynamics/);
+  assert.match(text, /with report date Jan 15, 2024/);
+  assert.match(text, /0 campaigns marked do not drive and 0 campaigns marked park outside/);
+  assert.match(text, /Across 1 model and 1 model year \(2012–2012\)/);
+  assert.doesNotMatch(text, /through/);
+  assert.equal(sentenceCount(text), 2);
+});
+
+test("make answer with no campaigns omits a date range", () => {
+  const text = makeAnswer(
+    "Spyker",
+    [{ years: [{ y: 2009, recalls: 0, complaints: 1, mpgMin: 12, mpgMax: 13 }] }],
+    dates,
+    { total: 0, minDate: "", maxDate: "", dnd: 0, park: 0 },
+  );
+  assert.match(text, /0 vehicle campaigns matched to Spyker model years on this site,/);
+  assert.doesNotMatch(text, /report date/);
+  assert.equal(sentenceCount(text), 3);
 });
 
 test("years answer names the high and low counts as facts", () => {

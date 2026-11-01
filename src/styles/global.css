@@ -159,6 +159,7 @@ select, input[type="number"], input[type="search"] {
   padding: 1rem;
   margin: 1rem 0;
 }
+.panel h3:first-child { margin-top: 0; }
 .result { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-feature-settings: "zero" 1, "tnum" 1; font-size: 1.4rem; }
 
 .stats, .year-strip { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0; margin: 0 0 1rem; list-style: none; }

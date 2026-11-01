@@ -2,8 +2,10 @@
 import Base from "../../layouts/Base.astro";
 import Answer from "../../components/Answer.astro";
 import DataNote from "../../components/DataNote.astro";
+import MakeRecalls from "../../components/MakeRecalls.astro";
 import { findMake, loadMeta, makePaths } from "../../lib/catalog.js";
 import { makeAnswer, rollup } from "../../lib/answer.js";
+import { campaignFacts, loadMakeCampaigns } from "../../lib/make-recalls.js";
 import { formatNumber, metaDescription } from "../../lib/format.js";
 import { dataset } from "../../lib/schema.js";
 import { site } from "../../lib/site.js";
@@ -15,7 +17,9 @@ export function getStaticPaths() {
 const meta = loadMeta();
 const make = findMake(Astro.params.make);
 const models = [...make.models].sort((a, b) => a.name.localeCompare(b.name));
-const text = makeAnswer(make.name, models, meta.dates);
+const campaigns = loadMakeCampaigns(make);
+const facts = campaignFacts(campaigns);
+const text = makeAnswer(make.name, models, meta.dates, facts);
 const totals = rollup(models);
 const path = `/${make.slug}/`;
 const crumbs = [
@@ -46,11 +50,13 @@ const crumbs = [
     <ul class="stats">
       <li class="stat"><b>{formatNumber(totals.models)}</b><span>Models</span></li>
       <li class="stat"><b>{formatNumber(totals.mmy)}</b><span>Model years</span></li>
+      <li class="stat"><b>{formatNumber(facts.total)}</b><span>Campaigns</span></li>
       <li class="stat"><b>{formatNumber(totals.recalls)}</b><span>Recall rows, summed</span></li>
       <li class="stat"><b>{formatNumber(totals.complaints)}</b><span>Complaints, summed</span></li>
-      <li class="stat"><b>{formatNumber(totals.dnd)}</b><span>Do-not-drive rows</span></li>
-      <li class="stat"><b>{formatNumber(totals.park)}</b><span>Park-outside rows</span></li>
+      <li class="stat"><b>{formatNumber(facts.dnd)}</b><span>Do-not-drive campaigns</span></li>
+      <li class="stat"><b>{formatNumber(facts.park)}</b><span>Park-outside campaigns</span></li>
     </ul>
+    <MakeRecalls makeName={make.name} makeSlug={make.slug} campaigns={campaigns} recallDate={meta.dates.recalls} />
     <h2>Models</h2>
     <div class="table-wrap">
       <table>

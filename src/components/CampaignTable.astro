@@ -1,0 +1,44 @@
+---
+import Badges from "./Badges.astro";
+import { campaignUrl, formatDate, plain } from "../lib/format.js";
+import { formatYearList } from "../lib/make-recalls.js";
+
+const { campaigns = [], makeSlug, caption, summary = false } = Astro.props;
+---
+
+<div class="table-wrap">
+  <table>
+    <caption>{caption}</caption>
+    <thead>
+      <tr>
+        <th>Report date</th>
+        <th>Campaign</th>
+        <th>Component</th>
+        <th>Models and years</th>
+        {summary ? <th>Summary</th> : null}
+      </tr>
+    </thead>
+    <tbody>
+      {
+        campaigns.map((campaign) => (
+          <tr>
+            <td>{formatDate(campaign.date) || "—"}</td>
+            <td>
+              <a href={campaignUrl(campaign.camp)}>{campaign.camp}</a>
+              <Badges dnd={campaign.dnd} park={campaign.park} />
+            </td>
+            <td>{plain(campaign.component, 120) || "—"}</td>
+            <td>
+              {campaign.models.length
+                ? campaign.models.map((model, index) => (
+                    <span>{index ? "; " : ""}<a href={`/${makeSlug}/${model.slug}/`}>{model.name}</a>{model.years.length ? ` ${formatYearList(model.years)}` : ""}</span>
+                  ))
+                : "—"}
+            </td>
+            {summary ? <td>{plain(campaign.summary, 200) || "—"}</td> : null}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

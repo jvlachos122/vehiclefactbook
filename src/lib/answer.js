@@ -158,18 +158,27 @@ export function homeAnswer(counts, dates) {
   ].join(" ");
 }
 
-export function makeAnswer(name, models, dates) {
+export function makeAnswer(name, models, dates, facts = {}) {
   const totals = rollup(models);
   const recallDate = formatDate(dates.recalls);
   const complaintDate = formatDate(dates.complaints);
   const epaDate = formatDate(dates.epa);
+  const total = Number(facts.total) || 0;
+  const dnd = Number(facts.dnd) || 0;
+  const park = Number(facts.park) || 0;
+  let range = "";
+  if (facts.minDate && facts.maxDate) {
+    const min = formatDate(facts.minDate);
+    const max = formatDate(facts.maxDate);
+    range = min === max ? `, with report date ${min}` : `, with report dates from ${min} through ${max}`;
+  }
   const sentences = [
-    `Across ${totals.models.toLocaleString("en-US")} ${name} models and ${totals.mmy.toLocaleString("en-US")} model years (${totals.minY}–${totals.maxY}), matched NHTSA records on this site add up to ${plural(totals.recalls, "recall")} and ${plural(totals.complaints, "complaint")} (recall file dated ${recallDate}; complaint file dated ${complaintDate}).`,
-    "A campaign that covers more than one model year is counted on each of those pages, so the recall total is not a count of distinct campaigns.",
+    `NHTSA's recall file dated ${recallDate} lists ${plural(total, "vehicle campaign")} matched to ${name} model years on this site${range}, including ${plural(dnd, "campaign")} marked do not drive and ${plural(park, "campaign")} marked park outside.`,
+    `Across ${plural(totals.models, "model")} and ${plural(totals.mmy, "model year")} (${totals.minY}–${totals.maxY}), matched NHTSA records on the model year pages add up to ${plural(totals.recalls, "recall row")} and ${plural(totals.complaints, "complaint")} (complaint file dated ${complaintDate}), and a campaign that covers more than one model year is counted on each of those pages; complaint figures are raw counts, not rates, and more complaints can mean more cars sold.`,
   ];
   if (totals.mpgMin != null) {
     sentences.push(
-      `EPA combined mpg for non-electric configurations in the file dated ${epaDate} runs from ${span(totals.mpgMin, totals.mpgMax, "mpg")}.`,
+      `EPA rates non-electric configurations ${span(totals.mpgMin, totals.mpgMax, "mpg combined")} (fuel economy file dated ${epaDate}).`,
     );
   }
   return sentences.join(" ");

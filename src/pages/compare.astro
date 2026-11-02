@@ -2,10 +2,13 @@
 import Base from "../layouts/Base.astro";
 import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
+import { exampleIndexCaption, exampleIndexIntro, loadExamplePairs } from "../lib/compare-pairs.js";
 import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
 import { webApp } from "../lib/schema.js";
 
 const meta = loadMeta();
+const pairs = loadExamplePairs();
+const intro = exampleIndexIntro(pairs.length);
 const text = `Compare two of the ${formatNumber(meta.counts.publishedMmy)} published model years. Recall and complaint counts are from NHTSA files dated ${formatDate(meta.dates.recalls)} and ${formatDate(meta.dates.complaints)}, and fuel figures are from the EPA file dated ${formatDate(meta.dates.epa)}. The counts are not sales-adjusted, and this page does not pick a winner.`;
 ---
 
@@ -36,7 +39,39 @@ const text = `Compare two of the ${formatNumber(meta.counts.publishedMmy)} publi
         document.head.appendChild(meta);
       }
     </script>
-    <p>There is one indexed address for this tool. A query string that preselects vehicles is not a separate page.</p>
+    <p>There is one indexed address for this tool. A query string that preselects vehicles is not a separate page. The example comparisons below are separate pages.</p>
+    <h2 id="examples">Example comparisons</h2>
+    <p>{intro}</p>
+    <div class="table-wrap">
+      <table>
+        <caption>{exampleIndexCaption()}</caption>
+        <thead>
+          <tr>
+            <th>Comparison</th>
+            <th>Model year</th>
+            <th>EPA class</th>
+            <th class="num">EPA configuration rows</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            pairs.map((pair) => (
+              <tr>
+                <td>
+                  <a href={`/compare/${pair.slug}/`}>
+                    {pair.year} {pair.left.makeName} {pair.left.modelName} vs {pair.year} {pair.right.makeName} {pair.right.modelName}
+                  </a>
+                </td>
+                <td>{pair.year}</td>
+                <td>{pair.classFamily}</td>
+                <td class="num">{formatNumber(pair.configCount)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <h2>Compare any two model years</h2>
     <div class="controls" data-compare>
       <fieldset>
         <legend>First vehicle</legend>

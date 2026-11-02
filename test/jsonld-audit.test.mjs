@@ -60,6 +60,7 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/guides/what-is-a-tsb/index.html"), "guide");
   assert.equal(classifyPage("/tools/mpg-calculator/index.html"), "tool");
   assert.equal(classifyPage("/compare/index.html"), "tool");
+  assert.equal(classifyPage("/compare/honda-civic-vs-toyota-camry/index.html"), "compare-pair");
   assert.equal(classifyPage("/recalls/lookup/index.html"), "tool");
   assert.equal(classifyPage("/recalls/do-not-drive/index.html"), "advisory");
   assert.equal(classifyPage("/honda/index.html"), "make");
@@ -107,6 +108,19 @@ test("representative pages pass the JSON-LD rules", () => {
           description: "How the files are counted.",
           url: "https://vehiclefactbook.com/methodology/",
           dateModified: "2026-10-25",
+        }),
+      ],
+    ],
+    [
+      "/compare/honda-civic-vs-toyota-camry/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "2026 Honda Civic vs 2026 Toyota Camry",
+          description: "EPA fuel economy and NHTSA counts for the 2026 Honda Civic and the 2026 Toyota Camry.",
+          url: "https://vehiclefactbook.com/compare/honda-civic-vs-toyota-camry/",
+          dateModified: "2026-10-25",
+          temporalCoverage: "2026",
         }),
       ],
     ],

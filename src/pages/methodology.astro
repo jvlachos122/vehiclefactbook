@@ -122,6 +122,14 @@ const path = "/methodology/";
       )
     }
 
+    <h2>Example comparisons</h2>
+    <p>
+      <a href="/compare/">Compare</a> publishes static pages for pairs of models from different makes.
+      A pair uses the newest model year for which both models have an NHTSA name match, and only when that year shares an EPA vehicle class.
+      The page shows EPA fuel figures, NHTSA overall stars for model year 2011 and newer, recall campaign counts, and complaint counts received so far.
+      The set is drawn from EPA configuration counts in the committed files. It is not a sales ranking.
+    </p>
+
     <h2>What this site does not say</h2>
     <p>
       Complaint and recall counts are not sales-adjusted. There is no registration denominator in these files. The site does not label a vehicle or a model year as one to avoid, and it does not call one reliable, best, or worst. A higher complaint count can mean more vehicles were sold.
@@ -131,7 +139,7 @@ const path = "/methodology/";
     <ul>
       <li>Manufacturer communications (technical service bulletins). NHTSA's TSBS dictionary says the files were renamed and split into five-year downloads. The zip names tried for this build were not verified, so nothing from those files is published.</li>
       <li>A VIN check. Use <a href="https://www.nhtsa.gov/recalls">NHTSA's recall tool</a>.</li>
-      <li>Separate pages for each campaign, investigation, component, or pair of vehicles.</li>
+      <li>Separate pages for each campaign, investigation, or component.</li>
       <li>The {formatNumber(counts.unmatchedMmy)} unmatched model years have no NHTSA row this site will attach, or the name is ambiguous between two EPA models. Their pages exist, show EPA fuel economy, and say the name did not match.</li>
     </ul>
     <p>Source files are U.S. government works. The license reference used in the site's dataset markup is <a href="https://www.usa.gov/government-works">usa.gov/government-works</a>.</p>

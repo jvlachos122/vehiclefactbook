@@ -1,0 +1,105 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import { loadExamplePairs, ncapFetchedAt, pairDocument } from "../../lib/compare-pairs.js";
+import { loadMeta } from "../../lib/catalog.js";
+import { metaDescription } from "../../lib/format.js";
+import { dataset } from "../../lib/schema.js";
+import { site } from "../../lib/site.js";
+
+export function getStaticPaths() {
+  return loadExamplePairs().map((pair) => ({
+    params: { pair: pair.slug },
+    props: { pair },
+  }));
+}
+
+const { pair } = Astro.props;
+const meta = loadMeta();
+const doc = pairDocument(pair, {
+  dates: meta.dates,
+  ncapFetched: ncapFetchedAt(meta, pair.year),
+});
+const path = `/compare/${pair.slug}/`;
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: "Compare", href: "/compare/" },
+  { label: doc.title, href: path },
+];
+---
+
+<Base
+  title={doc.title}
+  description={metaDescription(doc.answer)}
+  canonicalPath={path}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    dataset({
+      name: doc.title,
+      description: `EPA fuel economy and NHTSA recall counts, complaint counts, and overall stars for the ${pair.year} ${pair.left.makeName} ${pair.left.modelName} and the ${pair.year} ${pair.right.makeName} ${pair.right.modelName}.`,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.complaints,
+      temporalCoverage: String(pair.year),
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">{doc.eyebrow}</p>
+    <h1>{doc.title}</h1>
+    <p>{doc.classLine}</p>
+    <Answer text={doc.answer} />
+    <DataNote />
+    <p>{doc.caveat}</p>
+    <h2>{doc.tableHeading}</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{doc.tableCaption}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Figure</th>
+            {
+              doc.columns.map((column) => (
+                <th scope="col">
+                  <a href={column.href}>{column.heading}</a>
+                </th>
+              ))
+            }
+          </tr>
+        </thead>
+        <tbody>
+          {
+            doc.rows.map((row) => (
+              <tr>
+                <th scope="row">{row.label}</th>
+                <td class={row.numeric ? "num" : undefined}>{row.left}</td>
+                <td class={row.numeric ? "num" : undefined}>{row.right}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    {doc.notes.map((note) => <p>{note}</p>)}
+    <h2>{doc.linksHeading}</h2>
+    <ul>
+      {
+        doc.columns.map((column) => (
+          <li>
+            <a href={column.href}>{column.heading}</a>
+            {" · "}
+            <a href={column.nhtsaHref}>{column.heading} at NHTSA</a>
+          </li>
+        ))
+      }
+    </ul>
+    <p>{doc.narrativeNote}</p>
+    <h2>{doc.sourcesHeading}</h2>
+    <ul>
+      {doc.sources.map((source) => <li>{source}</li>)}
+    </ul>
+    <p>
+      <a href="/compare/">All example comparisons</a>
+    </p>
+  </article>
+</Base>

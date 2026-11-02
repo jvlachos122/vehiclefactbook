@@ -51,12 +51,27 @@ Taken from the files dated 2026-10-26 (NHTSA recalls), 2026-10-25 (NHTSA complai
 
 Mini and MINI share one make page. Nine model spellings share a page with another spelling of the same name, including Nissan LEAF and Leaf. That is the difference between 87 and 86, and between 1,025 and 1,016.
 
+## Example comparisons
+
+`/compare/` links to static pages at `/compare/<make>-<model>-vs-<make>-<model>/`. The site has no sales figures, so the pages are example comparisons, not a popularity list.
+
+The set is chosen only from the committed files in `data/site/`:
+
+1. An EPA class family is the `vclass` value with a trailing `2WD` or `4WD` label removed.
+2. A model year uses the family with the most configuration rows that year. A tie uses the alphabetically first family.
+3. A model's anchor is its newest model year with an EPA configuration and an NHTSA name match (`match` other than `none`).
+4. A pair is two models from different makes with the same anchor year and the same anchor class.
+5. Pairs are ordered by the sum of EPA configuration rows, then by the sum of published model years on the two make hubs.
+6. Each model is used once. Each class family keeps at most four pairs. The first 30 pairs are published.
+
+Each page shows EPA city, highway, and combined mpg (kWh/100 mi and range on electric rows), EPA annual fuel cost, NCAP overall stars for model year 2011 and newer, recall campaign counts, and distinct complaint counts received so far.
+
 ## Not in this version
 
 - Component pages, campaign pages, and investigation pages. Campaign numbers link to NHTSA. Investigation action numbers are printed as text.
 - A VIN lookup. The site links to NHTSA's tool.
 - Manufacturer communications (TSBs). The zip names were not verified.
-- Static compare-pair pages. `/compare/` is one page.
+- A sales ranking. `/compare/` lists example pairs chosen from EPA configuration counts and make size. See "Example comparisons" below.
 - A separate "mpg by year" template. That table is a section on the model page.
 - Sales-adjusted rates, prices, reviews, or a label telling someone to avoid a vehicle.
 - 1,050 model years stay unmatched. A reviewed crosswalk in `data/model-crosswalk.csv`, plus suffix and slash rules, attaches an NHTSA name only when it is the same vehicle. Cargo and passenger splits, coupe and roadster splits, and a shared prefix such as BMW M stay unmatched. Those pages still show EPA fuel economy and say the name did not match.

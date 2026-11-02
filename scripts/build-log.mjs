@@ -25,6 +25,7 @@ function kind(rel) {
   if (["about", "methodology", "privacy", "disclosure", "contact", "compare"].includes(parts[0]) && parts.length === 2) {
     return parts[0];
   }
+  if (parts[0] === "compare" && parts.length === 3) return "compare-pair";
   if (parts.length === 2) return "make";
   if (parts.length === 3) return "model";
   if (parts.length === 4 && parts[2] === "years") return "years";

@@ -33,6 +33,8 @@ The weekly workflow does this on its own. It commits only when the zip hashes di
 
 Bump the `requested:` line in `.github/refresh-request` and merge it to `main` to start the same refresh. An empty `force` is treated as false, and the workflow's `GITHUB_TOKEN` data commit leaves that file unchanged, so it does not start another run.
 
+Deploy site ignores that file, and a queued push to main checks out the latest main.
+
 ## Counts in this build
 
 Taken from the files dated 2026-10-26 (NHTSA recalls), 2026-10-25 (NHTSA complaints and investigations), and 2026-09-29 (EPA):

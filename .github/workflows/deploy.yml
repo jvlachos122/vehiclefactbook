@@ -3,6 +3,7 @@ name: Deploy site
 on:
   push:
     branches: [main]
+    paths-ignore: ['.github/refresh-request']
   pull_request:
   workflow_dispatch:
 
@@ -24,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'main' || '' }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22

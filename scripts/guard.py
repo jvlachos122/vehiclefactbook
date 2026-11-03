@@ -7,18 +7,18 @@ Prints a final line of `unchanged` or `changed` for the weekly workflow.
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_data import SOURCES, sha256_file  # noqa: E402
+from build_data import sha256_file  # noqa: E402
+from sources import SOURCES, zip_directory  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> None:
-    zips = Path(os.environ.get("VF_ZIPS", os.environ.get("VF_RAW", "/tmp/vf-raw")))
+    zips = zip_directory()
     previous_path = ROOT / "data" / "sources.json"
     previous = json.loads(previous_path.read_text()) if previous_path.exists() else {}
     changed = False

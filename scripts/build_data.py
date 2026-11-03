@@ -11,7 +11,6 @@ import argparse
 import csv
 import hashlib
 import json
-import os
 import re
 import sys
 import time
@@ -22,20 +21,13 @@ from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 from lib_norm import assign_year, load_manual, norm_make, norm_model, slug
+from sources import SOURCES, require_texts, resolve_io_dirs
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "data" / "site"
 MODELS = SITE / "models"
 CROSSWALK = ROOT / "data" / "model-crosswalk.csv"
 UA = "VehicleFactbook/1.0 (data pipeline; +https://vehiclefactbook.com/methodology/)"
-
-SOURCES = [
-    ("recalls_post_2010", "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip", "FLAT_RCL_POST_2010.zip", "FLAT_RCL_POST_2010.txt"),
-    ("recalls_pre_2010", "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip", "FLAT_RCL_PRE_2010.zip", "FLAT_RCL_PRE_2010.txt"),
-    ("complaints", "https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip", "FLAT_CMPL.zip", "FLAT_CMPL.txt"),
-    ("investigations", "https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip", "FLAT_INV.zip", "FLAT_INV.txt"),
-    ("epa", "https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip", "vehicles.csv.zip", "vehicles.csv"),
-]
 
 
 def log(message: str) -> None:
@@ -124,12 +116,11 @@ def open_tsv(path: Path):
 
 
 def load_sources(raw_dir: Path, zip_dir: Path) -> dict:
+    require_texts(raw_dir, zip_dir)
     sources = {}
     for key, url, zip_name, text_name in SOURCES:
         zip_path = zip_dir / zip_name
         text_path = raw_dir / text_name
-        if not text_path.exists():
-            raise SystemExit(f"Missing extracted file {text_path}")
         last_modified = header_value(url, "Last-Modified")
         sources[key] = {
             "url": url,
@@ -1118,11 +1109,10 @@ def write_unmatched(rows):
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--match-only", action="store_true")
-    parser.add_argument("--raw", default=os.environ.get("VF_RAW", "/tmp/vf-raw/extracted"))
-    parser.add_argument("--zips", default=os.environ.get("VF_ZIPS", "/tmp/vf-raw"))
+    parser.add_argument("--raw", default=None, help="Directory of extracted flat files (default: $VF_RAW/extracted)")
+    parser.add_argument("--zips", default=None, help="Directory of downloaded zip files (default: $VF_ZIPS or $VF_RAW)")
     args = parser.parse_args()
-    raw_dir = Path(args.raw)
-    zip_dir = Path(args.zips)
+    raw_dir, zip_dir = resolve_io_dirs(args.raw, args.zips)
     started = time.time()
     sources = load_sources(raw_dir, zip_dir)
     grouped, rows_2000, raw_makes, raw_models = load_epa(raw_dir / "vehicles.csv")

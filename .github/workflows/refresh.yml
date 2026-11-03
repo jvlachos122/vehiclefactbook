@@ -9,6 +9,9 @@ on:
         description: Rebuild even when the source zip hashes match
         type: boolean
         default: false
+  push:
+    branches: [main]
+    paths: ['.github/refresh-request']
 
 permissions:
   contents: write

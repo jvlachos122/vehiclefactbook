@@ -36,11 +36,15 @@ function starSentence(year, variants, make, model) {
   return `NHTSA overall stars for rated variants run from ${low} to ${high}.`;
 }
 
+function usableRange(min, max) {
+  return min != null && max != null && Number(min) > 0 && Number(max) > 0;
+}
+
 function epaSentence(row, epaDate) {
   const parts = [];
-  const mpg = span(row.mpgMin, row.mpgMax, "mpg combined");
-  const mpge = span(row.mpgeMin, row.mpgeMax, "MPGe combined");
-  const kwh = kwhSpan(row.kwhMin, row.kwhMax);
+  const mpg = usableRange(row.mpgMin, row.mpgMax) ? span(row.mpgMin, row.mpgMax, "mpg combined") : "";
+  const mpge = usableRange(row.mpgeMin, row.mpgeMax) ? span(row.mpgeMin, row.mpgeMax, "MPGe combined") : "";
+  const kwh = usableRange(row.kwhMin, row.kwhMax) ? kwhSpan(row.kwhMin, row.kwhMax) : "";
   if (mpg) parts.push(mpg);
   if (mpge) parts.push(mpge);
   if (kwh) parts.push(kwh);
@@ -49,34 +53,7 @@ function epaSentence(row, epaDate) {
     (row.mpgMin != null && row.mpgMin !== row.mpgMax) ||
     (row.mpgeMin != null && row.mpgeMin !== row.mpgeMax) ||
     (row.kwhMin != null && row.kwhMin !== row.kwhMax);
-  let sentence = `EPA rates it ${parts.join(" and ")}${varying ? " depending on configuration" : ""} (fuel economy file dated ${epaDate})`;
-  if (row.costMin != null && row.costMax != null) {
-    const cost =
-      row.costMin === row.costMax
-        ? `$${Number(row.costMin).toLocaleString("en-US")}`
-        : `$${Number(row.costMin).toLocaleString("en-US")}–$${Number(row.costMax).toLocaleString("en-US")}`;
-    sentence += `, and the annual fuel-cost figures for these configurations are ${cost}, based on 15,000 miles and 55% city driving`;
-  }
-  return `${sentence}.`;
-}
-
-function flagClause(row) {
-  const bits = [];
-  if (row.dnd) bits.push(`${plural(row.dnd, "recall")} marked do not drive`);
-  if (row.park) bits.push(`${plural(row.park, "recall")} marked park outside`);
-  return bits.length ? `, including ${bits.join(" and ")}` : "";
-}
-
-function investigationClause(row, dates) {
-  if (!row.investigations) return "";
-  const fileDate = formatDate(dates.investigations);
-  if (row.invOpen === row.investigations) {
-    return `, and lists ${plural(row.investigations, "investigation")} with no close date in the NHTSA file dated ${fileDate}`;
-  }
-  if (row.invOpen) {
-    return `, and lists ${plural(row.investigations, "investigation")}, including ${plural(row.invOpen, "investigation")} with no close date in the NHTSA file dated ${fileDate}`;
-  }
-  return `, and lists ${plural(row.investigations, "investigation")} in the NHTSA file dated ${fileDate}`;
+  return `EPA rates it ${parts.join(" and ")}${varying ? " depending on configuration" : ""} (fuel economy file dated ${epaDate}).`;
 }
 
 function nameList(items) {
@@ -89,21 +66,16 @@ export function mmyAnswer({ make, model, year, row, detail, dates }) {
   const recallDate = formatDate(dates.recalls);
   const complaintDate = formatDate(dates.complaints);
   const epaDate = formatDate(dates.epa);
+  const caveat = "counts are raw, not rates, and more complaints can mean more cars sold";
   let nhtsa;
   if (row.match === "none") {
     nhtsa = `NHTSA's recall, complaint, and investigation files do not have a make and model name matched to the ${year} ${make} ${model} (recall file dated ${recallDate}; complaint file dated ${complaintDate}), and the files may list it under a different name.`;
-  } else if (detail?.splitNames) {
+  } else if (detail?.splitNames && nameList(detail.also || [])) {
     const names = nameList(detail.also || []);
     const nameWord = (detail.also || []).length === 1 ? "name" : "names";
-    nhtsa = `NHTSA does not list the EPA model name ${model} for ${year}; under the matched ${nameWord} ${names}, NHTSA lists ${plural(row.recalls, "recall")} and ${plural(row.complaints, "complaint")} (recall file dated ${recallDate}; complaint file dated ${complaintDate})${flagClause(row)}${investigationClause(row, dates)}.`;
+    nhtsa = `NHTSA does not list the EPA model name ${model} for ${year}; under the matched ${nameWord} ${names}, NHTSA lists ${plural(row.recalls, "recall campaign")} and ${plural(row.complaints, "complaint")} received so far (recall file dated ${recallDate}; complaint file dated ${complaintDate}); ${caveat}.`;
   } else {
-    let extra = "";
-    if (row.alsoRecalls || row.alsoComplaints) {
-      const extraNames = nameList(detail?.also || []);
-      const where = extraNames ? ` under ${extraNames}` : " under other NHTSA model names";
-      extra = `, and also lists ${plural(row.alsoRecalls, "recall")} and ${plural(row.alsoComplaints, "complaint")}${where}, separate from the numbers above`;
-    }
-    nhtsa = `NHTSA lists ${plural(row.recalls, "recall")} and ${plural(row.complaints, "complaint")} for the ${year} ${make} ${model} (recall file dated ${recallDate}; complaint file dated ${complaintDate})${extra}${flagClause(row)}${investigationClause(row, dates)}.`;
+    nhtsa = `NHTSA lists ${plural(row.recalls, "recall campaign")} and ${plural(row.complaints, "complaint")} received so far for the ${year} ${make} ${model} (recall file dated ${recallDate}; complaint file dated ${complaintDate}); ${caveat}.`;
   }
   const sentences = [nhtsa, starSentence(year, detail?.ncap, make, model)];
   const epa = epaSentence(row, epaDate);

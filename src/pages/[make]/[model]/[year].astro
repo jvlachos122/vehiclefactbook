@@ -9,7 +9,8 @@ import NcapTable from "../../../components/NcapTable.astro";
 import ConfigTable from "../../../components/ConfigTable.astro";
 import { findYear, loadMeta, loadModel, mmyPaths } from "../../../lib/catalog.js";
 import { mmyAnswer } from "../../../lib/answer.js";
-import { formatNumber, metaDescription, nhtsaVehicleUrl } from "../../../lib/format.js";
+import { formatNumber, nhtsaVehicleUrl } from "../../../lib/format.js";
+import { mmyDocumentTitle, mmyMetaDescription } from "../../../lib/mmy-meta.js";
 import { dataset } from "../../../lib/schema.js";
 import { site } from "../../../lib/site.js";
 
@@ -25,7 +26,19 @@ const yearDetail = detail.years[String(year)];
 const make = found.make;
 const model = found.model;
 const row = found.row;
-const title = `${year} ${make.name} ${model.name} recalls, complaints, and fuel economy`;
+const documentTitle = mmyDocumentTitle({
+  year,
+  make: make.name,
+  model: model.name,
+  row,
+});
+const description = mmyMetaDescription({
+  year,
+  make: make.name,
+  model: model.name,
+  row,
+  dates: meta.dates,
+});
 const text = mmyAnswer({
   make: make.name,
   model: model.name,
@@ -54,8 +67,9 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
 ---
 
 <Base
-  title={title}
-  description={metaDescription(text)}
+  title={documentTitle}
+  documentTitle={documentTitle}
+  description={description}
   canonicalPath={path}
   breadcrumbs={crumbs}
   jsonLd={[

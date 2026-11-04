@@ -41,12 +41,15 @@ test("exact model year answer uses the headline counts", () => {
       ncap: [{ description: "2018 Honda Accord 4 DR FWD", overall: "5" }],
     },
   });
-  assert.match(text, /6 recalls and 1,893 complaints for the 2018 Honda Accord/);
-  assert.match(text, /116 complaints under Accord Hybrid/);
+  assert.match(text, /6 recall campaigns and 1,893 complaints received so far for the 2018 Honda Accord/);
+  assert.match(text, /recall file dated Oct 23, 2026/);
+  assert.match(text, /complaint file dated Oct 23, 2026/);
+  assert.match(text, /counts are raw, not rates, and more complaints can mean more cars sold/);
   assert.match(text, /4 DR FWD 5 stars overall/);
   assert.match(text, /26–47 mpg combined/);
   assert.match(text, /Sep 29, 2026/);
-  assert.ok(sentenceCount(text) <= 3);
+  assert.doesNotMatch(text, /annual fuel-cost|Accord Hybrid/);
+  assert.equal(sentenceCount(text), 3);
   assert.doesNotMatch(text, /\b(avoid|reliable|unreliable|best|worst)\b/i);
 });
 
@@ -72,8 +75,11 @@ test("unmatched model year says the name did not match", () => {
     detail: { ncap: [], complaints: { top: [] } },
   });
   assert.match(text, /do not have a make and model name matched/);
+  assert.match(text, /different name/);
   assert.match(text, /15 mpg combined/);
-  assert.ok(sentenceCount(text) <= 3);
+  assert.doesNotMatch(text, /\b0 recalls?\b/);
+  assert.doesNotMatch(text, /\b0 complaints?\b/);
+  assert.equal(sentenceCount(text), 3);
   assert.doesNotMatch(text, /\bavoid\b/i);
 });
 
@@ -123,6 +129,8 @@ test("pre-2011 answer says the rating is not comparable", () => {
   });
   assert.equal(text.includes(pre2011RatingSentence()), true);
   assert.match(text, /pre-2011 rating, not comparable/);
+  assert.match(text, /2 recall campaigns and 40 complaints received so far/);
+  assert.match(text, /more complaints can mean more cars sold/);
   assert.doesNotMatch(text, /5 stars overall/);
 });
 
@@ -179,6 +187,57 @@ test("make answer with no campaigns omits a date range", () => {
   assert.match(text, /0 vehicle campaigns matched to Spyker model years on this site,/);
   assert.doesNotMatch(text, /report date/);
   assert.equal(sentenceCount(text), 3);
+});
+
+test("split names say the headline count is the matched names", () => {
+  const text = mmyAnswer({
+    make: "BMW",
+    model: "3 Series",
+    year: 2016,
+    dates,
+    row: {
+      match: "series",
+      recalls: 6,
+      complaints: 106,
+      mpgMin: 23,
+      mpgMax: 35,
+    },
+    detail: {
+      splitNames: true,
+      also: [{ name: "328I" }, { name: "340I" }],
+      ncap: [{ description: "2016 BMW 3 Series 4 DR RWD", overall: "5" }],
+    },
+  });
+  assert.match(text, /does not list the EPA model name 3 Series for 2016/);
+  assert.match(text, /under the matched names 328I and 340I/);
+  assert.match(text, /6 recall campaigns and 106 complaints received so far/);
+  assert.match(text, /more complaints can mean more cars sold/);
+  assert.equal(sentenceCount(text), 3);
+});
+
+test("a listed zero stays visible and a blank fuel figure is omitted", () => {
+  const listed = mmyAnswer({
+    make: "Honda",
+    model: "Fit",
+    year: 2026,
+    dates,
+    row: { match: "exact", recalls: 0, complaints: 0, mpgMin: null, mpgMax: null, mpgeMin: null, mpgeMax: null, kwhMin: null, kwhMax: null },
+    detail: { ncap: [] },
+  });
+  assert.match(listed, /0 recall campaigns and 0 complaints received so far/);
+  assert.match(listed, /received so far/);
+  assert.doesNotMatch(listed, /mpg combined|MPGe/);
+  const missing = mmyAnswer({
+    make: "BMW",
+    model: "M3",
+    year: 2016,
+    dates,
+    row: { match: "none", recalls: 0, complaints: 0, mpgMin: 0, mpgMax: 0, mpgeMin: 0, mpgeMax: 0, kwhMin: 0, kwhMax: 0 },
+    detail: { ncap: [] },
+  });
+  assert.match(missing, /different name/);
+  assert.doesNotMatch(missing, /\b0\b/);
+  assert.doesNotMatch(missing, /mpg|MPGe|kWh/i);
 });
 
 test("years answer names the high and low counts as facts", () => {

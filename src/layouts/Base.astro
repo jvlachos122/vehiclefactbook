@@ -13,6 +13,7 @@ import { site } from "../lib/site.js";
 
 const {
   title,
+  documentTitle = "",
   description,
   home = false,
   noindex = false,
@@ -22,7 +23,7 @@ const {
   refreshPath = "",
 } = Astro.props;
 
-const fullTitle = home ? title : `${title} · ${site.name}`;
+const fullTitle = documentTitle || (home ? title : `${title} · ${site.name}`);
 const canonical = new URL(canonicalPath || Astro.url.pathname, site.url).href;
 const graph = [];
 if (breadcrumbs.length) {

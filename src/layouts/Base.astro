@@ -25,6 +25,7 @@ const {
 
 const fullTitle = documentTitle || (home ? title : `${title} · ${site.name}`);
 const canonical = new URL(canonicalPath || Astro.url.pathname, site.url).href;
+const ogImage = new URL("/og-image.png", site.url).href;
 const graph = [];
 if (breadcrumbs.length) {
   graph.push({
@@ -55,14 +56,20 @@ const structured = graph.length
     {noindex ? <meta name="robots" content="noindex" /> : null}
     <link rel="preload" href={plex400} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={serif700} as="font" type="font/woff2" crossorigin />
-    <meta name="theme-color" content="#15213B" />
+    <meta name="theme-color" content="#E8EEF4" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:locale" content={site.locale} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content="VehicleFactbook — recalls, complaints, ratings, and MPG from the federal files." />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     {structured ? <script type="application/ld+json" set:html={structured} /> : null}
   </head>

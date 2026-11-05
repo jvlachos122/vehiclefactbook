@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="VehicleFactbook"><title>VehicleFactbook</title>
+<rect width="64" height="64" rx="14" fill="#E8EEF4"/>
+<!-- left page -->
+<path d="M10 16 L30 20 L30 50 L10 46 Z" fill="#1E2A3A"/>
+<!-- right page -->
+<path d="M34 20 L54 16 L54 46 L34 50 Z" fill="#1E2A3A"/>
+<!-- spine gap -->
+<rect x="30" y="20" width="4" height="30" fill="#E8EEF4"/>
+<!-- simple car on right page -->
+<path d="M38 34 L40 30 L48 30 L50 34 L52 34 L52 38 L50 38 L50 39 L48 39 L48 38 L42 38 L42 39 L40 39 L40 38 L38 38 Z" fill="#4A6FA5"/>
+<circle cx="42" cy="38" r="1.4" fill="#E8EEF4"/>
+<circle cx="48" cy="38" r="1.4" fill="#E8EEF4"/>
+</svg>

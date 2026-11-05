@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="VehicleFactbook"><title>VehicleFactbook</title>
+<path d="M10 16 L30 20 L30 50 L10 46 Z" fill="currentColor" opacity="0.85"/>
+<path d="M34 20 L54 16 L54 46 L34 50 Z" fill="currentColor"/>
+<path d="M38 34 L40 30 L48 30 L50 34 L52 34 L52 38 L50 38 L50 39 L48 39 L48 38 L42 38 L42 39 L40 39 L40 38 L38 38 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+</svg>

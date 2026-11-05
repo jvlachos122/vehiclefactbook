@@ -1,6 +1,7 @@
 ---
 import Badges from "./Badges.astro";
-import { campaignUrl, plain, formatDate, formatNumber } from "../lib/format.js";
+import { campaignHref } from "../lib/campaigns.js";
+import { plain, formatDate, formatNumber } from "../lib/format.js";
 
 const { campaigns = [], badges = true } = Astro.props;
 ---
@@ -23,7 +24,7 @@ const { campaigns = [], badges = true } = Astro.props;
           <tr>
             <td>{formatDate(campaign.date) || "—"}</td>
             <td>
-              <a href={campaignUrl(campaign.camp)}>{campaign.camp}</a>
+              <a href={campaignHref(campaign.camp)}>{campaign.camp}</a>
               {badges ? <Badges dnd={campaign.dnd} park={campaign.park} /> : null}
             </td>
             <td>{plain(campaign.component, 80)}</td>

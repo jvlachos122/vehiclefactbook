@@ -72,7 +72,7 @@ Each page shows EPA city, highway, and combined mpg (kWh/100 mi and range on ele
 
 ## Not in this version
 
-- Component pages, campaign pages, and investigation pages. Campaign numbers link to NHTSA. Investigation action numbers are printed as text.
+- Component pages and investigation pages. A recall campaign page is published at `/recalls/<campaign>/` when the campaign number is from 2015 or later and at least one model year page lists it. Older campaign numbers still link to NHTSA. Investigation action numbers are printed as text.
 - A VIN lookup. The site links to NHTSA's tool.
 - Manufacturer communications (TSBs). The zip names were not verified.
 - A sales ranking. `/compare/` lists example pairs chosen from EPA configuration counts and make size. See "Example comparisons" below.

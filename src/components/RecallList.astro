@@ -1,29 +1,47 @@
 ---
 import Badges from "./Badges.astro";
+import { RECALL_CARD_CAP, campaignPath } from "../lib/campaigns.js";
 import { campaignUrl, plain, formatDate } from "../lib/format.js";
 
-const { recalls = [], cap = 10 } = Astro.props;
+const { recalls = [], cap = RECALL_CARD_CAP } = Astro.props;
 const shown = recalls.slice(0, cap);
 const hidden = recalls.length - shown.length;
+const internal = shown.some((recall) => campaignPath(recall.camp));
 ---
 
 {
   shown.length ? (
     <div>
-      {shown.map((recall) => (
-        <article class="recall-card">
-          <h3>
-            <a href={campaignUrl(recall.camp)}>{recall.camp}</a>
-            {recall.date ? <span class="muted"> · {formatDate(recall.date)}</span> : null}
-          </h3>
-          <Badges dnd={recall.dnd} park={recall.park} />
-          {recall.component ? <p class="small">{plain(recall.component, 140)}</p> : null}
-          {recall.summary ? <p>{plain(recall.summary, 280)}</p> : null}
-        </article>
-      ))}
+      {shown.map((recall) => {
+        const page = campaignPath(recall.camp);
+        return (
+          <article class="recall-card">
+            <h3>
+              <a href={page || campaignUrl(recall.camp)}>{recall.camp}</a>
+              {page ? (
+                <span class="muted">
+                  {" "}
+                  · <a href={campaignUrl(recall.camp)}>NHTSA</a>
+                </span>
+              ) : null}
+              {recall.date ? <span class="muted"> · {formatDate(recall.date)}</span> : null}
+            </h3>
+            <Badges dnd={recall.dnd} park={recall.park} />
+            {recall.component ? <p class="small">{plain(recall.component, 140)}</p> : null}
+            {recall.summary ? <p>{plain(recall.summary, 280)}</p> : null}
+          </article>
+        );
+      })}
       {hidden > 0 ? (
         <p class="small muted">
-          {hidden.toLocaleString("en-US")} more recalls are in the NHTSA file for this name and are not listed here. Campaign numbers above link to NHTSA.
+          {hidden.toLocaleString("en-US")} more recalls are in the NHTSA file for this name and are not listed as cards here.
+          {internal
+            ? " A campaign number links to its page on this site when one is published, and to NHTSA otherwise."
+            : " Campaign numbers above link to NHTSA."}
+        </p>
+      ) : internal ? (
+        <p class="small muted">
+          A campaign number links to its page on this site when one is published. The NHTSA link beside it is the source record.
         </p>
       ) : null}
     </div>

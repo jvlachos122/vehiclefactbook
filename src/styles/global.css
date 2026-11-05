@@ -1,17 +1,21 @@
 :root {
   color-scheme: light;
-  --paper: #f7f6f2;
-  --paper-2: #fffdf8;
-  --ink: #15213b;
-  --steel: #2f5d8a;
-  --steel-dark: #23486c;
-  --recall: #b3261e;
+  --paper: #E8EEF4;
+  --paper-2: #F5F7FA;
+  --ink: #152238;
+  --muted: #5A6A7E;
+  --navy: #1E2A3A;
+  --steel: #4A6FA5;
+  --steel-dark: #355682;
+  --rule: #C5CED9;
+  --chip: #DCE4EE;
+  --recall: #B3261E;
+  --link: var(--steel);
+  --link-hover: var(--steel-dark);
   --recall-soft: #f8e4e1;
   --caveat: #7a4b00;
   --caveat-bg: #f8ebd2;
   --caveat-line: #b86e00;
-  --rule: #d6d3cc;
-  --muted: #3c465c;
   --font-display: "Source Serif 4", "Iowan Old Style", Palatino, Georgia, serif;
   --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
@@ -36,10 +40,10 @@ h1 { font-size: clamp(2rem, 1.4rem + 2.2vw, 3.1rem); margin: 0 0 0.6rem; }
 h2 { font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); margin: 2rem 0 0.6rem; }
 h3 { font-size: 1.3rem; margin: 1.4rem 0 0.4rem; }
 p, ul, ol, dl { margin: 0 0 1rem; }
-a { color: var(--steel); text-underline-offset: 0.16em; }
-a:hover { color: var(--steel-dark); }
+a { color: var(--link); text-underline-offset: 0.16em; }
+a:hover { color: var(--link-hover); }
 :focus-visible { outline: 3px solid var(--steel); outline-offset: 2px; }
-::selection { background: #d5e1ee; }
+::selection { background: var(--chip); }
 
 .skip {
   position: absolute;
@@ -67,11 +71,21 @@ a:hover { color: var(--steel-dark); }
 .site-header .wrap, .nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1rem; }
 .site-header .wrap { justify-content: space-between; min-height: 64px; }
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.35rem;
+  line-height: 1;
   color: var(--ink);
   text-decoration: none;
+}
+.wordmark img {
+  width: 32px;
+  height: 32px;
+  max-width: none;
+  flex: 0 0 auto;
 }
 .nav a {
   display: inline-flex;
@@ -175,7 +189,7 @@ select, input[type="number"], input[type="search"] {
   text-decoration: none;
   color: var(--ink);
 }
-.year-chip[aria-current="page"] { border-color: var(--steel); background: #e7eef5; }
+.year-chip[aria-current="page"] { border-color: var(--steel); background: var(--chip); }
 .stat b, .year-chip b { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-feature-settings: "zero" 1; }
 
 table { width: 100%; border-collapse: collapse; margin: 0 0 1rem; font-size: 0.95rem; }
@@ -227,7 +241,7 @@ th button:hover { background: transparent; color: var(--steel); }
   width: var(--w);
   background: var(--steel);
 }
-.stars { display: inline-flex; gap: 0.12rem; align-items: center; }
+.stars { display: inline-flex; gap: 0.12rem; align-items: center; color: var(--ink); }
 .stars svg { width: 0.95rem; height: 0.95rem; }
 
 .site-footer { border-top: 1px solid var(--rule); margin-top: 3rem; padding: 1.5rem 0 2rem; }

@@ -85,6 +85,9 @@ const path = "/methodology/";
       A model year page lists each campaign once. The potential-affected number on a campaign is a campaign-level figure, so it is not printed on a model year page where it could be read as a count for that model. Do-not-drive and park-outside badges are the file's Yes/No flags. The lists at <a href="/recalls/do-not-drive/">do not drive</a> ({formatNumber(counts.doNotDrive)} vehicle campaigns) and <a href="/recalls/park-outside/">park outside</a> ({formatNumber(counts.parkOutside)}) use those flags.
     </p>
     <p>
+      A vehicle campaign whose number is from 2015 or later, and that is listed on at least one model year page, has its own page at <span class="mono">/recalls/</span> plus the campaign number. That page repeats the component, defect summary, report date, and flags stored on those rows, and it links back to each model year and to the make page. A campaign that no model year lists is not given a page. Campaign numbers from 2014 and earlier still link to NHTSA.
+    </p>
+    <p>
       The <a href="/recalls/takata-airbag/">Takata list</a> ({formatNumber(counts.takata)} vehicle campaigns) is every vehicle campaign whose component, defect, consequence, or notes field contains the word Takata. Campaigns that do not use that word are missing from the list. The <a href="/recalls/this-week/">this week</a> page is the seven days ending on the newest report date in the file, not the calendar week when the site was built.
     </p>
     <p>
@@ -139,7 +142,7 @@ const path = "/methodology/";
     <ul>
       <li>Manufacturer communications (technical service bulletins). NHTSA's TSBS dictionary says the files were renamed and split into five-year downloads. The zip names tried for this build were not verified, so nothing from those files is published.</li>
       <li>A VIN check. Use <a href="https://www.nhtsa.gov/recalls">NHTSA's recall tool</a>.</li>
-      <li>Separate pages for each campaign, investigation, or component.</li>
+      <li>Separate pages for each investigation or component. Campaign pages are only the 2015-or-later vehicle campaigns listed on a model year page.</li>
       <li>The {formatNumber(counts.unmatchedMmy)} unmatched model years have no NHTSA row this site will attach, or the name is ambiguous between two EPA models. Their pages exist, show EPA fuel economy, and say the name did not match.</li>
     </ul>
     <p>Source files are U.S. government works. The license reference used in the site's dataset markup is <a href="https://www.usa.gov/government-works">usa.gov/government-works</a>.</p>

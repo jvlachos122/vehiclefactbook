@@ -9,7 +9,7 @@ import { recallListDataset } from "../../lib/schema.js";
 const meta = loadMeta();
 const campaigns = loadAdvisories().parkOutside;
 const path = "/recalls/park-outside/";
-const text = `NHTSA's recall file dated ${formatDate(meta.dates.recalls)} marks ${formatNumber(campaigns.length)} vehicle campaigns park outside. Each campaign number links to NHTSA.`;
+const text = `NHTSA's recall file dated ${formatDate(meta.dates.recalls)} marks ${formatNumber(campaigns.length)} vehicle campaigns park outside. A campaign number links to its page on this site when one is published, and to NHTSA otherwise.`;
 ---
 
 <Base

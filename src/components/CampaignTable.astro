@@ -1,6 +1,7 @@
 ---
 import Badges from "./Badges.astro";
-import { campaignUrl, formatDate, plain } from "../lib/format.js";
+import { campaignHref } from "../lib/campaigns.js";
+import { formatDate, plain } from "../lib/format.js";
 import { formatYearList } from "../lib/make-recalls.js";
 
 const { campaigns = [], makeSlug, caption, summary = false } = Astro.props;
@@ -24,7 +25,7 @@ const { campaigns = [], makeSlug, caption, summary = false } = Astro.props;
           <tr>
             <td>{formatDate(campaign.date) || "—"}</td>
             <td>
-              <a href={campaignUrl(campaign.camp)}>{campaign.camp}</a>
+              <a href={campaignHref(campaign.camp)}>{campaign.camp}</a>
               <Badges dnd={campaign.dnd} park={campaign.park} />
             </td>
             <td>{plain(campaign.component, 120) || "—"}</td>

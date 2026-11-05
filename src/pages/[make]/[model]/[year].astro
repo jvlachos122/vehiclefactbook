@@ -2,11 +2,13 @@
 import Base from "../../../layouts/Base.astro";
 import Answer from "../../../components/Answer.astro";
 import DataNote from "../../../components/DataNote.astro";
+import CampaignLinks from "../../../components/CampaignLinks.astro";
 import RecallList from "../../../components/RecallList.astro";
 import ComplaintBars from "../../../components/ComplaintBars.astro";
 import Investigations from "../../../components/Investigations.astro";
 import NcapTable from "../../../components/NcapTable.astro";
 import ConfigTable from "../../../components/ConfigTable.astro";
+import { mmyCampaignLinkPlan, primaryNameGroup } from "../../../lib/campaigns.js";
 import { findYear, loadMeta, loadModel, mmyPaths } from "../../../lib/catalog.js";
 import { mmyAnswer } from "../../../lib/answer.js";
 import { formatNumber, nhtsaVehicleUrl } from "../../../lib/format.js";
@@ -58,9 +60,8 @@ const index = ordered.findIndex((item) => item.y === year);
 const prev = index > 0 ? ordered[index - 1] : null;
 const next = index >= 0 && index < ordered.length - 1 ? ordered[index + 1] : null;
 const groups = yearDetail.splitNames ? yearDetail.also || [] : [];
-const primary = yearDetail.splitNames
-  ? [...groups].sort((a, b) => (b.complaints?.n || 0) - (a.complaints?.n || 0))[0]
-  : null;
+const primary = yearDetail.splitNames ? primaryNameGroup(yearDetail) : null;
+const plan = mmyCampaignLinkPlan(yearDetail);
 const calculator = `/tools/fuel-cost-calculator/?make=${make.slug}&model=${model.slug}&year=${year}`;
 const calculatorWithConfig = yearDetail.configs.length ? `${calculator}&config=0` : calculator;
 const path = `/${make.slug}/${model.slug}/${year}/`;
@@ -141,6 +142,7 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
               <>
                 <h2>Recalls for {primary.name}</h2>
                 <RecallList recalls={primary.recalls} />
+                <CampaignLinks links={plan.extra} />
                 <h2>Complaints for {primary.name}</h2>
                 <ComplaintBars complaints={primary.complaints} />
                 <h2>Investigations for {primary.name}</h2>
@@ -153,6 +155,7 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
         <>
           <h2 id="recalls">Recalls</h2>
           <RecallList recalls={yearDetail.recalls} />
+          <CampaignLinks links={plan.extra} />
           <h2 id="complaints">Complaints</h2>
           <ComplaintBars complaints={yearDetail.complaints} />
           {

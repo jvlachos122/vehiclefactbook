@@ -1,0 +1,21 @@
+---
+import { formatNumber } from "../lib/format.js";
+
+const { links = [] } = Astro.props;
+const label = links.length === 1 ? "page" : "pages";
+---
+
+{
+  links.length ? (
+    <p>
+      {formatNumber(links.length)} other campaign {label} listed for this model year:
+      {links.map((item, index) => (
+        <span>
+          {index ? ", " : " "}
+          <a href={item.path}>{item.camp}</a>
+        </span>
+      ))}
+      . NHTSA's recall file is the source.
+    </p>
+  ) : null
+}

@@ -63,6 +63,7 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/compare/honda-civic-vs-toyota-camry/index.html"), "compare-pair");
   assert.equal(classifyPage("/recalls/lookup/index.html"), "tool");
   assert.equal(classifyPage("/recalls/do-not-drive/index.html"), "advisory");
+  assert.equal(classifyPage("/recalls/19V000001/index.html"), "campaign");
   assert.equal(classifyPage("/honda/index.html"), "make");
   assert.equal(classifyPage("/honda/fit/index.html"), "model");
   assert.equal(classifyPage("/honda/fit/years/index.html"), "years");
@@ -132,6 +133,19 @@ test("representative pages pass the JSON-LD rules", () => {
           name: "Fuel cost calculator",
           description: "Annual fuel cost from an EPA row.",
           url: "https://vehiclefactbook.com/tools/fuel-cost-calculator/",
+        }),
+      ],
+    ],
+    [
+      "/recalls/19V000001/index.html",
+      [
+        crumb(),
+        recallListDataset({
+          name: "NHTSA recall campaign 19V000001",
+          description: "NHTSA lists campaign 19V000001 on 2 model year pages.",
+          path: "/recalls/19V000001/",
+          dateModified: "2026-11-03",
+          dates: ["2019-04-02"],
         }),
       ],
     ],
@@ -235,8 +249,24 @@ test("audit rejects missing structure and forbidden types", () => {
   );
   assert.ok(epaOnRecall.errors.includes("recall Dataset must not list EPA as creator"));
 
+  const epaOnCampaign = auditHtml(
+    page(answer, [
+      crumb(),
+      dataset({
+        name: "Campaign",
+        description: "One recall campaign.",
+        url: "https://vehiclefactbook.com/recalls/19V000001/",
+        dateModified: "2026-11-03",
+      }),
+    ]),
+    "/recalls/19V000001/index.html",
+  );
+  assert.ok(epaOnCampaign.errors.includes("recall Dataset must not list EPA as creator"));
+
   const noDataset = auditHtml(page(answer, [crumb()]), "/honda/fit/years/index.html");
   assert.ok(noDataset.errors.includes("page missing Dataset"));
+  const noCampaignDataset = auditHtml(page(answer, [crumb()]), "/recalls/19V000001/index.html");
+  assert.ok(noCampaignDataset.errors.includes("page missing Dataset"));
 
   const noGuide = auditHtml(page(answer, [crumb()]), "/guides/do-recalls-expire/index.html");
   assert.ok(noGuide.errors.includes("guide page missing Article"));

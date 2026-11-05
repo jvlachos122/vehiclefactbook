@@ -3,7 +3,8 @@ import Base from "../../layouts/Base.astro";
 import Answer from "../../components/Answer.astro";
 import Badges from "../../components/Badges.astro";
 import { loadMeta, loadRecent } from "../../lib/catalog.js";
-import { campaignUrl, plain, formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { campaignHref } from "../../lib/campaigns.js";
+import { plain, formatDate, formatNumber, metaDescription } from "../../lib/format.js";
 import { recallListDataset } from "../../lib/schema.js";
 
 const meta = loadMeta();
@@ -39,7 +40,7 @@ const text = `NHTSA's newest recall report date in the file dated ${formatDate(m
       campaigns.map((campaign) => (
         <article class="recall-card">
           <h2>
-            <a href={campaignUrl(campaign.camp)}>{campaign.camp}</a>
+            <a href={campaignHref(campaign.camp)}>{campaign.camp}</a>
             <span class="muted"> · {formatDate(campaign.date)}</span>
           </h2>
           <Badges dnd={campaign.dnd} park={campaign.park} />

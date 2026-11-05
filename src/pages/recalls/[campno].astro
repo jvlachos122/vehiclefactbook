@@ -1,0 +1,137 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import Badges from "../../components/Badges.astro";
+import DataNote from "../../components/DataNote.astro";
+import { campaignAnswer, campaignPaths, findCampaign } from "../../lib/campaigns.js";
+import { loadMeta } from "../../lib/catalog.js";
+import { campaignUrl, formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { FLAG_CAVEAT } from "../../lib/make-recalls.js";
+import { recallListDataset } from "../../lib/schema.js";
+import { nhtsaVinTool } from "../../lib/site.js";
+
+export function getStaticPaths() {
+  return campaignPaths();
+}
+
+const campaign = findCampaign(Astro.params.campno);
+if (!campaign) throw new Error(`No indexable campaign ${Astro.params.campno}`);
+const meta = loadMeta();
+const text = campaignAnswer(campaign, meta.dates.recalls);
+const path = `/recalls/${campaign.camp}/`;
+const reportDates = campaign.dates.map((date) => formatDate(date)).filter(Boolean);
+const showComponentColumn = campaign.components.length > 1;
+const fileDate = formatDate(meta.dates.recalls);
+---
+
+<Base
+  title={`NHTSA recall ${campaign.camp}`}
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: campaign.camp, href: path },
+  ]}
+  jsonLd={[
+    recallListDataset({
+      name: `NHTSA recall campaign ${campaign.camp}`,
+      description: text,
+      path,
+      dateModified: meta.dates.recalls,
+      dates: campaign.dates.length ? campaign.dates : [meta.dates.recalls],
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">Recall campaign</p>
+    <h1>NHTSA recall {campaign.camp}</h1>
+    <Answer text={text} />
+    <DataNote />
+    <Badges dnd={campaign.dnd} park={campaign.park} />
+    <p>
+      Source: NHTSA recall flat file dated {fileDate}. This page is not a VIN lookup. NHTSA's recall tool checks a specific vehicle at <a href={nhtsaVinTool}>nhtsa.gov/recalls</a>. The campaign record is <a href={campaignUrl(campaign.camp)}>{campaign.camp} at NHTSA</a>.
+    </p>
+    <p>{FLAG_CAVEAT}</p>
+    <h2>Campaign record</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>Fields stored from the NHTSA recall file for {campaign.camp}</caption>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Campaign</td>
+            <td class="mono">{campaign.camp}</td>
+          </tr>
+          <tr>
+            <td>Report date</td>
+            <td>{reportDates.length ? reportDates.join(", ") : "—"}</td>
+          </tr>
+          <tr>
+            <td>Component</td>
+            <td>{campaign.component || "—"}</td>
+          </tr>
+          <tr>
+            <td>Do not drive</td>
+            <td>{campaign.dnd ? "Yes" : "Not marked Yes on the matched rows"}</td>
+          </tr>
+          <tr>
+            <td>Park outside</td>
+            <td>{campaign.park ? "Yes" : "Not marked Yes on the matched rows"}</td>
+          </tr>
+          <tr>
+            <td>NHTSA summary</td>
+            <td>{campaign.summary || "—"}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <h2>Model years on this site</h2>
+    <p>
+      NHTSA's file lists this campaign on the model years below that this site publishes. The table is those matched rows, not a count of vehicles still unrepaired.
+      Make {campaign.makes.length === 1 ? "page" : "pages"}:
+      {
+        campaign.makes.map((make, index) => (
+          <span>
+            {index ? ", " : " "}
+            <a href={`/${make.slug}/#recalls`}>{make.name} recalls</a>
+          </span>
+        ))
+      }
+      .
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>
+          {formatNumber(campaign.mmy.length)} model year {campaign.mmy.length === 1 ? "page" : "pages"} that list {campaign.camp}
+        </caption>
+        <thead>
+          <tr>
+            <th>Model year</th>
+            <th>NHTSA name</th>
+            {showComponentColumn ? <th>Component</th> : null}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            campaign.mmy.map((row) => (
+              <tr>
+                <td>
+                  <a href={row.href}>
+                    {row.year} {row.make} {row.model}
+                  </a>
+                </td>
+                <td>{row.nhtsaNames.join(", ") || "—"}</td>
+                {showComponentColumn ? <td>{row.components.join("; ") || "—"}</td> : null}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+</Base>

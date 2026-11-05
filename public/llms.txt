@@ -24,6 +24,7 @@ Manufacturer communications (TSBs) are not imported. The file-name list for thos
 - /{make}/{model}/years/ complaint and recall counts by model year, only when at least three model years have matched NHTSA records
 - /{make}/{model}/{year}/ one model year
 - /recalls/do-not-drive/ /recalls/park-outside/ /recalls/takata-airbag/ /recalls/this-week/
+- /recalls/<campaign>/ one NHTSA vehicle campaign from 2015 or later that is listed on at least one model year page. Campaigns with no model year link are not published.
 - /guides/what-is-a-tsb/ /guides/do-recalls-expire/ /guides/open-recall-meaning/ /guides/how-long-do-recalls-last/
 - /methodology/ /about/ /privacy/ /disclosure/ /contact/
 

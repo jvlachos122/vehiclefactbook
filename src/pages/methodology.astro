@@ -4,6 +4,7 @@ import Base from "../layouts/Base.astro";
 import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
 import { EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE, loadPriceSnapshot } from "../lib/eia-prices.js";
+import { HYBRID_MIN_YEAR, HYBRID_PAIR_LIMIT } from "../lib/hybrid-pairs.js";
 import { formatPeriod } from "../lib/fuel-cost.js";
 import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
 import { dataset } from "../lib/schema.js";
@@ -128,9 +129,25 @@ const path = "/methodology/";
     <h2>Example comparisons</h2>
     <p>
       <a href="/compare/">Compare</a> publishes static pages for pairs of models from different makes.
-      A pair uses the newest model year for which both models have an NHTSA name match, and only when that year shares an EPA vehicle class.
+      A pair uses the newest model year for which both models have an NHTSA name match.
+      That year has to share an EPA vehicle class, the makes have to share a tier, and the model year has to share a fuel type.
+      Tiers are volume, luxury, and specialty. Fuel types are gasoline (regular, midgrade, premium, and flex-fuel), diesel, electric, hydrogen, and natural gas.
+      Drive-type labels are removed before the class is compared.
       The page shows EPA fuel figures, NHTSA overall stars for model year 2011 and newer, recall campaign counts, and complaint counts received so far.
       The set is drawn from EPA configuration counts in the committed files. It is not a sales ranking.
+      An older example address that this rule drops stays on the site as a noindex refresh to a replacement page, and that address is left out of the sitemap.
+    </p>
+    <h2>Hybrid and gasoline</h2>
+    <p>
+      <a href="/compare/hybrid/">Hybrid vs gasoline</a> compares conventional gasoline configurations with hybrid or plug-in hybrid configurations of the same make and base model.
+      A sibling EPA name that adds Hybrid, PHEV, Prime, or Energi stays with that base model.
+      The model year is the newest one in which the EPA file lists both, from model year {HYBRID_MIN_YEAR} on.
+      The hybrid or plug-in hybrid side's highest combined mpg is at least as high as the gasoline side's highest combined mpg.
+      Up to {HYBRID_PAIR_LIMIT} pairs are published, ordered by EPA configuration rows. That order is not a sales ranking.
+      City, highway, and combined mpg and EPA's annual fuel cost (fuelCost08) are stated side by side.
+      When every configuration on both sides uses regular gasoline or diesel, the page also shows a cost calculated at 15,000 miles from EPA combined mpg and the committed EIA price snapshot.
+      That calculated cost does not replace fuelCost08.
+      Complaint counts, when a model year has an NHTSA name match, are the counts for that model year. They are not split by configuration.
     </p>
 
     <h2>What this site does not say</h2>

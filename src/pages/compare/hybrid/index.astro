@@ -1,0 +1,90 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Answer from "../../../components/Answer.astro";
+import { loadMeta } from "../../../lib/catalog.js";
+import {
+  hybridIndexAnswer,
+  hybridIndexCaption,
+  hybridIndexIntro,
+  loadHybridPairs,
+} from "../../../lib/hybrid-pairs.js";
+import { costSpan } from "../../../lib/compare-pairs.js";
+import { formatDate, formatNumber, metaDescription, span } from "../../../lib/format.js";
+import { dataset } from "../../../lib/schema.js";
+import { site } from "../../../lib/site.js";
+
+const meta = loadMeta();
+const pairs = loadHybridPairs();
+const epaDate = formatDate(meta.dates.epa);
+const text = hybridIndexAnswer(pairs.length, epaDate);
+const years = pairs.map((pair) => pair.year).sort((a, b) => a - b);
+const temporal = years.length && years[0] !== years[years.length - 1] ? `${years[0]}/${years[years.length - 1]}` : String(years[0] || "");
+const path = "/compare/hybrid/";
+---
+
+<Base
+  title="Hybrid vs gasoline, same model"
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Compare", href: "/compare/" },
+    { label: "Hybrid vs gasoline", href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: "Hybrid vs gasoline fuel economy",
+      description: "EPA combined mpg and annual fuel cost for gasoline and hybrid configurations of the same model.",
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.epa,
+      temporalCoverage: temporal,
+    }),
+  ]}
+>
+  <article class="wrap">
+    <h1>Hybrid vs gasoline, same model</h1>
+    <Answer text={text} />
+    <p>{hybridIndexIntro(pairs.length)}</p>
+    <div class="table-wrap">
+      <table>
+        <caption>{hybridIndexCaption(epaDate)}</caption>
+        <thead>
+          <tr>
+            <th>Comparison</th>
+            <th>Model year</th>
+            <th>Powertrain</th>
+            <th class="num">Gasoline combined mpg</th>
+            <th class="num">Compared combined mpg</th>
+            <th class="num">Gasoline annual fuel cost</th>
+            <th class="num">Compared annual fuel cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            pairs.map((pair) => (
+              <tr>
+                <td>
+                  <a href={`/compare/hybrid/${pair.slug}/`}>
+                    {pair.year} {pair.makeName} {pair.modelName} {pair.kindLabel} vs gasoline
+                  </a>
+                </td>
+                <td>{pair.year}</td>
+                <td>{pair.kindLabel === "plug-in hybrid" ? "Plug-in hybrid" : "Hybrid"}</td>
+                <td class="num">{span(pair.gas.mpgMin, pair.gas.mpgMax)}</td>
+                <td class="num">{span(pair.hybrid.mpgMin, pair.hybrid.mpgMax)}</td>
+                <td class="num">{costSpan(pair.gas.costMin, pair.gas.costMax)}</td>
+                <td class="num">{costSpan(pair.hybrid.costMin, pair.hybrid.costMax)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">{formatNumber(pairs.length)} pairs. Configuration-row order is not a sales ranking.</p>
+    <p>
+      <a href="/compare/">Example comparisons of two models</a>
+      {" · "}
+      <a href="/methodology/">How the files are counted</a>
+    </p>
+  </article>
+</Base>

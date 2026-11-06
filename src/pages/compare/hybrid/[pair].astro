@@ -1,0 +1,102 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Answer from "../../../components/Answer.astro";
+import DataNote from "../../../components/DataNote.astro";
+import { loadMeta } from "../../../lib/catalog.js";
+import { eiaForPair, hybridDocument, loadEiaRetail, loadHybridPairs } from "../../../lib/hybrid-pairs.js";
+import { metaDescription } from "../../../lib/format.js";
+import { dataset } from "../../../lib/schema.js";
+import { site } from "../../../lib/site.js";
+
+export function getStaticPaths() {
+  return loadHybridPairs().map((pair) => ({
+    params: { pair: pair.slug },
+    props: { pair },
+  }));
+}
+
+const { pair } = Astro.props;
+const meta = loadMeta();
+const doc = hybridDocument(pair, {
+  dates: meta.dates,
+  eia: eiaForPair(pair, loadEiaRetail()),
+});
+const path = `/compare/hybrid/${pair.slug}/`;
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: "Compare", href: "/compare/" },
+  { label: "Hybrid vs gasoline", href: "/compare/hybrid/" },
+  { label: doc.title, href: path },
+];
+---
+
+<Base
+  title={doc.title}
+  description={metaDescription(doc.answer)}
+  canonicalPath={path}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    dataset({
+      name: doc.title,
+      description: `EPA city, highway, and combined mpg and annual fuel cost for gasoline and ${pair.kindLabel} configurations of the ${pair.year} ${pair.makeName} ${pair.modelName}.`,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.epa,
+      temporalCoverage: String(pair.year),
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">{doc.eyebrow}</p>
+    <h1>{doc.title}</h1>
+    <p>{doc.classLine}</p>
+    <Answer text={doc.answer} />
+    <DataNote />
+    <h2>{doc.tableHeading}</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{doc.tableCaption}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Figure</th>
+            {doc.columns.map((column) => <th scope="col">{column.heading}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            doc.rows.map((row) => (
+              <tr>
+                <th scope="row">{row.label}</th>
+                <td class={row.numeric ? "num" : undefined}>{row.gas}</td>
+                <td class={row.numeric ? "num" : undefined}>{row.hybrid}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    {doc.notes.map((note) => <p>{note}</p>)}
+    <h2>{doc.linksHeading}</h2>
+    <ul>
+      {
+        doc.links.map((link) => (
+          <li>
+            <a href={link.href}>{link.heading}</a>
+            {" · "}
+            <a href={link.nhtsaHref}>{link.heading} at NHTSA</a>
+            {" · "}
+            <a href={link.calculatorHref}>Fuel cost calculator</a>
+          </li>
+        ))
+      }
+    </ul>
+    <h2>{doc.sourcesHeading}</h2>
+    <ul>
+      {doc.sources.map((source) => <li>{source}</li>)}
+    </ul>
+    <p>
+      <a href="/compare/hybrid/">All hybrid vs gasoline comparisons</a>
+      {" · "}
+      <a href="/compare/">Example comparisons</a>
+    </p>
+  </article>
+</Base>

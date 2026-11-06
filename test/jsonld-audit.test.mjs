@@ -61,6 +61,8 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/tools/mpg-calculator/index.html"), "tool");
   assert.equal(classifyPage("/compare/index.html"), "tool");
   assert.equal(classifyPage("/compare/honda-civic-vs-toyota-camry/index.html"), "compare-pair");
+  assert.equal(classifyPage("/compare/hybrid/index.html"), "compare-hybrid");
+  assert.equal(classifyPage("/compare/hybrid/toyota-rav4-hybrid-vs-gasoline/index.html"), "compare-hybrid");
   assert.equal(classifyPage("/recalls/lookup/index.html"), "tool");
   assert.equal(classifyPage("/recalls/do-not-drive/index.html"), "advisory");
   assert.equal(classifyPage("/recalls/19V000001/index.html"), "campaign");

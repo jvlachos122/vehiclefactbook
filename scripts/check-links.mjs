@@ -112,6 +112,11 @@ if (!robots.includes("User-agent: *") || !robots.includes("Allow: /") || !robots
 }
 if (/disallow\s*:/i.test(robots)) errors.push("robots.txt disallows a path");
 
+const noindexPaths = new Set();
+for (const [file, html] of htmlByFile) {
+  if (html.includes('content="noindex"')) noindexPaths.add(pageUrl(file));
+}
+
 const sitemapFiles = readdirSync(dist).filter((name) => name.startsWith("sitemap") && name.endsWith(".xml"));
 if (!sitemapFiles.includes("sitemap-index.xml")) errors.push("missing sitemap-index.xml");
 for (const name of sitemapFiles) {
@@ -121,6 +126,9 @@ for (const name of sitemapFiles) {
     if (url.origin !== site) errors.push(`sitemap off-site ${match[1]}`);
     if (url.pathname === "/404.html" || url.pathname === "/404/") errors.push(`sitemap includes 404`);
     if (url.search) errors.push(`sitemap includes a query ${match[1]}`);
+    if (noindexPaths.has(url.pathname) || noindexPaths.has(`${url.pathname.replace(/\/$/, "")}/`) || noindexPaths.has(url.pathname.replace(/\/$/, ""))) {
+      errors.push(`sitemap includes noindex ${url.pathname}`);
+    }
     const target = fileForPath(url.pathname);
     if (!existsSync(target)) errors.push(`sitemap missing ${url.pathname}`);
   }

@@ -9,14 +9,19 @@ import {
   BANNED_PAIR_WORDS,
   EXAMPLE_PAIR_LIMIT,
   EXAMPLE_PAIRS_PER_CLASS,
+  buildPairRedirects,
   classFamily,
   exampleIndexCaption,
   exampleIndexIntro,
   fuelAndStars,
+  fuelTypeFromConfigs,
   loadExamplePairs,
+  loadRemovedPairRedirects,
+  makeTier,
   modalClass,
   pairDocument,
   pairSlug,
+  redirectAnswer,
   selectExamplePairs,
 } from "../src/lib/compare-pairs.js";
 
@@ -106,6 +111,40 @@ test("selection keeps the highest configuration sums inside the caps", () => {
   assert.equal(tied[0].slug, "b-two-vs-c-three");
 });
 
+test("selection requires the same make tier and the same fuel type", () => {
+  const records = [
+    rec("bmw", "7-series", 100, 10, { y: 2026, classFamily: "Large Cars" }),
+    rec("honda", "accord", 90, 10, { y: 2026, classFamily: "Large Cars" }),
+    rec("mercedes-benz", "s-class", 80, 10, { y: 2026, classFamily: "Large Cars" }),
+    rec("ford", "explorer", 70, 10, { y: 2026, classFamily: "SUV", fuelType: "gasoline" }),
+    rec("rivian", "r1s", 60, 10, { y: 2026, classFamily: "SUV", fuelType: "electric", evOnly: true }),
+    rec("jeep", "wrangler", 50, 8, { y: 2026, classFamily: "Small SUV" }),
+    rec("toyota", "rav4", 40, 12, { y: 2026, classFamily: "Small SUV" }),
+  ];
+  const legacy = selectExamplePairs(records, { rule: "class", limit: 10, perClass: 4, perModel: 1 });
+  const next = selectExamplePairs(records, { limit: 10, perClass: 4, perModel: 1 });
+  assert.equal(legacy.some((pair) => pair.slug === "bmw-7-series-vs-honda-accord"), true);
+  assert.equal(next.some((pair) => pair.slug === "bmw-7-series-vs-honda-accord"), false);
+  assert.equal(next.some((pair) => pair.slug === "ford-explorer-vs-rivian-r1s"), false);
+  assert.deepEqual(
+    next.map((pair) => pair.slug),
+    ["bmw-7-series-vs-mercedes-benz-s-class", "jeep-wrangler-vs-toyota-rav4"],
+  );
+  for (const pair of next) {
+    assert.equal(makeTier(pair.left.makeSlug), makeTier(pair.right.makeSlug));
+    assert.equal(pair.left.fuelType, pair.right.fuelType);
+    assert.equal(pair.tier, makeTier(pair.left.makeSlug));
+  }
+  const redirects = buildPairRedirects(legacy, next);
+  const moved = redirects.find((item) => item.slug === "bmw-7-series-vs-honda-accord");
+  assert.equal(moved.replacementPath, "/compare/bmw-7-series-vs-mercedes-benz-s-class/");
+  assert.equal(redirects.some((item) => item.slug === "bmw-7-series-vs-mercedes-benz-s-class"), false);
+  assert.doesNotMatch(redirectAnswer(moved), BANNED_PAIR_WORDS);
+  assert.equal(fuelTypeFromConfigs([{ atv: "EV", fuel: "Electricity" }]), "electric");
+  assert.equal(fuelTypeFromConfigs([{ atv: "", fuel: "Premium Gasoline" }, { atv: "FFV", fuel: "Regular Gasoline" }]), "gasoline");
+  assert.equal(fuelTypeFromConfigs([{ atv: "Diesel", fuel: "Diesel" }]), "diesel");
+});
+
 test("published pairs follow the rule and two samples match the source files", () => {
   const pairs = loadExamplePairs();
   const meta = loadMeta();
@@ -117,6 +156,10 @@ test("published pairs follow the rule and two samples match the source files", (
   for (const pair of pairs) {
     assert.equal(pair.left.classFamily, pair.classFamily);
     assert.equal(pair.right.classFamily, pair.classFamily);
+    assert.equal(makeTier(pair.left.makeSlug), makeTier(pair.right.makeSlug));
+    assert.equal(pair.left.fuelType, pair.right.fuelType);
+    assert.equal(pair.tier, makeTier(pair.left.makeSlug));
+    assert.equal(pair.fuelType, pair.left.fuelType);
     assert.equal(pair.left.y, pair.year);
     assert.equal(pair.right.y, pair.year);
     assert.notEqual(pair.left.makeSlug, pair.right.makeSlug);
@@ -151,6 +194,24 @@ test("published pairs follow the rule and two samples match the source files", (
   assert.doesNotMatch(exampleIndexIntro(pairs.length), BANNED_PAIR_WORDS);
   assert.doesNotMatch(exampleIndexCaption(), BANNED_PAIR_WORDS);
   assert.match(exampleIndexIntro(pairs.length), new RegExp(`lists ${pairs.length} pairs`));
+  assert.match(exampleIndexIntro(pairs.length), /share a tier/);
+  assert.match(exampleIndexCaption(), /make tier/);
+
+  const redirects = loadRemovedPairRedirects();
+  const live = new Set(pairs.map((pair) => pair.slug));
+  assert.ok(redirects.length > 0);
+  for (const redirect of redirects) {
+    assert.equal(live.has(redirect.slug), false);
+    assert.equal(redirect.replacementPath === "/compare/" || live.has(redirect.replacementSlug), true);
+    const copy = redirectAnswer(redirect);
+    assert.doesNotMatch(copy, BANNED_PAIR_WORDS);
+    assert.doesNotMatch(copy, /\bVIN\b/);
+    assert.ok(sentenceCount(copy) <= 3, copy);
+  }
+  for (const slug of ["bmw-7-series-vs-honda-accord", "audi-a8-vs-hyundai-sonata"]) {
+    assert.equal(live.has(slug), false, slug);
+    assert.ok(redirects.some((item) => item.slug === slug), slug);
+  }
 
   for (const slug of ["chevrolet-silverado-vs-gmc-sierra", "honda-civic-vs-toyota-camry"]) {
     const pair = pairs.find((item) => item.slug === slug);

@@ -18,15 +18,97 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
  *    NHTSA name match (`match` other than "none") in data/site/summary.json.
  * 4. A candidate is two models from different makes whose anchors are the same year
  *    and the same class family. The page compares that year.
+ *    The makes also have to share a tier (volume, luxury, or specialty) and the
+ *    anchor year has to share a fuel type (gasoline, diesel, electric, hydrogen,
+ *    or natural gas). Regular, midgrade, premium, and flex-fuel rows are one
+ *    gasoline type. A volume make is not paired with a luxury or specialty make,
+ *    and a gasoline model is not paired with an electric model.
+ *    Same EPA class alone is not enough: both the tier and the fuel type have to match.
  * 5. Candidates are ordered by the sum of EPA configuration rows on the two models
  *    (every model year in data/site/models), then by the sum of published model years
  *    on the two make hubs, then by year, class, and slug.
  * 6. A model is used once. A class family keeps at most EXAMPLE_PAIRS_PER_CLASS pairs.
  *    The first EXAMPLE_PAIR_LIMIT pairs are published.
+ *
+ * `rule: "class"` repeats the older class-only selection. It exists so a dropped
+ * example URL can stay up as a noindex refresh to the replacement page. Those
+ * refresh URLs are not part of the published set and are left out of the sitemap.
+ *
+ * Unlisted makes are volume, so a new mainstream brand still pairs inside volume.
+ * Luxury and specialty makes are listed so they stay out of volume pairs.
  */
 export const EXAMPLE_PAIR_LIMIT = 30;
 export const EXAMPLE_PAIRS_PER_CLASS = 4;
 export const EXAMPLE_PAIRS_PER_MODEL = 1;
+
+const LUXURY_MAKES = [
+  "acura",
+  "alfa-romeo",
+  "audi",
+  "bmw",
+  "bmw-alpina",
+  "cadillac",
+  "genesis",
+  "infiniti",
+  "jaguar",
+  "land-rover",
+  "lexus",
+  "lincoln",
+  "lucid",
+  "maserati",
+  "mercedes-benz",
+  "mini",
+  "polestar",
+  "porsche",
+  "rivian",
+  "tesla",
+  "volvo",
+];
+
+const SPECIALTY_MAKES = [
+  "aston-martin",
+  "bentley",
+  "bugatti",
+  "bugatti-rimac",
+  "ferrari",
+  "fisker",
+  "karma",
+  "koenigsegg",
+  "lamborghini",
+  "lotus",
+  "maybach",
+  "mclaren-automotive",
+  "pagani",
+  "rolls-royce",
+  "spyker",
+];
+
+const TIER_BY_MAKE = new Map([
+  ...LUXURY_MAKES.map((slug) => [slug, "luxury"]),
+  ...SPECIALTY_MAKES.map((slug) => [slug, "specialty"]),
+]);
+
+export function makeTier(makeSlug) {
+  return TIER_BY_MAKE.get(makeSlug) || "volume";
+}
+
+export function fuelTypeFromConfigs(configs) {
+  const rows = configs || [];
+  if (!rows.length) return "";
+  const electric = (config) => config.atv === "EV" || config.fuel === "Electricity";
+  if (rows.every(electric)) return "electric";
+  const rest = rows.filter((config) => !electric(config));
+  const diesel = (config) => config.atv === "Diesel" || config.fuel === "Diesel";
+  if (rest.length && rest.every(diesel)) return "diesel";
+  const hydrogen = (config) => config.fuel === "Hydrogen" || config.atv === "FCV" || config.atv === "eFCV";
+  if (rest.length && rest.every(hydrogen)) return "hydrogen";
+  const gasoline = (config) => String(config.fuel || "").includes("Gasoline") || config.atv === "FFV";
+  if (rest.some(gasoline)) return "gasoline";
+  const gaseous = (config) =>
+    config.fuel === "Natural Gas" || config.atv === "CNG" || config.atv === "Bifuel (CNG)" || config.atv === "Bifuel (LPG)";
+  if (rest.length && rest.every(gaseous)) return "natural-gas";
+  return "other";
+}
 
 export const BANNED_PAIR_WORDS = /\b(avoid|best|worst|reliable|unreliable|winner|safer|better|popular)\b/i;
 
@@ -61,13 +143,16 @@ const PUBLIC_SIDE_KEYS = [
   "costMin",
   "costMax",
   "evOnly",
+  "fuelType",
   "ncapVariants",
   "starMin",
   "starMax",
   "ncapUnrated",
 ];
 
+let recordCache;
 let pairCache;
+let redirectCache;
 
 export function classFamily(vclass) {
   return String(vclass || "")
@@ -177,6 +262,7 @@ export function recordFromModel(make, model, doc, makeHub) {
       alsoRecalls: row.alsoRecalls || 0,
       alsoComplaints: row.alsoComplaints || 0,
       ...fuelAndStars(configs, detail.ncap),
+      fuelType: fuelTypeFromConfigs(configs),
     };
   }
   return {
@@ -227,19 +313,38 @@ export function pairSlug(left, right) {
   return `${left.makeSlug}-${left.modelSlug}-vs-${right.makeSlug}-${right.modelSlug}`;
 }
 
+function anchorFuel(record) {
+  if (record.anchor.fuelType) return record.anchor.fuelType;
+  if (record.anchor.evOnly) return "electric";
+  return "gasoline";
+}
+
+function withPairKeys(record) {
+  const fuelType = anchorFuel(record);
+  const tier = record.tier || makeTier(record.makeSlug);
+  if (record.tier === tier && record.anchor.fuelType === fuelType) return record;
+  return {
+    ...record,
+    tier,
+    anchor: { ...record.anchor, fuelType },
+  };
+}
+
 export function selectExamplePairs(records, options = {}) {
   const limit = options.limit ?? EXAMPLE_PAIR_LIMIT;
   const perClass = options.perClass ?? EXAMPLE_PAIRS_PER_CLASS;
   const perModel = options.perModel ?? EXAMPLE_PAIRS_PER_MODEL;
+  const classOnly = options.rule === "class";
   const eligible = records.filter((record) => record.anchor && record.anchor.match !== "none" && record.anchor.classFamily);
   const candidates = [];
   for (let i = 0; i < eligible.length; i += 1) {
     for (let j = i + 1; j < eligible.length; j += 1) {
-      const first = eligible[i];
-      const second = eligible[j];
+      const first = withPairKeys(eligible[i]);
+      const second = withPairKeys(eligible[j]);
       if (first.makeSlug === second.makeSlug) continue;
       if (first.anchor.y !== second.anchor.y) continue;
       if (first.anchor.classFamily !== second.anchor.classFamily) continue;
+      if (!classOnly && (first.tier !== second.tier || first.anchor.fuelType !== second.anchor.fuelType)) continue;
       const [left, right] = [first, second].sort(byIdentity);
       candidates.push({
         left,
@@ -278,6 +383,8 @@ export function selectExamplePairs(records, options = {}) {
       slug,
       year: candidate.year,
       classFamily: candidate.classFamily,
+      tier: candidate.left.tier,
+      fuelType: candidate.left.anchor.fuelType,
       configCount: candidate.left.configCount + candidate.right.configCount,
       makeHub: candidate.left.makeHub + candidate.right.makeHub,
       left,
@@ -422,15 +529,15 @@ export function pairDocument(pair, { dates, ncapFetched }) {
 }
 
 export function exampleIndexIntro(count) {
-  return `These example comparisons pair two models from different makes. Both models use the newest model year that has an NHTSA name match, and that year has to share an EPA vehicle class. Drive-type labels (2WD and 4WD) are removed before the class is compared. Pairs are ordered by how many EPA configuration rows the two models have in the committed files, then by how many model years the two makes publish. Each model appears once, and each class keeps at most ${EXAMPLE_PAIRS_PER_CLASS} pairs. This page lists ${count} pairs. This list is not a sales ranking.`;
+  return `These example comparisons pair two models from different makes. Both models use the newest model year that has an NHTSA name match. That year has to share an EPA vehicle class, the makes have to share a tier (volume, luxury, or specialty), and the model year has to share a fuel type (gasoline, diesel, electric, hydrogen, or natural gas). Drive-type labels (2WD and 4WD) are removed before the class is compared. Pairs are ordered by how many EPA configuration rows the two models have in the committed files, then by how many model years the two makes publish. Each model appears once, and each class keeps at most ${EXAMPLE_PAIRS_PER_CLASS} pairs. This page lists ${count} pairs. This list is not a sales ranking.`;
 }
 
 export function exampleIndexCaption() {
-  return "Example comparisons from the committed EPA and NHTSA files. The order follows EPA configuration rows, then make size.";
+  return "Example comparisons from the committed EPA and NHTSA files. A pair shares an EPA class, a make tier, and a fuel type. The order follows EPA configuration rows, then make size.";
 }
 
-export function loadExamplePairs() {
-  if (pairCache) return pairCache;
+function loadRecords() {
+  if (recordCache) return recordCache;
   const summary = loadSummary();
   const hubs = makeHubSizes(summary);
   const records = [];
@@ -440,8 +547,69 @@ export function loadExamplePairs() {
       records.push(recordFromModel(make, model, doc, hubs.get(make.slug)));
     }
   }
-  pairCache = selectExamplePairs(records);
+  recordCache = records;
+  return recordCache;
+}
+
+export function loadExamplePairs() {
+  if (pairCache) return pairCache;
+  pairCache = selectExamplePairs(loadRecords());
   return pairCache;
+}
+
+export function buildPairRedirects(legacy, current) {
+  const live = new Set(current.map((pair) => pair.slug));
+  const redirects = [];
+  for (const old of legacy) {
+    if (live.has(old.slug)) continue;
+    const shares = (side) => (pair) =>
+      (pair.left.makeSlug === side.makeSlug && pair.left.modelSlug === side.modelSlug) ||
+      (pair.right.makeSlug === side.makeSlug && pair.right.modelSlug === side.modelSlug);
+    const primary = old.left.configCount >= old.right.configCount ? old.left : old.right;
+    const secondary = primary === old.left ? old.right : old.left;
+    const replacement =
+      current.find(shares(primary)) ||
+      current.find(shares(secondary)) ||
+      current.find((pair) => pair.classFamily === old.classFamily) ||
+      null;
+    const title = `${old.year} ${old.left.makeName} ${old.left.modelName} vs ${old.year} ${old.right.makeName} ${old.right.modelName}`;
+    redirects.push({
+      slug: old.slug,
+      year: old.year,
+      classFamily: old.classFamily,
+      title,
+      leftName: `${old.left.makeName} ${old.left.modelName}`,
+      rightName: `${old.right.makeName} ${old.right.modelName}`,
+      replacementSlug: replacement?.slug || "",
+      replacementPath: replacement ? `/compare/${replacement.slug}/` : "/compare/",
+      replacementTitle: replacement
+        ? `${replacement.year} ${replacement.left.makeName} ${replacement.left.modelName} vs ${replacement.year} ${replacement.right.makeName} ${replacement.right.modelName}`
+        : "Example comparisons",
+    });
+  }
+  return redirects;
+}
+
+export function redirectAnswer(redirect) {
+  const moved = `The example comparison of the ${redirect.year} ${redirect.leftName} and the ${redirect.year} ${redirect.rightName} is not in the current example set.`;
+  const why = "Example pages now keep two models only when they share an EPA class, a similar make tier, and a fuel type.";
+  const next = redirect.replacementSlug
+    ? `The replacement example is ${redirect.replacementTitle}.`
+    : "The current example comparisons are listed on the compare page.";
+  return `${moved} ${why} ${next}`;
+}
+
+export function loadRemovedPairRedirects() {
+  if (redirectCache) return redirectCache;
+  const records = loadRecords();
+  const current = loadExamplePairs();
+  const legacy = selectExamplePairs(records, { rule: "class" });
+  redirectCache = buildPairRedirects(legacy, current);
+  return redirectCache;
+}
+
+export function removedComparePaths() {
+  return new Set(loadRemovedPairRedirects().map((item) => `/compare/${item.slug}/`));
 }
 
 export function ncapFetchedAt(meta, year) {

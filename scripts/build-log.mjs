@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { removedComparePaths } from "../src/lib/compare-pairs.js";
 
 const root = join(import.meta.dirname, "..");
 const dist = join(root, "dist");
@@ -23,10 +24,16 @@ function kind(rel) {
   if (parts[0] === "recalls") return `recall:${parts[1]}`;
   if (parts[0] === "guides" && parts.length === 2) return "guides-index";
   if (parts[0] === "guides") return `guide:${parts[1]}`;
+  if (parts[0] === "compare" && parts[1] === "hybrid" && parts.length === 3) return "compare-hybrid-index";
+  if (parts[0] === "compare" && parts[1] === "hybrid" && parts.length === 4) return "compare-hybrid";
   if (["about", "methodology", "privacy", "disclosure", "contact", "compare"].includes(parts[0]) && parts.length === 2) {
     return parts[0];
   }
-  if (parts[0] === "compare" && parts.length === 3) return "compare-pair";
+  if (parts[0] === "compare" && parts.length === 3) {
+    const asPath = `/${parts[0]}/${parts[1]}/`;
+    if (removedCompares.has(asPath)) return "compare-redirect";
+    return "compare-pair";
+  }
   if (parts.length === 2) return "make";
   if (parts.length === 3) return "model";
   if (parts.length === 4 && parts[2] === "years") return "years";
@@ -34,6 +41,7 @@ function kind(rel) {
   return `other:${rel}`;
 }
 
+const removedCompares = removedComparePaths();
 const files = walk(dist);
 const counts = {};
 let html = 0;

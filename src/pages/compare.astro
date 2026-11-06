@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
 import { exampleIndexCaption, exampleIndexIntro, loadExamplePairs } from "../lib/compare-pairs.js";
+import { hybridIndexTeaser } from "../lib/hybrid-pairs.js";
 import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
 import { webApp } from "../lib/schema.js";
 
@@ -40,6 +41,11 @@ const text = `Compare two of the ${formatNumber(meta.counts.publishedMmy)} publi
       }
     </script>
     <p>There is one indexed address for this tool. A query string that preselects vehicles is not a separate page. The example comparisons below are separate pages.</p>
+    <h2 id="hybrid">Hybrid vs gasoline</h2>
+    <p>{hybridIndexTeaser()}</p>
+    <p>
+      <a href="/compare/hybrid/">Hybrid vs gasoline comparisons</a>
+    </p>
     <h2 id="examples">Example comparisons</h2>
     <p>{intro}</p>
     <div class="table-wrap">

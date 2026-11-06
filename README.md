@@ -64,9 +64,12 @@ The set is chosen only from the committed files in `data/site/`:
 1. An EPA class family is the `vclass` value with a trailing `2WD` or `4WD` label removed.
 2. A model year uses the family with the most configuration rows that year. A tie uses the alphabetically first family.
 3. A model's anchor is its newest model year with an EPA configuration and an NHTSA name match (`match` other than `none`).
-4. A pair is two models from different makes with the same anchor year and the same anchor class.
+4. A pair is two models from different makes with the same anchor year, the same anchor class, the same make tier (volume, luxury, or specialty), and the same fuel type (gasoline, diesel, electric, hydrogen, or natural gas). Regular, midgrade, premium, and flex-fuel count as gasoline.
 5. Pairs are ordered by the sum of EPA configuration rows, then by the sum of published model years on the two make hubs.
 6. Each model is used once. Each class family keeps at most four pairs. The first 30 pairs are published.
+7. A pair the older class-only rule would have published, and this rule drops, stays at the old URL as a noindex refresh to the replacement. Those URLs are not in the sitemap.
+
+`/compare/hybrid/` lists same-model gasoline vs hybrid (and plug-in hybrid) pages. The year is the newest overlap from model year 2020 on. Figures are EPA mpg and fuelCost08. A calculated cost is added only when both sides are regular gasoline or diesel and the committed EIA snapshot has that price.
 
 Each page shows EPA city, highway, and combined mpg (kWh/100 mi and range on electric rows), EPA annual fuel cost, NCAP overall stars for model year 2011 and newer, recall campaign counts, and distinct complaint counts received so far.
 

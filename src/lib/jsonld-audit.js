@@ -38,6 +38,7 @@ export function classifyPage(rel) {
   if (norm === "/methodology/index.html") return "methodology";
   if (norm === "/guides/index.html") return "guides-index";
   if (norm === "/compare/index.html" || norm === "/recalls/lookup/index.html") return "tool";
+  if (norm.startsWith("/compare/hybrid/") && norm.endsWith("/index.html")) return "compare-hybrid";
   if (norm.startsWith("/tools/") && norm.endsWith("/index.html")) return "tool";
   if (norm.startsWith("/guides/") && norm.endsWith("/index.html")) return "guide";
   if (ADVISORY_PATHS.has(norm)) return "advisory";
@@ -179,7 +180,7 @@ export function auditHtml(html, rel = "/index.html") {
         if (!names.includes(NHTSA_NAME)) errors.push("recall Dataset creator must be NHTSA");
         if (names.includes(EPA_NAME)) errors.push("recall Dataset must not list EPA as creator");
       }
-      if (["make", "model", "years", "mmy", "methodology", "compare-pair"].includes(kind)) {
+      if (["make", "model", "years", "mmy", "methodology", "compare-pair", "compare-hybrid"].includes(kind)) {
         if (!names.includes(NHTSA_NAME) || !names.includes(EPA_NAME)) {
           errors.push("Dataset creator must list NHTSA and EPA");
         }
@@ -215,7 +216,7 @@ export function auditHtml(html, rel = "/index.html") {
   if (!typeSet.has("BreadcrumbList")) errors.push("missing BreadcrumbList");
   if (kind === "tool" && !typeSet.has("WebApplication")) errors.push("tool page missing WebApplication");
   if (kind === "guide" && !typeSet.has("Article")) errors.push("guide page missing Article");
-  if (["make", "model", "years", "mmy", "methodology", "advisory", "compare-pair", "campaign"].includes(kind) && datasetCount < 1) {
+  if (["make", "model", "years", "mmy", "methodology", "advisory", "compare-pair", "compare-hybrid", "campaign"].includes(kind) && datasetCount < 1) {
     errors.push("page missing Dataset");
   }
 

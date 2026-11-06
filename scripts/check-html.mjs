@@ -68,8 +68,11 @@ for (const file of files) {
   const h1 = html.match(/<h1\b/g) || [];
   if (h1.length !== 1) errors.push(`${rel}: ${h1.length} h1`);
   if (!html.includes('id="main"')) errors.push(`${rel}: main`);
-  if (rel !== "/404.html" && html.includes('content="noindex"')) errors.push(`${rel}: unexpected noindex`);
-  if (rel === "/404.html" && !html.includes('content="noindex"')) errors.push("404 should be noindex");
+  const noindex = html.includes('content="noindex"');
+  const refresh = /http-equiv="refresh"/i.test(html);
+  if (noindex && rel !== "/404.html" && !refresh) errors.push(`${rel}: unexpected noindex`);
+  if (rel === "/404.html" && !noindex) errors.push("404 should be noindex");
+  if (refresh && rel.startsWith("/compare/") && !noindex) errors.push(`${rel}: compare refresh should be noindex`);
   if (!html.includes("application/ld+json") && rel !== "/404.html") errors.push(`${rel}: missing JSON-LD`);
 }
 

@@ -4,6 +4,7 @@ import Answer from "../../../components/Answer.astro";
 import DataNote from "../../../components/DataNote.astro";
 import YearTable from "../../../components/YearTable.astro";
 import { findModel, loadMeta, modelPaths } from "../../../lib/catalog.js";
+import { COMPONENT_MIN, modelHasComponentPage } from "../../../lib/components.js";
 import { modelAnswer } from "../../../lib/answer.js";
 import { formatNumber, metaDescription, money, span } from "../../../lib/format.js";
 import { dataset } from "../../../lib/schema.js";
@@ -54,6 +55,14 @@ const crumbs = [
       ) : (
         <p>A separate by-year page is published only when at least three model years have matched NHTSA records. This model does not meet that count.</p>
       )
+    }
+    {
+      modelHasComponentPage(make.slug, model.slug) ? (
+        <p>
+          A component with at least {COMPONENT_MIN} distinct complaints on a model year links to a count page from that year's complaint list.
+          The rule is on the <a href="/methodology/">methodology</a> page.
+        </p>
+      ) : null
     }
     <h2>Model years</h2>
     <YearTable rows={years} makeSlug={make.slug} modelSlug={model.slug} />

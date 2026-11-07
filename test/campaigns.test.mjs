@@ -292,7 +292,7 @@ test("every indexable campaign is linked from a model year recall section", () =
 });
 
 test("model year pages render the campaign link plan", () => {
-  const year = readFileSync("src/pages/[make]/[model]/[year].astro", "utf8");
+  const year = readFileSync("src/pages/[make]/[model]/[year]/index.astro", "utf8");
   const list = readFileSync("src/components/RecallList.astro", "utf8");
   assert.match(year, /mmyCampaignLinkPlan/);
   assert.match(year, /CampaignLinks/);

@@ -4,6 +4,7 @@ import Base from "../layouts/Base.astro";
 import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
 import { EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE, loadPriceSnapshot } from "../lib/eia-prices.js";
+import { COMPONENT_MIN } from "../lib/components.js";
 import { HYBRID_MIN_YEAR, HYBRID_PAIR_LIMIT } from "../lib/hybrid-pairs.js";
 import { formatPeriod } from "../lib/fuel-cost.js";
 import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
@@ -72,7 +73,7 @@ const path = "/methodology/";
       The complaint file dated {formatDate(dates.complaints)} has {formatNumber(counts.complaintRows)} rows and {formatNumber(counts.complaintVehicleRows)} vehicle rows. A complaint is repeated once per component, so the published count is distinct ODINO values: {formatNumber(counts.complaintVehicleOdino)} vehicle complaints in the whole file. The same rule is used on each model year page.
     </p>
     <p>
-      Crash and fire flags are yes if any row for that complaint says yes. The injury and death fields use the highest number on that complaint, then add those highs. A complaint can appear in more than one component, so component bars can add up to more than the complaint total. The top ten components are shown.
+      Crash and fire flags are yes if any row for that complaint says yes. The injury and death fields use the highest number on that complaint, then add those highs. A complaint can appear in more than one component, so component bars can add up to more than the complaint total. The top ten components are shown. A name in that list with at least {COMPONENT_MIN} distinct complaints links to a count page.
     </p>
     <p>
       Names, partial VINs, cities, dealers, phone numbers, and the narrative text are not stored and are not published. Newer model years have had less time to accumulate complaints. The file's own documentation describes a format change in 2021. A low count on a new model year is "complaints received so far," dated with the file.
@@ -150,6 +151,19 @@ const path = "/methodology/";
       Complaint counts, when a model year has an NHTSA name match, are the counts for that model year. They are not split by configuration.
     </p>
 
+    <h2>Component pages</h2>
+    <p>
+      A component page is published at <span class="mono">/make/model/year/component/</span> when the component list on that model year includes the component with at least {COMPONENT_MIN} distinct complaints.
+      The list is the top ten components stored for the headline NHTSA name.
+      When the EPA name is not itself an NHTSA name, the list is the top ten for the matched name with the most complaints, which is the list the model year page already shows.
+      Other matched names stay on the model year page.
+      A component outside that stored top ten has no count in the committed file, so it does not get a page.
+      The page states the distinct complaint count and the complaint file date.
+      It does not state a rate.
+      Crash, fire, injury, and death figures stay on the model year page, because the committed file stores those figures for the model year rather than for each component.
+      Narratives stay on NHTSA.
+    </p>
+
     <h2>What this site does not say</h2>
     <p>
       Complaint and recall counts are not sales-adjusted. There is no registration denominator in these files. The site does not label a vehicle or a model year as one to avoid, and it does not call one reliable, best, or worst. A higher complaint count can mean more vehicles were sold.
@@ -159,7 +173,7 @@ const path = "/methodology/";
     <ul>
       <li>Manufacturer communications (technical service bulletins). NHTSA's TSBS dictionary says the files were renamed and split into five-year downloads. The zip names tried for this build were not verified, so nothing from those files is published.</li>
       <li>A VIN check. Use <a href="https://www.nhtsa.gov/recalls">NHTSA's recall tool</a>.</li>
-      <li>Separate pages for each investigation or component. Campaign pages are only the 2015-or-later vehicle campaigns listed on a model year page.</li>
+      <li>Separate pages for each investigation. Action numbers stay on the model year page. Campaign pages are only the 2015-or-later vehicle campaigns listed on a model year page.</li>
       <li>The {formatNumber(counts.unmatchedMmy)} unmatched model years have no NHTSA row this site will attach, or the name is ambiguous between two EPA models. Their pages exist, show EPA fuel economy, and say the name did not match.</li>
     </ul>
     <p>Source files are U.S. government works. The license reference used in the site's dataset markup is <a href="https://www.usa.gov/government-works">usa.gov/government-works</a>.</p>

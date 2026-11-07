@@ -5,6 +5,7 @@ import {
   article,
   dataset,
   faqPage,
+  nhtsaOrg,
   recallListDataset,
   temporalCoverageFromDates,
   webApp,
@@ -70,6 +71,7 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/honda/fit/index.html"), "model");
   assert.equal(classifyPage("/honda/fit/years/index.html"), "years");
   assert.equal(classifyPage("/honda/fit/2017/index.html"), "mmy");
+  assert.equal(classifyPage("/honda/fit/2017/electrical-system/index.html"), "component");
 });
 
 test("representative pages pass the JSON-LD rules", () => {
@@ -99,6 +101,20 @@ test("representative pages pass the JSON-LD rules", () => {
           description: "NHTSA and EPA records for the 2017 Honda Fit.",
           url: "https://vehiclefactbook.com/honda/fit/2017/",
           dateModified: "2026-10-25",
+        }),
+      ],
+    ],
+    [
+      "/honda/fit/2017/electrical-system/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "2017 Honda Fit ELECTRICAL SYSTEM complaints",
+          description: "Distinct complaint count for one component.",
+          url: "https://vehiclefactbook.com/honda/fit/2017/electrical-system/",
+          dateModified: "2026-10-25",
+          creators: [nhtsaOrg],
+          temporalCoverage: "2026-10-25",
         }),
       ],
     ],
@@ -169,6 +185,23 @@ test("representative pages pass the JSON-LD rules", () => {
     const result = auditHtml(page(answer, graph), rel);
     assert.deepEqual(result.errors, [], rel);
   }
+});
+
+test("a component dataset lists NHTSA and leaves EPA off", () => {
+  const rel = "/honda/fit/2017/electrical-system/index.html";
+  const withEpa = auditHtml(
+    page(answer, [
+      crumb(),
+      dataset({
+        name: "2017 Honda Fit ELECTRICAL SYSTEM complaints",
+        description: "Distinct complaint count for one component.",
+        url: "https://vehiclefactbook.com/honda/fit/2017/electrical-system/",
+        dateModified: "2026-10-25",
+      }),
+    ]),
+    rel,
+  );
+  assert.ok(withEpa.errors.includes("component Dataset must not list EPA as creator"));
 });
 
 test("guide FAQ text must be visible", () => {

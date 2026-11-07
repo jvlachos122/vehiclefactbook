@@ -1,9 +1,11 @@
 ---
+import { COMPONENT_MIN } from "../lib/components.js";
 import { formatNumber } from "../lib/format.js";
 
-const { complaints } = Astro.props;
+const { complaints, hrefs = {} } = Astro.props;
 const top = complaints?.top || [];
 const max = top.reduce((highest, item) => Math.max(highest, item.n || 0), 0);
+const linked = top.some((item) => hrefs[item.component]);
 ---
 
 {
@@ -18,15 +20,23 @@ const max = top.reduce((highest, item) => Math.max(highest, item.n || 0), 0);
         The injury and death figures are the file's numbers (the highest value on each complaint, then added), not a separate verified count of people.
       </p>
       {
+        linked ? (
+          <p>A component with at least {COMPONENT_MIN} distinct complaints links to a count page.</p>
+        ) : null
+      }
+      {
         top.length ? (
           <ol class="bars">
-            {top.map((item) => (
-              <li>
-                <span>{item.component}</span>
-                <span class="bar" style={`--w:${max ? Math.max(4, Math.round((item.n / max) * 100)) : 0}%`} />
-                <b class="num">{formatNumber(item.n)}</b>
-              </li>
-            ))}
+            {top.map((item) => {
+              const href = hrefs[item.component];
+              return (
+                <li>
+                  {href ? <a href={href}>{item.component}</a> : <span>{item.component}</span>}
+                  <span class="bar" style={`--w:${max ? Math.max(4, Math.round((item.n / max) * 100)) : 0}%`} />
+                  <b class="num">{formatNumber(item.n)}</b>
+                </li>
+              );
+            })}
           </ol>
         ) : null
       }

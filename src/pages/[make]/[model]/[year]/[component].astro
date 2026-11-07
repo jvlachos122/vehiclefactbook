@@ -1,0 +1,159 @@
+---
+import Base from "../../../../layouts/Base.astro";
+import Answer from "../../../../components/Answer.astro";
+import DataNote from "../../../../components/DataNote.astro";
+import { COMPONENT_MIN, componentAnswer, componentDocumentTitle, componentMetaDescription, componentPaths } from "../../../../lib/components.js";
+import { loadMeta } from "../../../../lib/catalog.js";
+import { formatDate, formatNumber, nhtsaVehicleUrl } from "../../../../lib/format.js";
+import { dataset, nhtsaOrg, temporalCoverageFromDates } from "../../../../lib/schema.js";
+import { site } from "../../../../lib/site.js";
+
+export function getStaticPaths() {
+  return componentPaths();
+}
+
+const { page } = Astro.props;
+const meta = loadMeta();
+const text = componentAnswer(page, meta.dates.complaints);
+const title = componentDocumentTitle(page);
+const fileDate = formatDate(meta.dates.complaints);
+const parent = `/${page.makeSlug}/${page.modelSlug}/${page.year}/`;
+const modelHref = `/${page.makeSlug}/${page.modelSlug}/`;
+const makeHref = `/${page.makeSlug}/`;
+const nhtsaUrl = nhtsaVehicleUrl(page.year, page.makeName, page.modelName);
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: page.makeName, href: makeHref },
+  { label: page.modelName, href: modelHref },
+  { label: String(page.year), href: parent },
+  { label: page.component, href: page.path },
+];
+---
+
+<Base
+  title={title}
+  documentTitle={title}
+  description={componentMetaDescription(page, meta.dates.complaints)}
+  canonicalPath={page.path}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    dataset({
+      name: `${page.year} ${page.makeName} ${page.modelName} ${page.component} complaints`,
+      description: `Distinct NHTSA complaint count for ${page.component} on the ${page.year} ${page.makeName} ${page.modelName}.`,
+      url: new URL(page.path, site.url).href,
+      dateModified: meta.dates.complaints,
+      creators: [nhtsaOrg],
+      temporalCoverage: temporalCoverageFromDates([meta.dates.complaints]),
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">Component complaints</p>
+    <h1>{page.year} {page.makeName} {page.modelName}: {page.component}</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      Source: NHTSA complaint flat file{fileDate ? ` dated ${fileDate}` : ""}. This page publishes the distinct complaint count for one component.
+      Names, VINs, cities, dealers, and narratives are not published.
+      Crash, fire, injury, and death figures for the model year are on the <a href={`${parent}#complaints`}>model year page</a>.
+      Narratives are on <a href={nhtsaUrl}>{page.year} {page.makeName} {page.modelName} at NHTSA</a>.
+      The counting rule is on the <a href="/methodology/">methodology</a> page.
+    </p>
+    <h2>Count</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>
+          Distinct complaints for {page.component} on the {page.year} {page.makeName} {page.modelName}
+        </caption>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Component</td>
+            <td>{page.component}</td>
+          </tr>
+          {
+            page.split ? (
+              <tr>
+                <td>NHTSA name</td>
+                <td>{page.nhtsaName}</td>
+              </tr>
+            ) : null
+          }
+          <tr>
+            <td>Distinct complaints for this component</td>
+            <td class="num">{formatNumber(page.n)}</td>
+          </tr>
+          <tr>
+            <td>{page.split ? "Distinct complaints for this NHTSA name" : "Distinct complaints for this model year"}</td>
+            <td class="num">{formatNumber(page.listN)}</td>
+          </tr>
+          {
+            page.split && page.mmyN !== page.listN ? (
+              <tr>
+                <td>Distinct complaints across matched names</td>
+                <td class="num">{formatNumber(page.mmyN)}</td>
+              </tr>
+            ) : null
+          }
+          <tr>
+            <td>Complaint file</td>
+            <td>{fileDate || "—"}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    {
+      page.siblings.length ? (
+        <>
+          <h2>Other components</h2>
+          <p>
+            These components are the others on this model year with at least {COMPONENT_MIN} distinct complaints in the stored list.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <caption>
+                Other components on the {page.year} {page.makeName} {page.modelName} with at least {COMPONENT_MIN} distinct complaints
+              </caption>
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th class="num">Distinct complaints</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  page.siblings.map((sibling) => (
+                    <tr>
+                      <td><a href={sibling.path}>{sibling.component}</a></td>
+                      <td class="num">{formatNumber(sibling.n)}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : null
+    }
+    <p>
+      <a href={`${parent}#complaints`}>{page.year} {page.makeName} {page.modelName}</a>
+      {" · "}
+      <a href={modelHref}>{page.makeName} {page.modelName}</a>
+      {" · "}
+      <a href={makeHref}>{page.makeName}</a>
+      {
+        page.yearsPage ? (
+          <>
+            {" · "}
+            <a href={`${modelHref}years/`}>Model years</a>
+          </>
+        ) : null
+      }
+    </p>
+  </article>
+</Base>

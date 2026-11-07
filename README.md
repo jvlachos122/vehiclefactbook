@@ -73,9 +73,13 @@ The set is chosen only from the committed files in `data/site/`:
 
 Each page shows EPA city, highway, and combined mpg (kWh/100 mi and range on electric rows), EPA annual fuel cost, NCAP overall stars for model year 2011 and newer, recall campaign counts, and distinct complaint counts received so far.
 
+## Component pages
+
+`/{make}/{model}/{year}/{component}/` is published when the component list on that model year has at least 50 distinct complaints. The list is the top ten components stored for the headline NHTSA name. When the EPA name is not an NHTSA name, the list is the top ten for the matched name with the most complaints, the same list the model year page shows. A component outside that stored top ten is not given a page. The page states the count and the complaint file date. It does not state a rate. Crash, fire, injury, and death figures stay on the model year page.
+
 ## Not in this version
 
-- Component pages and investigation pages. A recall campaign page is published at `/recalls/<campaign>/` when the campaign number is from 2015 or later and at least one model year page lists it. Older campaign numbers still link to NHTSA. Investigation action numbers are printed as text.
+- Investigation pages. A recall campaign page is published at `/recalls/<campaign>/` when the campaign number is from 2015 or later and at least one model year page lists it. Older campaign numbers still link to NHTSA. Investigation action numbers are printed as text.
 - A VIN lookup. The site links to NHTSA's tool.
 - Manufacturer communications (TSBs). The zip names were not verified.
 - A sales ranking. `/compare/` lists example pairs chosen from EPA configuration counts and make size. See "Example comparisons" below.

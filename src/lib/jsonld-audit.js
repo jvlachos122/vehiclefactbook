@@ -44,6 +44,10 @@ export function classifyPage(rel) {
   if (ADVISORY_PATHS.has(norm)) return "advisory";
   if (STATIC_PATHS.has(norm)) return "static";
   const parts = norm.split("/").filter(Boolean);
+  if (parts[0] === "investigations" && parts.at(-1) === "index.html") {
+    if (parts.length === 2) return "investigation-index";
+    if (parts.length === 3 && /^[A-Z0-9]+$/.test(parts[1])) return "investigation";
+  }
   if (parts.length === 3 && parts[0] === "compare" && parts[2] === "index.html") return "compare-pair";
   if (parts.length === 3 && parts[0] === "recalls" && parts[2] === "index.html" && /^\d{2}[A-Z0-9]+$/.test(parts[1])) {
     return "campaign";
@@ -181,6 +185,10 @@ export function auditHtml(html, rel = "/index.html") {
         if (!names.includes(NHTSA_NAME)) errors.push("recall Dataset creator must be NHTSA");
         if (names.includes(EPA_NAME)) errors.push("recall Dataset must not list EPA as creator");
       }
+      if (kind === "investigation" || kind === "investigation-index") {
+        if (!names.includes(NHTSA_NAME)) errors.push("investigation Dataset creator must be NHTSA");
+        if (names.includes(EPA_NAME)) errors.push("investigation Dataset must not list EPA as creator");
+      }
       if (kind === "component") {
         if (!names.includes(NHTSA_NAME)) errors.push("component Dataset creator must be NHTSA");
         if (names.includes(EPA_NAME)) errors.push("component Dataset must not list EPA as creator");
@@ -221,7 +229,7 @@ export function auditHtml(html, rel = "/index.html") {
   if (!typeSet.has("BreadcrumbList")) errors.push("missing BreadcrumbList");
   if (kind === "tool" && !typeSet.has("WebApplication")) errors.push("tool page missing WebApplication");
   if (kind === "guide" && !typeSet.has("Article")) errors.push("guide page missing Article");
-  if (["make", "model", "years", "mmy", "methodology", "advisory", "compare-pair", "compare-hybrid", "campaign", "component"].includes(kind) && datasetCount < 1) {
+  if (["make", "model", "years", "mmy", "methodology", "advisory", "compare-pair", "compare-hybrid", "campaign", "component", "investigation", "investigation-index"].includes(kind) && datasetCount < 1) {
     errors.push("page missing Dataset");
   }
 

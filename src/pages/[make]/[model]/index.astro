@@ -5,6 +5,7 @@ import DataNote from "../../../components/DataNote.astro";
 import YearTable from "../../../components/YearTable.astro";
 import { findModel, loadMeta, modelPaths } from "../../../lib/catalog.js";
 import { COMPONENT_MIN, modelHasComponentPage } from "../../../lib/components.js";
+import { modelInvestigationCount } from "../../../lib/investigations.js";
 import { modelAnswer } from "../../../lib/answer.js";
 import { formatNumber, metaDescription, money, span } from "../../../lib/format.js";
 import { dataset } from "../../../lib/schema.js";
@@ -61,6 +62,13 @@ const crumbs = [
         <p>
           A component with at least {COMPONENT_MIN} distinct complaints on a model year links to a count page from that year's complaint list.
           The rule is on the <a href="/methodology/">methodology</a> page.
+        </p>
+      ) : null
+    }
+    {
+      modelInvestigationCount(make.slug, model.slug) ? (
+        <p>
+          An investigation with no close date in the NHTSA file that includes a model year of the {make.name} {model.name} is linked from that model year. The index is the <a href="/investigations/">investigation list</a>.
         </p>
       ) : null
     }

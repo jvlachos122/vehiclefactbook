@@ -20,6 +20,8 @@ function kind(rel) {
   if (rel === "/404.html") return "404";
   const parts = rel.split("/").filter(Boolean);
   if (parts[0] === "tools") return `tool:${parts[1]}`;
+  if (parts[0] === "investigations" && parts.length === 2) return "investigation-index";
+  if (parts[0] === "investigations" && parts.length === 3) return "investigation";
   if (parts[0] === "recalls" && /^\d{2}[A-Z0-9]+$/.test(parts[1] || "")) return "campaign";
   if (parts[0] === "recalls") return `recall:${parts[1]}`;
   if (parts[0] === "guides" && parts.length === 2) return "guides-index";

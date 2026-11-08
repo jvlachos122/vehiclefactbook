@@ -10,3 +10,4 @@ export const site = {
 
 export const nhtsaRecalls = "https://www.nhtsa.gov/recalls";
 export const nhtsaVinTool = "https://www.nhtsa.gov/recalls";
+export const nhtsaInvestigations = "https://www.nhtsa.gov/resources-investigations-recalls";

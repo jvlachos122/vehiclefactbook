@@ -1,8 +1,19 @@
 ---
+import { investigationPath } from "../lib/investigations.js";
 import { plain, formatDate } from "../lib/format.js";
 
 const { investigations = [], cap = 6 } = Astro.props;
 const shown = investigations.slice(0, cap);
+const linked = shown.some((item) => investigationPath(item.action));
+const extra = [];
+const seen = new Set();
+for (const item of investigations.slice(cap)) {
+  const action = String(item?.action || "").trim();
+  const path = investigationPath(action);
+  if (!path || seen.has(action)) continue;
+  seen.add(action);
+  extra.push({ action, path });
+}
 ---
 
 {
@@ -21,9 +32,11 @@ const shown = investigations.slice(0, cap);
           </tr>
         </thead>
         <tbody>
-          {shown.map((item) => (
+          {shown.map((item) => {
+            const path = investigationPath(item.action);
+            return (
             <tr>
-              <td class="mono">{item.action}</td>
+              <td class="mono">{path ? <a href={path}>{item.action}</a> : item.action}</td>
               <td>
                 {plain(item.subject, 180)}
                 {item.component ? <span class="small muted"> · {plain(item.component, 120)}</span> : null}
@@ -31,11 +44,27 @@ const shown = investigations.slice(0, cap);
               <td>{formatDate(item.opened) || "—"}</td>
               <td>{item.closeDateInFile ? formatDate(item.closed) || "Date in file" : "No close date in the file"}</td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
       {investigations.length > shown.length ? (
         <p class="small muted">{(investigations.length - shown.length).toLocaleString("en-US")} more actions are in the file and are not listed in this table.</p>
+      ) : null}
+      {extra.length ? (
+        <p class="small muted">
+          Investigation pages for actions past the rows above:
+          {extra.map((item, index) => (
+            <span>
+              {index ? ", " : " "}
+              <a href={item.path}>{item.action}</a>
+            </span>
+          ))}
+          .
+        </p>
+      ) : null}
+      {linked ? (
+        <p class="small muted">An action number links to its page on this site when one is published.</p>
       ) : null}
     </div>
   ) : (

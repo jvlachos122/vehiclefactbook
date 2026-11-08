@@ -5,6 +5,7 @@ import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
 import { EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE, loadPriceSnapshot } from "../lib/eia-prices.js";
 import { COMPONENT_MIN } from "../lib/components.js";
+import { loadInvestigationPages } from "../lib/investigations.js";
 import { HYBRID_MIN_YEAR, HYBRID_PAIR_LIMIT } from "../lib/hybrid-pairs.js";
 import { formatPeriod } from "../lib/fuel-cost.js";
 import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
@@ -17,6 +18,7 @@ const dates = meta.dates;
 const eiaPrices = loadPriceSnapshot(readFileSync(new URL("../../data/eia-fuel-prices.csv", import.meta.url), "utf8"));
 const eiaGas = eiaPrices.find((row) => row.product === "gasoline" && row.area === "US");
 const eiaElectric = eiaPrices.find((row) => row.product === "electricity" && row.area === "US");
+const investigationPages = loadInvestigationPages();
 const text = `Counts on this site come from NHTSA flat files dated ${formatDate(dates.recalls)} (recalls), ${formatDate(dates.complaints)} (complaints), and ${formatDate(dates.investigations)} (investigations), and from the EPA fuel-economy file dated ${formatDate(dates.epa)}. Complaint totals are distinct complaint numbers, not raw rows.`;
 const path = "/methodology/";
 ---
@@ -100,6 +102,9 @@ const path = "/methodology/";
     <p>
       The investigations file dated {formatDate(dates.investigations)} has {formatNumber(counts.investigationRows)} rows and {formatNumber(counts.investigationActions)} actions. {formatNumber(counts.investigationActionsNoCloseDate)} actions have no close date on any row. The page says "no close date in the NHTSA file." It does not say the investigation is still open. The investigations dictionary file is older than the data file. Subject lines are shortened. The long summary text is not copied onto the page. Action numbers are shown as text because this site does not have a verified public URL for each action.
     </p>
+    <p>
+      An action attached to a published model year, with no close date on any stored row, has its own page under <a href="/investigations/">/investigations/</a>. That set is {formatNumber(investigationPages.length)} actions. The file count above also includes actions that are not attached to a published model year, and those actions do not have a page. The model year table links the action number when a page exists. The investigation page lists the shortened subject, the component, the open date, and the model years. It does not copy the summary.
+    </p>
 
     <h2>Fuel economy</h2>
     <p>
@@ -173,7 +178,7 @@ const path = "/methodology/";
     <ul>
       <li>Manufacturer communications (technical service bulletins). NHTSA's TSBS dictionary says the files were renamed and split into five-year downloads. The zip names tried for this build were not verified, so nothing from those files is published.</li>
       <li>A VIN check. Use <a href="https://www.nhtsa.gov/recalls">NHTSA's recall tool</a>.</li>
-      <li>Separate pages for each investigation. Action numbers stay on the model year page. Campaign pages are only the 2015-or-later vehicle campaigns listed on a model year page.</li>
+      <li>Campaign pages are only the 2015-or-later vehicle campaigns listed on a model year page.</li>
       <li>The {formatNumber(counts.unmatchedMmy)} unmatched model years have no NHTSA row this site will attach, or the name is ambiguous between two EPA models. Their pages exist, show EPA fuel economy, and say the name did not match.</li>
     </ul>
     <p>Source files are U.S. government works. The license reference used in the site's dataset markup is <a href="https://www.usa.gov/government-works">usa.gov/government-works</a>.</p>

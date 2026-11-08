@@ -77,9 +77,14 @@ Each page shows EPA city, highway, and combined mpg (kWh/100 mi and range on ele
 
 `/{make}/{model}/{year}/{component}/` is published when the component list on that model year has at least 50 distinct complaints. The list is the top ten components stored for the headline NHTSA name. When the EPA name is not an NHTSA name, the list is the top ten for the matched name with the most complaints, the same list the model year page shows. A component outside that stored top ten is not given a page. The page states the count and the complaint file date. It does not state a rate. Crash, fire, injury, and death figures stay on the model year page.
 
+## Investigation pages
+
+`/investigations/` lists actions that are attached to a published model year and have no close date on any stored row. Each action has a page at `/investigations/<action>/`. The investigations file also counts actions that are not attached to a published model year; those actions do not get a page. The page says "no close date in the NHTSA file." It does not describe the investigation as open. The summary is not copied. Action numbers are not given a per-action NHTSA URL. A model year page links the action number when a page exists.
+
+A recall campaign page is published at `/recalls/<campaign>/` when the campaign number is from 2015 or later and at least one model year page lists it. Older campaign numbers still link to NHTSA.
+
 ## Not in this version
 
-- Investigation pages. A recall campaign page is published at `/recalls/<campaign>/` when the campaign number is from 2015 or later and at least one model year page lists it. Older campaign numbers still link to NHTSA. Investigation action numbers are printed as text.
 - A VIN lookup. The site links to NHTSA's tool.
 - Manufacturer communications (TSBs). The zip names were not verified.
 - A sales ranking. `/compare/` lists example pairs chosen from EPA configuration counts and make size. See "Example comparisons" below.

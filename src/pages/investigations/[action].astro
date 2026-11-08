@@ -1,0 +1,136 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
+import { findInvestigation, investigationAnswer, investigationPaths, NO_CLOSE_DATE } from "../../lib/investigations.js";
+import { dataset, nhtsaOrg, temporalCoverageFromDates } from "../../lib/schema.js";
+import { nhtsaInvestigations, nhtsaVinTool, site } from "../../lib/site.js";
+
+export function getStaticPaths() {
+  return investigationPaths();
+}
+
+const record = findInvestigation(Astro.params.action);
+if (!record) throw new Error(`No investigation page for ${Astro.params.action}`);
+const meta = loadMeta();
+const text = investigationAnswer(record, meta.dates.investigations);
+const fileDate = formatDate(meta.dates.investigations);
+const opened = record.openedDates.map((date) => formatDate(date)).filter(Boolean);
+const groups = [];
+for (const row of record.mmy) {
+  const key = `${row.makeSlug}/${row.modelSlug}`;
+  let group = groups.find((item) => item.key === key);
+  if (!group) {
+    group = {
+      key,
+      make: row.make,
+      makeSlug: row.makeSlug,
+      model: row.model,
+      modelSlug: row.modelSlug,
+      years: [],
+      nhtsaNames: [],
+    };
+    groups.push(group);
+  }
+  group.years.push({ year: row.year, href: row.href });
+  for (const name of row.nhtsaNames) {
+    if (!group.nhtsaNames.includes(name)) group.nhtsaNames.push(name);
+  }
+}
+---
+
+<Base
+  title={`NHTSA investigation ${record.action}`}
+  description={metaDescription(text)}
+  canonicalPath={record.path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Investigations", href: "/investigations/" },
+    { label: record.action, href: record.path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: `NHTSA investigation ${record.action}`,
+      description: text,
+      url: new URL(record.path, site.url).href,
+      dateModified: meta.dates.investigations,
+      creators: [nhtsaOrg],
+      temporalCoverage: temporalCoverageFromDates(record.openedDates.length ? record.openedDates : [meta.dates.investigations]),
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">Investigation</p>
+    <h1>NHTSA investigation {record.action}</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      Source: NHTSA investigations flat file{fileDate ? ` dated ${fileDate}` : ""}. {NO_CLOSE_DATE}. That line is the date status from the stored rows. It is not a statement that the investigation is active. The summary from the file is not copied. This site does not have a verified public URL for this action. NHTSA's tools are <a href={nhtsaVinTool}>nhtsa.gov/recalls</a> and <a href={nhtsaInvestigations}>nhtsa.gov/resources-investigations-recalls</a>. The counting rule is on the <a href="/methodology/">methodology</a> page.
+    </p>
+    <h2>Action record</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>Fields stored for {record.action} from the model year rows</caption>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Action</td>
+            <td class="mono">{record.action}</td>
+          </tr>
+          <tr>
+            <td>Subject</td>
+            <td>{record.subject || "—"}</td>
+          </tr>
+          <tr>
+            <td>Component</td>
+            <td>{record.component || "—"}</td>
+          </tr>
+          <tr>
+            <td>Opened</td>
+            <td>{opened.length ? opened.join(", ") : "—"}</td>
+          </tr>
+          <tr>
+            <td>Close date</td>
+            <td>{NO_CLOSE_DATE}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <h2>Model years</h2>
+    <p>
+      These are the distinct make, model, and model year rows in the committed files that include {record.action}. Each year links to that model year page.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>
+          {formatNumber(record.mmy.length)} model year {record.mmy.length === 1 ? "row" : "rows"} for {record.action}
+        </caption>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Years</th>
+            <th>NHTSA name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            groups.map((group) => (
+              <tr>
+                <td><a href={`/${group.makeSlug}/`}>{group.make}</a> <a href={`/${group.makeSlug}/${group.modelSlug}/`}>{group.model}</a></td>
+                <td set:html={group.years.map((year) => `<a href="${year.href}">${year.year}</a>`).join(" ")} />
+                <td>{group.nhtsaNames.join(", ") || "—"}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+</Base>

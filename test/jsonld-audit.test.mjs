@@ -72,6 +72,8 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/honda/fit/years/index.html"), "years");
   assert.equal(classifyPage("/honda/fit/2017/index.html"), "mmy");
   assert.equal(classifyPage("/honda/fit/2017/electrical-system/index.html"), "component");
+  assert.equal(classifyPage("/investigations/index.html"), "investigation-index");
+  assert.equal(classifyPage("/investigations/EA21002/index.html"), "investigation");
 });
 
 test("representative pages pass the JSON-LD rules", () => {
@@ -155,6 +157,34 @@ test("representative pages pass the JSON-LD rules", () => {
       ],
     ],
     [
+      "/investigations/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "NHTSA investigations with no close date",
+          description: "Actions with no close date in the NHTSA file.",
+          url: "https://vehiclefactbook.com/investigations/",
+          dateModified: "2026-11-03",
+          creators: [nhtsaOrg],
+          temporalCoverage: "2015-02-24/2026-03-26",
+        }),
+      ],
+    ],
+    [
+      "/investigations/EA21002/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "NHTSA investigation EA21002",
+          description: "NHTSA action EA21002 has no close date in the NHTSA file.",
+          url: "https://vehiclefactbook.com/investigations/EA21002/",
+          dateModified: "2026-11-03",
+          creators: [nhtsaOrg],
+          temporalCoverage: "2021-09-17",
+        }),
+      ],
+    ],
+    [
       "/recalls/19V000001/index.html",
       [
         crumb(),
@@ -202,6 +232,19 @@ test("a component dataset lists NHTSA and leaves EPA off", () => {
     rel,
   );
   assert.ok(withEpa.errors.includes("component Dataset must not list EPA as creator"));
+  const investigation = auditHtml(
+    page(answer, [
+      crumb(),
+      dataset({
+        name: "NHTSA investigation EA21002",
+        description: "NHTSA action EA21002 has no close date in the NHTSA file.",
+        url: "https://vehiclefactbook.com/investigations/EA21002/",
+        dateModified: "2026-11-03",
+      }),
+    ]),
+    "/investigations/EA21002/index.html",
+  );
+  assert.ok(investigation.errors.includes("investigation Dataset must not list EPA as creator"));
 });
 
 test("guide FAQ text must be visible", () => {

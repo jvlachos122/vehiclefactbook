@@ -27,6 +27,7 @@ Manufacturer communications (TSBs) are not imported. The file-name list for thos
 - /{make}/{model}/{year}/{component}/ distinct complaint count for one component, only when that component is in the model year's stored top ten and has at least 50 complaints. Narratives are not copied. The count is not a rate.
 - /recalls/do-not-drive/ /recalls/park-outside/ /recalls/takata-airbag/ /recalls/this-week/
 - /recalls/<campaign>/ one NHTSA vehicle campaign from 2015 or later that is listed on at least one model year page. Campaigns with no model year link are not published.
+- /investigations/ and /investigations/<action>/ NHTSA investigation actions attached to a published model year that have no close date in the NHTSA file. Summaries are not copied. There is no per-action NHTSA URL.
 - /guides/what-is-a-tsb/ /guides/do-recalls-expire/ /guides/open-recall-meaning/ /guides/how-long-do-recalls-last/
 - /methodology/ /about/ /privacy/ /disclosure/ /contact/
 

@@ -1,0 +1,85 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber, metaDescription, plain } from "../../lib/format.js";
+import {
+  INVESTIGATIONS_INDEX,
+  NO_CLOSE_DATE,
+  SUBJECT_LIMIT,
+  investigationIndexAnswer,
+  loadInvestigationPages,
+} from "../../lib/investigations.js";
+import { dataset, nhtsaOrg, temporalCoverageFromDates } from "../../lib/schema.js";
+import { nhtsaInvestigations, nhtsaVinTool, site } from "../../lib/site.js";
+
+const meta = loadMeta();
+const pages = loadInvestigationPages();
+const fileDate = formatDate(meta.dates.investigations);
+const text = investigationIndexAnswer(
+  pages.length,
+  meta.counts.investigationActionsNoCloseDate,
+  meta.dates.investigations,
+);
+const opened = pages.flatMap((record) => record.openedDates);
+const path = INVESTIGATIONS_INDEX;
+---
+
+<Base
+  title="NHTSA investigations"
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Investigations", href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: "NHTSA investigations with no close date",
+      description: text,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.investigations,
+      creators: [nhtsaOrg],
+      temporalCoverage: temporalCoverageFromDates(opened.length ? opened : [meta.dates.investigations]),
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">Investigations</p>
+    <h1>NHTSA investigations</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      Source: NHTSA investigations flat file{fileDate ? ` dated ${fileDate}` : ""}. A row is included when the action is attached to a published model year and no stored row has a close date. {NO_CLOSE_DATE} is the date status. It is not a statement that the investigation is active. Summaries are not copied. This site does not have a verified public URL for each action, so the action number links to the page on this site. NHTSA's tools are <a href={nhtsaVinTool}>nhtsa.gov/recalls</a> and <a href={nhtsaInvestigations}>nhtsa.gov/resources-investigations-recalls</a>.
+    </p>
+    <h2>Actions</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>
+          {formatNumber(pages.length)} actions attached to a published model year. Investigations file{fileDate ? ` dated ${fileDate}` : ""}.
+        </caption>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Subject</th>
+            <th>Date status</th>
+            <th class="num">Model years</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            pages.map((record) => (
+              <tr>
+                <td class="mono"><a href={record.path}>{record.action}</a></td>
+                <td>{plain(record.subject, SUBJECT_LIMIT) || "—"}</td>
+                <td>{NO_CLOSE_DATE}</td>
+                <td class="num">{formatNumber(record.mmy.length)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+</Base>

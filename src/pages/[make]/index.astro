@@ -7,6 +7,7 @@ import { findMake, loadMeta, makePaths } from "../../lib/catalog.js";
 import { makeAnswer, rollup } from "../../lib/answer.js";
 import { campaignFacts, loadMakeCampaigns } from "../../lib/make-recalls.js";
 import { formatNumber, metaDescription } from "../../lib/format.js";
+import { makeInvestigationCount } from "../../lib/investigations.js";
 import { dataset } from "../../lib/schema.js";
 import { site } from "../../lib/site.js";
 
@@ -57,6 +58,13 @@ const crumbs = [
       <li class="stat"><b>{formatNumber(facts.park)}</b><span>Park-outside campaigns</span></li>
     </ul>
     <MakeRecalls makeName={make.name} makeSlug={make.slug} campaigns={campaigns} recallDate={meta.dates.recalls} />
+    {
+      makeInvestigationCount(make.slug) ? (
+        <p>
+          <a href="/investigations/">Investigation pages</a> list actions with no close date in the NHTSA file that include a {make.name} model year. The action number on the model year page links to that investigation.
+        </p>
+      ) : null
+    }
     <h2>Models</h2>
     <div class="table-wrap">
       <table>

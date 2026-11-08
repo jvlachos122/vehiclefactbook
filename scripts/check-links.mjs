@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { INVESTIGATIONS_INDEX, loadInvestigationPages } from "../src/lib/investigations.js";
 import { dirname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -119,10 +120,12 @@ for (const [file, html] of htmlByFile) {
 
 const sitemapFiles = readdirSync(dist).filter((name) => name.startsWith("sitemap") && name.endsWith(".xml"));
 if (!sitemapFiles.includes("sitemap-index.xml")) errors.push("missing sitemap-index.xml");
+const sitemapPaths = new Set();
 for (const name of sitemapFiles) {
   const xml = readFileSync(join(dist, name), "utf8");
   for (const match of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
     const url = new URL(match[1]);
+    sitemapPaths.add(url.pathname);
     if (url.origin !== site) errors.push(`sitemap off-site ${match[1]}`);
     if (url.pathname === "/404.html" || url.pathname === "/404/") errors.push(`sitemap includes 404`);
     if (url.search) errors.push(`sitemap includes a query ${match[1]}`);
@@ -132,6 +135,9 @@ for (const name of sitemapFiles) {
     const target = fileForPath(url.pathname);
     if (!existsSync(target)) errors.push(`sitemap missing ${url.pathname}`);
   }
+}
+for (const path of [INVESTIGATIONS_INDEX, ...loadInvestigationPages().map((record) => record.path)]) {
+  if (!sitemapPaths.has(path)) errors.push(`sitemap missing investigation ${path}`);
 }
 
 if (errors.length) {

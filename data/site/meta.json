@@ -1,48 +1,48 @@
 {
-  "generatedAt": "2026-11-03T00:00:00Z",
+  "generatedAt": "2026-11-09T00:00:00Z",
   "dates": {
-    "recalls": "2026-11-03",
-    "complaints": "2026-11-03",
-    "investigations": "2026-11-03",
-    "epa": "2026-09-29"
+    "recalls": "2026-11-09",
+    "complaints": "2026-11-09",
+    "investigations": "2026-11-09",
+    "epa": "2026-11-04"
   },
   "counts": {
-    "epaRowsMy2000": 32430,
+    "epaRowsMy2000": 32670,
     "rawMakes": 87,
-    "rawModels": 1025,
+    "rawModels": 1033,
     "publishedMakes": 86,
-    "publishedModels": 1016,
-    "mmySpine": 8158,
-    "publishedMmy": 8158,
-    "matchedMmy": 7114,
-    "unmatchedMmy": 1044,
+    "publishedModels": 1024,
+    "mmySpine": 8218,
+    "publishedMmy": 8218,
+    "matchedMmy": 7122,
+    "unmatchedMmy": 1096,
     "matchMethods": {
-      "exact": 6203,
+      "exact": 6210,
       "series": 79,
       "prefix": 106,
       "slash": 101,
       "epa-suffix": 58,
       "manual": 199,
       "trim": 14,
-      "suffix": 68,
+      "suffix": 69,
       "class": 256,
       "code": 30
     },
-    "yearsPages": 671,
-    "recallRowsPost": 247088,
+    "yearsPages": 672,
+    "recallRowsPost": 247176,
     "recallRowsPre": 81715,
-    "vehicleCampaignsPost2010": 13734,
+    "vehicleCampaignsPost2010": 13743,
     "vehicleCampaignsPre2010": 12721,
-    "complaintRows": 2262651,
-    "complaintVehicleRows": 2190156,
-    "complaintVehicleOdino": 1610520,
-    "investigationRows": 154456,
-    "investigationActions": 5355,
+    "complaintRows": 2264318,
+    "complaintVehicleRows": 2191792,
+    "complaintVehicleOdino": 1611630,
+    "investigationRows": 154460,
+    "investigationActions": 5357,
     "investigationActionsNoCloseDate": 225,
     "doNotDrive": 205,
     "parkOutside": 103,
     "takata": 31,
-    "thisWeek": 11
+    "thisWeek": 7
   },
   "ncap": {
     "2011": {
@@ -155,14 +155,14 @@
       "makes": 38,
       "models": 447,
       "failures": 0,
-      "fetchedAt": "2026-11-03T20:48:16Z"
+      "fetchedAt": "2026-11-09T21:33:50Z"
     },
     "2027": {
-      "variants": 462,
-      "makes": 28,
-      "models": 327,
+      "variants": 470,
+      "makes": 29,
+      "models": 334,
       "failures": 0,
-      "fetchedAt": "2026-11-03T20:50:26Z"
+      "fetchedAt": "2026-11-09T21:35:58Z"
     }
   }
 }

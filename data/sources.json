@@ -1,42 +1,42 @@
 {
   "recalls_post_2010": {
     "url": "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip",
-    "sha256": "4f5675c36ae483a4488e8e6da2cf6473bb82c3f939416b6d2564fc413fb9d5a2",
-    "bytes": 14974392,
-    "lastModified": "Tue, 03 Nov 2026 08:04:02 GMT",
-    "fileDate": "2026-11-03",
+    "sha256": "5a9b259508ed33610529d2669bf25b501c69d990a82853e949c2c305792e2e68",
+    "bytes": 14995295,
+    "lastModified": "Mon, 09 Nov 2026 08:03:40 GMT",
+    "fileDate": "2026-11-09",
     "textFile": "FLAT_RCL_POST_2010.txt"
   },
   "recalls_pre_2010": {
     "url": "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip",
-    "sha256": "7dc53b75330ee2b50cd6e979bc2029ff400f0db1593079c370164a77daa6fcdb",
-    "bytes": 7455597,
-    "lastModified": "Tue, 03 Nov 2026 08:04:02 GMT",
-    "fileDate": "2026-11-03",
+    "sha256": "2e0683afb5b9d140c33fcbdc0d7cb03955b80701fd7bbc59d2b84786c4816066",
+    "bytes": 7455553,
+    "lastModified": "Mon, 09 Nov 2026 08:03:40 GMT",
+    "fileDate": "2026-11-09",
     "textFile": "FLAT_RCL_PRE_2010.txt"
   },
   "complaints": {
     "url": "https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip",
-    "sha256": "fb4465689dfbc0e1b27ac94cc2d91daa1c6663738f0b3fc278af12c7436c2e6e",
-    "bytes": 375718384,
-    "lastModified": "Tue, 03 Nov 2026 10:10:31 GMT",
-    "fileDate": "2026-11-03",
+    "sha256": "acc7a3e15eb8ae7fb00caa7eac1215721bc5547c00380bce88e8a3b0c5b254b9",
+    "bytes": 376117293,
+    "lastModified": "Mon, 09 Nov 2026 10:06:21 GMT",
+    "fileDate": "2026-11-09",
     "textFile": "FLAT_CMPL.txt"
   },
   "investigations": {
     "url": "https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip",
-    "sha256": "d814dd96feb5957767c82eeea89e7278b7ad2bd6ad29ae860a558b2ddb802d1b",
-    "bytes": 4303767,
-    "lastModified": "Tue, 03 Nov 2026 09:08:30 GMT",
-    "fileDate": "2026-11-03",
+    "sha256": "1b82b60566e4607e2287f93a02bcb983e5876510a8ad7039116ed51956e54332",
+    "bytes": 4303154,
+    "lastModified": "Mon, 09 Nov 2026 09:03:46 GMT",
+    "fileDate": "2026-11-09",
     "textFile": "FLAT_INV.txt"
   },
   "epa": {
     "url": "https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip",
-    "sha256": "33d32caa0343cdb11c47be631e8a80b7ed7c351ee8503646a4e96485bd67b22f",
-    "bytes": 2212193,
-    "lastModified": "Tue, 29 Sep 2026 19:47:00 GMT",
-    "fileDate": "2026-09-29",
+    "sha256": "1d553896a77898f6cf47128281337af268df053c90dc1365891c7c8abff82c82",
+    "bytes": 2228192,
+    "lastModified": "Wed, 04 Nov 2026 14:31:23 GMT",
+    "fileDate": "2026-11-04",
     "textFile": "vehicles.csv"
   }
 }

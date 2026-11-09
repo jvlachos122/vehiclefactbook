@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { EV_RANGE_INDEX, loadEvRangePages } from "../src/lib/ev-range.js";
 import { INVESTIGATIONS_INDEX, loadInvestigationPages } from "../src/lib/investigations.js";
 import { dirname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -138,6 +139,9 @@ for (const name of sitemapFiles) {
 }
 for (const path of [INVESTIGATIONS_INDEX, ...loadInvestigationPages().map((record) => record.path)]) {
   if (!sitemapPaths.has(path)) errors.push(`sitemap missing investigation ${path}`);
+}
+for (const path of [EV_RANGE_INDEX, ...loadEvRangePages().map((page) => page.path)]) {
+  if (!sitemapPaths.has(path)) errors.push(`sitemap missing ev range ${path}`);
 }
 
 if (errors.length) {

@@ -23,6 +23,7 @@ Manufacturer communications (TSBs) are not imported. The file-name list for thos
 - /{make}/ make hub
 - /{make}/{model}/ model hub
 - /{make}/{model}/years/ complaint and recall counts by model year, only when at least three model years have matched NHTSA records
+- /ev-range/ and /{make}/{model}/range/ EPA all-electric range by model year. Range, kWh/100 mi, combined MPGe, and fuelCost08 for configurations whose atvType is EV. Plug-in hybrid range is not mixed in. A blank is not shown as zero.
 - /{make}/{model}/{year}/ one model year
 - /{make}/{model}/{year}/{component}/ distinct complaint count for one component, only when that component is in the model year's stored top ten and has at least 50 complaints. Narratives are not copied. The count is not a rate.
 - /recalls/do-not-drive/ /recalls/park-outside/ /recalls/takata-airbag/ /recalls/this-week/

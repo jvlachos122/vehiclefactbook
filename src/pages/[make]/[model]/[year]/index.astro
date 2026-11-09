@@ -11,6 +11,7 @@ import ConfigTable from "../../../../components/ConfigTable.astro";
 import { mmyCampaignLinkPlan, primaryNameGroup } from "../../../../lib/campaigns.js";
 import { componentHrefs } from "../../../../lib/components.js";
 import { findYear, loadMeta, loadModel, mmyPaths } from "../../../../lib/catalog.js";
+import { evRangePath, hasAllElectric } from "../../../../lib/ev-range.js";
 import { mmyAnswer } from "../../../../lib/answer.js";
 import { formatNumber, nhtsaVehicleUrl } from "../../../../lib/format.js";
 import { mmyDocumentTitle, mmyMetaDescription } from "../../../../lib/mmy-meta.js";
@@ -200,6 +201,13 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
 
     <h2 id="fuel">Fuel economy</h2>
     <ConfigTable configs={yearDetail.configs} calculator={calculator} />
+    {
+      hasAllElectric(yearDetail.configs) ? (
+        <p>
+          <a href={evRangePath(make.slug, model.slug)}>{make.name} {model.name} EPA range by year</a> lists the all-electric configurations across model years.
+        </p>
+      ) : null
+    }
     <p>
       <a href={calculatorWithConfig}>Open this model year in the fuel-cost calculator</a>.
       Each listed configuration has its own link, and that link selects the row.

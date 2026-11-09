@@ -5,6 +5,7 @@ import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
 import { EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE, loadPriceSnapshot } from "../lib/eia-prices.js";
 import { COMPONENT_MIN } from "../lib/components.js";
+import { evRangeRowCount, loadEvRangePages } from "../lib/ev-range.js";
 import { loadInvestigationPages } from "../lib/investigations.js";
 import { HYBRID_MIN_YEAR, HYBRID_PAIR_LIMIT } from "../lib/hybrid-pairs.js";
 import { formatPeriod } from "../lib/fuel-cost.js";
@@ -19,6 +20,7 @@ const eiaPrices = loadPriceSnapshot(readFileSync(new URL("../../data/eia-fuel-pr
 const eiaGas = eiaPrices.find((row) => row.product === "gasoline" && row.area === "US");
 const eiaElectric = eiaPrices.find((row) => row.product === "electricity" && row.area === "US");
 const investigationPages = loadInvestigationPages();
+const evRangePages = loadEvRangePages();
 const text = `Counts on this site come from NHTSA flat files dated ${formatDate(dates.recalls)} (recalls), ${formatDate(dates.complaints)} (complaints), and ${formatDate(dates.investigations)} (investigations), and from the EPA fuel-economy file dated ${formatDate(dates.epa)}. Complaint totals are distinct complaint numbers, not raw rows.`;
 const path = "/methodology/";
 ---
@@ -112,6 +114,18 @@ const path = "/methodology/";
     </p>
     <p>
       The fuel-cost calculator also multiplies the miles you enter by the EPA rate and by a price. For regular gasoline and diesel, the price box can start from the weekly retail average, including taxes, in EIA's <a href={EIA_GASOLINE_SOURCE}>Gasoline and Diesel Fuel Update</a>. For electricity, it can start from the residential price in <a href={EIA_ELECTRICITY_SOURCE}>Electric Power Monthly Table 5.6.A</a>. The committed snapshot is data/eia-fuel-prices.csv, retrieved {formatDate(eiaGas.retrieved)}. Gasoline and diesel use the week of {formatDate(eiaGas.period)}. Electricity uses {formatPeriod(eiaElectric.period)}, and EIA marks those 2026 values preliminary. Premium gasoline, midgrade gasoline, and other fuels have no default. Clearing the price leaves the calculated cost blank and leaves fuelCost08 as published. <a href={EIA_LICENSE}>EIA's copyright and reuse note</a> places U.S. government publications on its site in the public domain.
+    </p>
+
+    <h2>EPA range by year</h2>
+    <p>
+      <a href="/ev-range/">EV range</a> lists one page for each model with at least one all-electric configuration in the EPA file dated {formatDate(dates.epa)}.
+      An all-electric configuration is a row whose atvType is EV.
+      This copy has {formatNumber(evRangePages.length)} model pages and {formatNumber(evRangeRowCount(evRangePages))} all-electric configurations.
+      Each model page states the model years, the highest and lowest EPA-rated range, and the year and configuration for those figures.
+      The table lists EPA range in miles, kWh/100 mi, combined MPGe, and annual fuel cost (fuelCost08).
+      A missing or non-positive figure is shown as not listed by EPA.
+      Plug-in hybrid rows do not get a page of their own. When a model also has plug-in hybrid rows, those rows stay off the all-electric table, because the stored range on a plug-in hybrid row is not the all-electric range.
+      EPA range is a test-cycle estimate, and real-world range varies.
     </p>
 
     <h2>Star ratings</h2>

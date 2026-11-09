@@ -83,6 +83,10 @@ Each page shows EPA city, highway, and combined mpg (kWh/100 mi and range on ele
 
 A recall campaign page is published at `/recalls/<campaign>/` when the campaign number is from 2015 or later and at least one model year page lists it. Older campaign numbers still link to NHTSA.
 
+## EPA range by year
+
+`/ev-range/` lists every model with at least one all-electric EPA configuration (`atvType` EV). Each model has a page at `/{make}/{model}/range/` with the model years, the highest and lowest EPA-rated range, and a configuration table of range, kWh/100 mi, combined MPGe, and annual fuel cost (`fuelCost08`). A missing or non-positive figure is "not listed by EPA". Plug-in hybrid rows are not given their own page, and their stored range is not mixed into the all-electric figures. The model hub and each model year that has an all-electric configuration link to the model page.
+
 ## Not in this version
 
 - A VIN lookup. The site links to NHTSA's tool.

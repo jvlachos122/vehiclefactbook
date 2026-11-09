@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { removedComparePaths } from "../src/lib/compare-pairs.js";
+import { evRangeRowCount, loadEvRangePages } from "../src/lib/ev-range.js";
 
 const root = join(import.meta.dirname, "..");
 const dist = join(root, "dist");
@@ -18,6 +19,7 @@ function walk(dir, files = []) {
 function kind(rel) {
   if (rel === "/index.html") return "home";
   if (rel === "/404.html") return "404";
+  if (rel === "/ev-range/index.html") return "ev-range-index";
   const parts = rel.split("/").filter(Boolean);
   if (parts[0] === "tools") return `tool:${parts[1]}`;
   if (parts[0] === "investigations" && parts.length === 2) return "investigation-index";
@@ -39,6 +41,7 @@ function kind(rel) {
   if (parts.length === 2) return "make";
   if (parts.length === 3) return "model";
   if (parts.length === 4 && parts[2] === "years") return "years";
+  if (parts.length === 4 && parts[2] === "range") return "ev-range";
   if (parts.length === 4 && /^\d{4}$/.test(parts[2])) return "mmy";
   return `other:${rel}`;
 }
@@ -61,6 +64,8 @@ const meta = JSON.parse(readFileSync(join(root, "data/site/meta.json"), "utf8"))
 const du = execSync("du -sh dist", { cwd: root }).toString().trim();
 console.log("PAGE COUNTS");
 for (const [name, count] of Object.entries(counts).sort()) console.log(`  ${name}: ${count}`);
+const evPages = loadEvRangePages();
+console.log(`EV range pages: ${evPages.length}; all-electric configuration rows: ${evRangeRowCount(evPages)}`);
 console.log(`HTML files: ${html}`);
 console.log(`All dist files: ${files.length}`);
 console.log(`Build size: ${du}`);

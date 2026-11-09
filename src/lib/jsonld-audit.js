@@ -36,6 +36,7 @@ export function classifyPage(rel) {
   if (norm === "/index.html") return "home";
   if (norm === "/404.html") return "404";
   if (norm === "/methodology/index.html") return "methodology";
+  if (norm === "/ev-range/index.html") return "ev-range-index";
   if (norm === "/guides/index.html") return "guides-index";
   if (norm === "/compare/index.html" || norm === "/recalls/lookup/index.html") return "tool";
   if (norm.startsWith("/compare/hybrid/") && norm.endsWith("/index.html")) return "compare-hybrid";
@@ -55,6 +56,7 @@ export function classifyPage(rel) {
   if (parts.length === 2 && parts[1] === "index.html") return "make";
   if (parts.length === 3 && parts[2] === "index.html") return "model";
   if (parts.length === 4 && parts[2] === "years" && parts[3] === "index.html") return "years";
+  if (parts.length === 4 && parts[2] === "range" && parts[3] === "index.html") return "ev-range";
   if (parts.length === 4 && /^\d{4}$/.test(parts[2]) && parts[3] === "index.html") return "mmy";
   if (parts.length === 5 && /^\d{4}$/.test(parts[2]) && parts[4] === "index.html") return "component";
   return "other";
@@ -193,6 +195,10 @@ export function auditHtml(html, rel = "/index.html") {
         if (!names.includes(NHTSA_NAME)) errors.push("component Dataset creator must be NHTSA");
         if (names.includes(EPA_NAME)) errors.push("component Dataset must not list EPA as creator");
       }
+      if (kind === "ev-range" || kind === "ev-range-index") {
+        if (!names.includes(EPA_NAME)) errors.push("EV range Dataset creator must be EPA");
+        if (names.includes(NHTSA_NAME)) errors.push("EV range Dataset must not list NHTSA as creator");
+      }
       if (["make", "model", "years", "mmy", "methodology", "compare-pair", "compare-hybrid"].includes(kind)) {
         if (!names.includes(NHTSA_NAME) || !names.includes(EPA_NAME)) {
           errors.push("Dataset creator must list NHTSA and EPA");
@@ -229,7 +235,7 @@ export function auditHtml(html, rel = "/index.html") {
   if (!typeSet.has("BreadcrumbList")) errors.push("missing BreadcrumbList");
   if (kind === "tool" && !typeSet.has("WebApplication")) errors.push("tool page missing WebApplication");
   if (kind === "guide" && !typeSet.has("Article")) errors.push("guide page missing Article");
-  if (["make", "model", "years", "mmy", "methodology", "advisory", "compare-pair", "compare-hybrid", "campaign", "component", "investigation", "investigation-index"].includes(kind) && datasetCount < 1) {
+  if (["make", "model", "years", "mmy", "methodology", "advisory", "compare-pair", "compare-hybrid", "campaign", "component", "investigation", "investigation-index", "ev-range", "ev-range-index"].includes(kind) && datasetCount < 1) {
     errors.push("page missing Dataset");
   }
 

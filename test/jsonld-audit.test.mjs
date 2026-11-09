@@ -4,6 +4,7 @@ import { auditHtml, classifyPage, sentenceCount } from "../src/lib/jsonld-audit.
 import {
   article,
   dataset,
+  epaOrg,
   faqPage,
   nhtsaOrg,
   recallListDataset,
@@ -74,6 +75,8 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/honda/fit/2017/electrical-system/index.html"), "component");
   assert.equal(classifyPage("/investigations/index.html"), "investigation-index");
   assert.equal(classifyPage("/investigations/EA21002/index.html"), "investigation");
+  assert.equal(classifyPage("/ev-range/index.html"), "ev-range-index");
+  assert.equal(classifyPage("/tesla/model-3/range/index.html"), "ev-range");
 });
 
 test("representative pages pass the JSON-LD rules", () => {
@@ -198,6 +201,34 @@ test("representative pages pass the JSON-LD rules", () => {
       ],
     ],
     [
+      "/ev-range/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "EPA electric range by model",
+          description: "All-electric EPA range by model.",
+          url: "https://vehiclefactbook.com/ev-range/",
+          dateModified: "2026-09-29",
+          creators: [epaOrg],
+          temporalCoverage: "2000/2027",
+        }),
+      ],
+    ],
+    [
+      "/tesla/model-3/range/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "Tesla Model 3 EPA range by model year",
+          description: "EPA range for the Tesla Model 3.",
+          url: "https://vehiclefactbook.com/tesla/model-3/range/",
+          dateModified: "2026-09-29",
+          creators: [epaOrg],
+          temporalCoverage: "2017/2027",
+        }),
+      ],
+    ],
+    [
       "/recalls/takata-airbag/index.html",
       [
         crumb(),
@@ -245,6 +276,19 @@ test("a component dataset lists NHTSA and leaves EPA off", () => {
     "/investigations/EA21002/index.html",
   );
   assert.ok(investigation.errors.includes("investigation Dataset must not list EPA as creator"));
+  const evRange = auditHtml(
+    page(answer, [
+      crumb(),
+      dataset({
+        name: "Tesla Model 3 EPA range by model year",
+        description: "EPA range for the Tesla Model 3.",
+        url: "https://vehiclefactbook.com/tesla/model-3/range/",
+        dateModified: "2026-09-29",
+      }),
+    ]),
+    "/tesla/model-3/range/index.html",
+  );
+  assert.ok(evRange.errors.includes("EV range Dataset must not list NHTSA as creator"));
 });
 
 test("guide FAQ text must be visible", () => {

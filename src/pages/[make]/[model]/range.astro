@@ -1,0 +1,118 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Answer from "../../../components/Answer.astro";
+import DataNote from "../../../components/DataNote.astro";
+import { loadMeta } from "../../../lib/catalog.js";
+import {
+  EV_RANGE_INDEX,
+  NOT_LISTED,
+  RANGE_CAVEAT,
+  evRangeAnswer,
+  evRangePaths,
+  evRangeSource,
+  findEvRangePage,
+  formatListed,
+  phevOmitNote,
+  temporalCoverageFromYears,
+} from "../../../lib/ev-range.js";
+import { formatDate, formatNumber, metaDescription } from "../../../lib/format.js";
+import { dataset, epaOrg } from "../../../lib/schema.js";
+import { site } from "../../../lib/site.js";
+
+export function getStaticPaths() {
+  return evRangePaths();
+}
+
+const { makeSlug, modelSlug } = Astro.props;
+const page = findEvRangePage(makeSlug, modelSlug);
+if (!page) throw new Error(`Missing EV range page for ${makeSlug}/${modelSlug}`);
+const meta = loadMeta();
+const text = evRangeAnswer(page, meta.dates.epa);
+const fileDate = formatDate(meta.dates.epa);
+const phevNote = phevOmitNote(page.phevCount);
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: page.make, href: `/${page.makeSlug}/` },
+  { label: page.model, href: page.modelPath },
+  { label: "EPA range", href: page.path },
+];
+
+function cell(value, kind) {
+  const text = formatListed(value, kind);
+  return { text, listed: text !== NOT_LISTED };
+}
+---
+
+<Base
+  title={`${page.make} ${page.model} EPA range by year`}
+  description={metaDescription(text)}
+  canonicalPath={page.path}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    dataset({
+      name: `${page.make} ${page.model} EPA range by model year`,
+      description: text,
+      url: new URL(page.path, site.url).href,
+      dateModified: meta.dates.epa,
+      creators: [epaOrg],
+      temporalCoverage: temporalCoverageFromYears(page.years),
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">EPA range</p>
+    <h1>{page.make} {page.model} EPA range by year</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>{RANGE_CAVEAT}</p>
+    <p>
+      <a href={page.modelPath}>{page.make} {page.model}</a> is the model hub.
+      Each year in the table links to that model year.
+      The index of these pages is <a href={EV_RANGE_INDEX}>EV range by model</a>.
+    </p>
+    {phevNote ? <p>{phevNote}</p> : null}
+    <p>
+      {evRangeSource(meta.dates.epa)}
+      {" "}
+      <a href="https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip">fueleconomy.gov vehicles file</a>.
+    </p>
+    <h2>Configurations</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>
+          EPA range by configuration for the {page.make} {page.model}. Fuel economy file{fileDate ? ` dated ${fileDate}` : ""}. {formatNumber(page.rows.length)} all-electric {page.rows.length === 1 ? "configuration" : "configurations"}.
+        </caption>
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Configuration</th>
+            <th class="num">EPA range (miles)</th>
+            <th class="num">kWh/100 mi</th>
+            <th class="num">Combined MPGe</th>
+            <th class="num">Annual fuel cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            page.rows.map((row) => {
+              const range = cell(row.range);
+              const kwh = cell(row.kwh);
+              const mpge = cell(row.mpge);
+              const cost = cell(row.cost, "money");
+              return (
+                <tr>
+                  <td><a href={row.href}>{row.year}</a></td>
+                  <td>{row.config}</td>
+                  <td class={range.listed ? "num" : undefined}>{range.text}</td>
+                  <td class={kwh.listed ? "num" : undefined}>{kwh.text}</td>
+                  <td class={mpge.listed ? "num" : undefined}>{mpge.text}</td>
+                  <td class={cost.listed ? "num" : undefined}>{cost.text}</td>
+                </tr>
+              );
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+</Base>

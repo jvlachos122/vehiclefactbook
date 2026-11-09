@@ -1,0 +1,102 @@
+---
+import Base from "../layouts/Base.astro";
+import Answer from "../components/Answer.astro";
+import DataNote from "../components/DataNote.astro";
+import { loadMeta } from "../lib/catalog.js";
+import {
+  EV_RANGE_INDEX,
+  NOT_LISTED,
+  RANGE_CAVEAT,
+  evRangeIndexAnswer,
+  evRangeRowCount,
+  evRangeSource,
+  formatListed,
+  loadEvRangePages,
+  temporalCoverageFromYears,
+} from "../lib/ev-range.js";
+import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
+import { dataset, epaOrg } from "../lib/schema.js";
+import { site } from "../lib/site.js";
+
+const meta = loadMeta();
+const pages = loadEvRangePages();
+const rows = evRangeRowCount(pages);
+const text = evRangeIndexAnswer(pages, meta.dates.epa);
+const fileDate = formatDate(meta.dates.epa);
+const years = pages.flatMap((page) => page.years);
+---
+
+<Base
+  title="EPA electric range by model"
+  description={metaDescription(text)}
+  canonicalPath={EV_RANGE_INDEX}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "EV range", href: EV_RANGE_INDEX },
+  ]}
+  jsonLd={[
+    dataset({
+      name: "EPA electric range by model",
+      description: text,
+      url: new URL(EV_RANGE_INDEX, site.url).href,
+      dateModified: meta.dates.epa,
+      creators: [epaOrg],
+      temporalCoverage: temporalCoverageFromYears(years),
+    }),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">EPA range</p>
+    <h1>EPA electric range by model</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>{RANGE_CAVEAT}</p>
+    <p>
+      {evRangeSource(meta.dates.epa)}
+      {" "}
+      <a href="https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip">fueleconomy.gov vehicles file</a>.
+      Each model link opens the configuration table. A model with only plug-in hybrid rows is not listed.
+    </p>
+    <h2>Models</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>
+          {formatNumber(pages.length)} models with an all-electric EPA configuration, {formatNumber(rows)} configurations. Fuel economy file{fileDate ? ` dated ${fileDate}` : ""}. Sorted by make.
+        </caption>
+        <thead>
+          <tr>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Model years</th>
+            <th class="num">Highest EPA range (miles)</th>
+            <th>Year of that range</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            pages.map((page) => (
+              <tr>
+                <td><a href={`/${page.makeSlug}/`}>{page.make}</a></td>
+                <td><a href={page.path}>{page.model}</a></td>
+                <td>{page.yearLabel}</td>
+                <td class={page.high ? "num" : undefined}>{page.high ? formatListed(page.high.value) : NOT_LISTED}</td>
+                <td>
+                  {
+                    page.high
+                      ? page.high.years.map((year, index) => (
+                          <>
+                            {index ? ", " : null}
+                            <a href={`/${page.makeSlug}/${page.modelSlug}/${year}/`}>{year}</a>
+                          </>
+                        ))
+                      : NOT_LISTED
+                  }
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+</Base>

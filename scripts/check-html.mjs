@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HtmlValidate } from "html-validate";
-import { auditHtml } from "../src/lib/jsonld-audit.js";
+import { auditHtml, classifyPage, visibleText } from "../src/lib/jsonld-audit.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -45,12 +45,46 @@ const validator = new HtmlValidate({
   },
 });
 
+const YEARS_BANNED = /\b(avoid|best|worst|reliable)\b|problem years|years to avoid/i;
+const YEARS_PHRASES = [
+  "raw counts, not rates",
+  "reporting lag",
+  "format change in 2021",
+  "most NHTSA complaints",
+  "is bad?",
+  "One row per model year",
+];
+
+function mainText(html) {
+  const match = String(html).match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
+  return visibleText(match ? match[1] : "");
+}
+
 const files = walk(dist);
 let jsonLdBlocks = 0;
 for (const file of files) {
   const html = readFileSync(file, "utf8");
   const rel = file.slice(dist.length).replaceAll("\\", "/");
   const audit = auditHtml(html, rel);
+  if (classifyPage(rel) === "years") {
+    const visible = mainText(html);
+    if (YEARS_BANNED.test(visible)) errors.push(`${rel}: banned wording on a years page`);
+    for (const phrase of YEARS_PHRASES) {
+      if (!visible.includes(phrase)) errors.push(`${rel}: missing ${phrase}`);
+    }
+    const table = html.match(/<table\b[\s\S]*?<\/table>/i);
+    if (!table) errors.push(`${rel}: missing table`);
+    else if (table[0].includes("—")) errors.push(`${rel}: table uses an em dash blank`);
+    const linkedYears = [...html.matchAll(/\/(20\d{2})\//g)].map((match) => Number(match[1]));
+    if (linkedYears.some((year) => year >= 2000 && year < 2011) && !visible.includes("Pre-2011 rating, not comparable")) {
+      errors.push(`${rel}: pre-2011 rating is not flagged`);
+    }
+    if (visible.includes("no NHTSA name match") && !visible.includes("not listed")) {
+      errors.push(`${rel}: unmatched year is not marked not listed`);
+    }
+    if (!/<title>[^<]*complaints by year/i.test(html)) errors.push(`${rel}: title missing complaints by year`);
+    if (!/<h1>[^<]*by model year/i.test(html)) errors.push(`${rel}: h1 missing by model year`);
+  }
   jsonLdBlocks += audit.blocks;
   for (const problem of audit.errors) errors.push(`${rel}: ${problem}`);
   const size = statSync(file).size;

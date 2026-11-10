@@ -4,10 +4,21 @@ import Answer from "../../../components/Answer.astro";
 import DataNote from "../../../components/DataNote.astro";
 import YearTable from "../../../components/YearTable.astro";
 import { findModel, loadMeta, yearsPaths } from "../../../lib/catalog.js";
-import { yearsAnswer } from "../../../lib/answer.js";
+import { COMPONENT_MIN } from "../../../lib/components.js";
+import { findEvRangePage } from "../../../lib/ev-range.js";
 import { metaDescription } from "../../../lib/format.js";
-import { dataset } from "../../../lib/schema.js";
+import { dataset, faqPage } from "../../../lib/schema.js";
 import { site } from "../../../lib/site.js";
+import {
+  componentGroupsFor,
+  YEARS_CAPTION,
+  yearsAnswer,
+  yearsCaveat,
+  yearsFaqs,
+  yearsH1,
+  yearsStarNote,
+  yearsTitle,
+} from "../../../lib/years.js";
 
 export function getStaticPaths() {
   return yearsPaths();
@@ -18,7 +29,13 @@ const meta = loadMeta();
 const { make, model } = findModel(makeSlug, modelSlug);
 const years = [...model.years].sort((a, b) => a.y - b.y);
 const text = yearsAnswer(make.name, model.name, years, meta.dates);
+const caveat = yearsCaveat(meta.dates);
+const faqs = yearsFaqs({ make: make.name, model: model.name, years, dates: meta.dates });
+const title = yearsTitle(make.name, model.name);
+const heading = yearsH1(make.name, model.name);
 const path = `/${make.slug}/${model.slug}/years/`;
+const evRange = findEvRangePage(make.slug, model.slug);
+const componentGroups = componentGroupsFor(make.slug, model.slug);
 const crumbs = [
   { label: "Home", href: "/" },
   { label: make.name, href: `/${make.slug}/` },
@@ -28,31 +45,76 @@ const crumbs = [
 ---
 
 <Base
-  title={`${make.name} ${model.name} by model year: recalls, complaints, ratings`}
+  title={title}
   description={metaDescription(text)}
   canonicalPath={path}
   breadcrumbs={crumbs}
   jsonLd={[
     dataset({
       name: `${make.name} ${model.name} by model year`,
-      description: `Raw NHTSA recall and complaint counts, investigations, star ratings, and EPA combined mpg by model year for the ${make.name} ${model.name}.`,
+      description: `Raw NHTSA recall and complaint counts, investigations, star ratings, and EPA combined mpg by model year for the ${make.name} ${model.name}. Counts are not rates.`,
       url: new URL(path, site.url).href,
       dateModified: meta.dates.complaints,
     }),
+    faqPage(faqs),
   ]}
 >
   <article class="wrap">
     <p class="eyebrow">By model year</p>
-    <h1>{make.name} {model.name} by model year: recalls, complaints, ratings</h1>
+    <h1>{heading}</h1>
     <Answer text={text} />
     <DataNote />
+    <p class="years-caveat">{caveat}</p>
+    <YearTable rows={years} makeSlug={make.slug} modelSlug={model.slug} sortable notListed caption={YEARS_CAPTION} />
+    <p>{yearsStarNote(years)}</p>
     <p>
-      The table lists raw counts from NHTSA's files. A larger complaint count can mean more vehicles were sold, and newer model years have had less time for complaints to be reported. The counts are not divided by sales. This page does not rank one model year above another.
+      <a href={`/${make.slug}/${model.slug}/`}>{make.name} {model.name}</a>
+      lists the same model years. Each year in the table links to that model year.
+      {
+        evRange ? (
+          <>
+            {" "}
+            <a href={evRange.path}>{make.name} {model.name} EPA range by year</a> lists the all-electric configurations.
+          </>
+        ) : null
+      }
     </p>
-    <YearTable rows={years} makeSlug={make.slug} modelSlug={model.slug} sortable />
-    <p>
-      Star columns say "Pre-2011 rating, not comparable" for older model years because those ratings use a different NHTSA method. Overall stars for 2011 and newer are the matched Safety Ratings variants. A dash means no overall star was matched.
-    </p>
+    {
+      componentGroups.length ? (
+        <>
+          <h2>Component counts</h2>
+          <p>
+            A component with at least {COMPONENT_MIN} distinct complaints on a model year has a count page.
+            The figure is a count of complaints, not a rate.
+          </p>
+          <ul>
+            {
+              componentGroups.map((group) => (
+                <li>
+                  <a href={`/${make.slug}/${model.slug}/${group.year}/`}>{group.year}</a>
+                  {": "}
+                  {group.links.map((link, index) => (
+                    <>
+                      {index ? ", " : null}
+                      <a href={link.path}>{link.component}</a>
+                    </>
+                  ))}
+                </li>
+              ))
+            }
+          </ul>
+        </>
+      ) : null
+    }
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
   </article>
 </Base>
 <script>

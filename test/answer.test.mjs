@@ -240,18 +240,23 @@ test("a listed zero stays visible and a blank fuel figure is omitted", () => {
   assert.doesNotMatch(missing, /mpg|MPGe|kWh/i);
 });
 
-test("years answer names the high and low counts as facts", () => {
+test("years answer names the high count and the seasoned low count", () => {
   const text = yearsAnswer(
     "Honda",
     "Civic",
     [
-      { y: 2016, complaints: 1000, hasNhtsa: true },
-      { y: 2026, complaints: 4, hasNhtsa: true },
+      { y: 2016, complaints: 1000, recalls: 4, hasNhtsa: true, dnd: 1, park: 0 },
+      { y: 2026, complaints: 4, recalls: 1, hasNhtsa: true, dnd: 0, park: 0 },
     ],
     dates,
   );
-  assert.match(text, /4 \(2026\) to 1,000 \(2016\)/);
-  assert.match(text, /not rates/);
+  assert.match(text, /most complaints for the 2016 model year \(1,000 so far\)/);
+  assert.match(text, /at least 3 years of reporting history/);
+  assert.match(text, /fewest complaints received so far are 1,000, in 2016/);
+  assert.match(text, /add up to 5/);
+  assert.match(text, /do not drive for model year 2016/);
+  assert.match(text, /does not list a campaign marked park outside/);
+  assert.match(text, /Oct 23, 2026/);
   assert.equal(sentenceCount(text), 3);
-  assert.doesNotMatch(text, /\b(avoid|best|worst|reliable)\b/i);
+  assert.doesNotMatch(text, /\b(avoid|best|worst|reliable)\b|problem years|years to avoid/i);
 });

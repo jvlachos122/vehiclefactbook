@@ -1,0 +1,1222 @@
+{
+  "generatedFrom": [
+    "034f475 class-only selector on the data published with the first compare pages. git log -S does not find these slugs because the pages were generated, not committed as text.",
+    "51744f4 is the 2026-11-03 data refresh. Its class-only set is the legacy set at e117648, which still used that data. Those URLs were indexed until e117648, then kept as pages or noindex refreshes.",
+    "e117648 tightened selection. A tight-rule pair the class-only cap excluded was indexed there for the first time. Every class-only pair on that data stayed built.",
+    "92fe42a is the 2026-11-09 data refresh, which is the data on main now. Live pairs and class-only pairs from the current selector are included so a later refresh cannot drop a slug that main has already built."
+  ],
+  "pairs": [
+    {
+      "slug": "audi-a3-vs-bmw-2-series",
+      "year": 2026,
+      "classFamily": "Subcompact Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "audi",
+        "makeName": "Audi",
+        "modelSlug": "a3",
+        "modelName": "A3",
+        "configCount": 66
+      },
+      "right": {
+        "makeSlug": "bmw",
+        "makeName": "BMW",
+        "modelSlug": "2-series",
+        "modelName": "2 Series",
+        "configCount": 101
+      }
+    },
+    {
+      "slug": "audi-a3-vs-bmw-4-series",
+      "year": 2026,
+      "classFamily": "Subcompact Cars",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "audi",
+        "makeName": "Audi",
+        "modelSlug": "a3",
+        "modelName": "A3",
+        "configCount": 66
+      },
+      "right": {
+        "makeSlug": "bmw",
+        "makeName": "BMW",
+        "modelSlug": "4-series",
+        "modelName": "4 Series",
+        "configCount": 174
+      }
+    },
+    {
+      "slug": "audi-a4-vs-volvo-s60",
+      "year": 2025,
+      "classFamily": "Compact Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "audi",
+        "makeName": "Audi",
+        "modelSlug": "a4",
+        "modelName": "A4",
+        "configCount": 187
+      },
+      "right": {
+        "makeSlug": "volvo",
+        "makeName": "Volvo",
+        "modelSlug": "s60",
+        "modelName": "S60",
+        "configCount": 123
+      }
+    },
+    {
+      "slug": "audi-a8-vs-bmw-7-series",
+      "year": 2026,
+      "classFamily": "Large Cars",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "audi",
+        "makeName": "Audi",
+        "modelSlug": "a8",
+        "modelName": "A8",
+        "configCount": 70
+      },
+      "right": {
+        "makeSlug": "bmw",
+        "makeName": "BMW",
+        "modelSlug": "7-series",
+        "modelName": "7 Series",
+        "configCount": 159
+      }
+    },
+    {
+      "slug": "audi-a8-vs-hyundai-sonata",
+      "year": 2026,
+      "classFamily": "Large Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "audi",
+        "makeName": "Audi",
+        "modelSlug": "a8",
+        "modelName": "A8",
+        "configCount": 70
+      },
+      "right": {
+        "makeSlug": "hyundai",
+        "makeName": "Hyundai",
+        "modelSlug": "sonata",
+        "modelName": "Sonata",
+        "configCount": 137
+      }
+    },
+    {
+      "slug": "audi-r8-vs-jaguar-f-type",
+      "year": 2022,
+      "classFamily": "Two Seaters",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "audi",
+        "makeName": "Audi",
+        "modelSlug": "r8",
+        "modelName": "R8",
+        "configCount": 44
+      },
+      "right": {
+        "makeSlug": "jaguar",
+        "makeName": "Jaguar",
+        "modelSlug": "f-type",
+        "modelName": "F-Type",
+        "configCount": 102
+      }
+    },
+    {
+      "slug": "bmw-3-series-vs-mercedes-benz-c-class",
+      "year": 2026,
+      "classFamily": "Compact Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "bmw",
+        "makeName": "BMW",
+        "modelSlug": "3-series",
+        "modelName": "3 Series",
+        "configCount": 445
+      },
+      "right": {
+        "makeSlug": "mercedes-benz",
+        "makeName": "Mercedes-Benz",
+        "modelSlug": "c-class",
+        "modelName": "C-Class",
+        "configCount": 262
+      }
+    },
+    {
+      "slug": "bmw-4-series-vs-ford-mustang",
+      "year": 2026,
+      "classFamily": "Subcompact Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "bmw",
+        "makeName": "BMW",
+        "modelSlug": "4-series",
+        "modelName": "4 Series",
+        "configCount": 174
+      },
+      "right": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "mustang",
+        "modelName": "Mustang",
+        "configCount": 217
+      }
+    },
+    {
+      "slug": "bmw-5-series-vs-mercedes-benz-e-class",
+      "year": 2026,
+      "classFamily": "Midsize Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "bmw",
+        "makeName": "BMW",
+        "modelSlug": "5-series",
+        "modelName": "5 Series",
+        "configCount": 260
+      },
+      "right": {
+        "makeSlug": "mercedes-benz",
+        "makeName": "Mercedes-Benz",
+        "modelSlug": "e-class",
+        "modelName": "E-Class",
+        "configCount": 291
+      }
+    },
+    {
+      "slug": "bmw-7-series-vs-honda-accord",
+      "year": 2026,
+      "classFamily": "Large Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "bmw",
+        "makeName": "BMW",
+        "modelSlug": "7-series",
+        "modelName": "7 Series",
+        "configCount": 159
+      },
+      "right": {
+        "makeSlug": "honda",
+        "makeName": "Honda",
+        "modelSlug": "accord",
+        "modelName": "Accord",
+        "configCount": 150
+      }
+    },
+    {
+      "slug": "bmw-x5-vs-porsche-cayenne",
+      "year": 2026,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "bmw",
+        "makeName": "BMW",
+        "modelSlug": "x5",
+        "modelName": "X5",
+        "configCount": 111
+      },
+      "right": {
+        "makeSlug": "porsche",
+        "makeName": "Porsche",
+        "modelSlug": "cayenne",
+        "modelName": "Cayenne",
+        "configCount": 186
+      }
+    },
+    {
+      "slug": "bmw-z4-vs-porsche-718",
+      "year": 2025,
+      "classFamily": "Two Seaters",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "bmw",
+        "makeName": "BMW",
+        "modelSlug": "z4",
+        "modelName": "Z4",
+        "configCount": 94
+      },
+      "right": {
+        "makeSlug": "porsche",
+        "makeName": "Porsche",
+        "modelSlug": "718",
+        "modelName": "718",
+        "configCount": 91
+      }
+    },
+    {
+      "slug": "cadillac-escalade-vs-ford-explorer",
+      "year": 2027,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "cadillac",
+        "makeName": "Cadillac",
+        "modelSlug": "escalade",
+        "modelName": "Escalade",
+        "configCount": 108
+      },
+      "right": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "explorer",
+        "modelName": "Explorer",
+        "configCount": 237
+      }
+    },
+    {
+      "slug": "cadillac-escalade-vs-land-rover-range-rover",
+      "year": 2027,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "cadillac",
+        "makeName": "Cadillac",
+        "modelSlug": "escalade",
+        "modelName": "Escalade",
+        "configCount": 108
+      },
+      "right": {
+        "makeSlug": "land-rover",
+        "makeName": "Land Rover",
+        "modelSlug": "range-rover",
+        "modelName": "Range Rover",
+        "configCount": 241
+      }
+    },
+    {
+      "slug": "chevrolet-colorado-vs-ford-f150",
+      "year": 2026,
+      "classFamily": "Standard Pickup Trucks",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "chevrolet",
+        "makeName": "Chevrolet",
+        "modelSlug": "colorado",
+        "modelName": "Colorado",
+        "configCount": 227
+      },
+      "right": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "f150",
+        "modelName": "F150",
+        "configCount": 411
+      }
+    },
+    {
+      "slug": "chevrolet-cruze-vs-volkswagen-beetle",
+      "year": 2019,
+      "classFamily": "Compact Cars",
+      "seen": [
+        "e117648"
+      ],
+      "left": {
+        "makeSlug": "chevrolet",
+        "makeName": "Chevrolet",
+        "modelSlug": "cruze",
+        "modelName": "Cruze",
+        "configCount": 65
+      },
+      "right": {
+        "makeSlug": "volkswagen",
+        "makeName": "Volkswagen",
+        "modelSlug": "beetle",
+        "modelName": "Beetle",
+        "configCount": 132
+      }
+    },
+    {
+      "slug": "chevrolet-equinox-vs-kia-sportage",
+      "year": 2027,
+      "classFamily": "Small Sport Utility Vehicle",
+      "seen": [
+        "034f475"
+      ],
+      "left": {
+        "makeSlug": "chevrolet",
+        "makeName": "Chevrolet",
+        "modelSlug": "equinox",
+        "modelName": "Equinox",
+        "configCount": 106
+      },
+      "right": {
+        "makeSlug": "kia",
+        "makeName": "Kia",
+        "modelSlug": "sportage",
+        "modelName": "Sportage",
+        "configCount": 137
+      }
+    },
+    {
+      "slug": "chevrolet-impala-vs-kia-optima",
+      "year": 2020,
+      "classFamily": "Large Cars",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "chevrolet",
+        "makeName": "Chevrolet",
+        "modelSlug": "impala",
+        "modelName": "Impala",
+        "configCount": 70
+      },
+      "right": {
+        "makeSlug": "kia",
+        "makeName": "Kia",
+        "modelSlug": "optima",
+        "modelName": "Optima",
+        "configCount": 91
+      }
+    },
+    {
+      "slug": "chevrolet-silverado-vs-gmc-sierra",
+      "year": 2026,
+      "classFamily": "Standard Pickup Trucks",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "chevrolet",
+        "makeName": "Chevrolet",
+        "modelSlug": "silverado",
+        "modelName": "Silverado",
+        "configCount": 511
+      },
+      "right": {
+        "makeSlug": "gmc",
+        "makeName": "GMC",
+        "modelSlug": "sierra",
+        "modelName": "Sierra",
+        "configCount": 495
+      }
+    },
+    {
+      "slug": "chevrolet-suburban-vs-porsche-cayenne",
+      "year": 2026,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648"
+      ],
+      "left": {
+        "makeSlug": "chevrolet",
+        "makeName": "Chevrolet",
+        "modelSlug": "suburban",
+        "modelName": "Suburban",
+        "configCount": 135
+      },
+      "right": {
+        "makeSlug": "porsche",
+        "makeName": "Porsche",
+        "modelSlug": "cayenne",
+        "modelName": "Cayenne",
+        "configCount": 161
+      }
+    },
+    {
+      "slug": "chevrolet-tahoe-vs-dodge-durango",
+      "year": 2026,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "chevrolet",
+        "makeName": "Chevrolet",
+        "modelSlug": "tahoe",
+        "modelName": "Tahoe",
+        "configCount": 168
+      },
+      "right": {
+        "makeSlug": "dodge",
+        "makeName": "Dodge",
+        "modelSlug": "durango",
+        "modelName": "Durango",
+        "configCount": 135
+      }
+    },
+    {
+      "slug": "chevrolet-tahoe-vs-jeep-grand-cherokee",
+      "year": 2026,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "chevrolet",
+        "makeName": "Chevrolet",
+        "modelSlug": "tahoe",
+        "modelName": "Tahoe",
+        "configCount": 168
+      },
+      "right": {
+        "makeSlug": "jeep",
+        "makeName": "Jeep",
+        "modelSlug": "grand-cherokee",
+        "modelName": "Grand Cherokee",
+        "configCount": 175
+      }
+    },
+    {
+      "slug": "dodge-charger-vs-genesis-g80",
+      "year": 2027,
+      "classFamily": "Large Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "dodge",
+        "makeName": "Dodge",
+        "modelSlug": "charger",
+        "modelName": "Charger",
+        "configCount": 143
+      },
+      "right": {
+        "makeSlug": "genesis",
+        "makeName": "Genesis",
+        "modelSlug": "g80",
+        "modelName": "G80",
+        "configCount": 43
+      }
+    },
+    {
+      "slug": "ford-escape-vs-hyundai-santa-fe",
+      "year": 2026,
+      "classFamily": "Small Sport Utility Vehicle",
+      "seen": [
+        "034f475"
+      ],
+      "left": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "escape",
+        "modelName": "Escape",
+        "configCount": 152
+      },
+      "right": {
+        "makeSlug": "hyundai",
+        "makeName": "Hyundai",
+        "modelSlug": "santa-fe",
+        "modelName": "Santa Fe",
+        "configCount": 170
+      }
+    },
+    {
+      "slug": "ford-escape-vs-jeep-wrangler",
+      "year": 2026,
+      "classFamily": "Small Sport Utility Vehicle",
+      "seen": [
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "escape",
+        "modelName": "Escape",
+        "configCount": 152
+      },
+      "right": {
+        "makeSlug": "jeep",
+        "makeName": "Jeep",
+        "modelSlug": "wrangler",
+        "modelName": "Wrangler",
+        "configCount": 144
+      }
+    },
+    {
+      "slug": "ford-explorer-vs-gmc-yukon",
+      "year": 2027,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "explorer",
+        "modelName": "Explorer",
+        "configCount": 237
+      },
+      "right": {
+        "makeSlug": "gmc",
+        "makeName": "GMC",
+        "modelSlug": "yukon",
+        "modelName": "Yukon",
+        "configCount": 352
+      }
+    },
+    {
+      "slug": "ford-explorer-vs-rivian-r1s",
+      "year": 2027,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "034f475"
+      ],
+      "left": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "explorer",
+        "modelName": "Explorer",
+        "configCount": 237
+      },
+      "right": {
+        "makeSlug": "rivian",
+        "makeName": "Rivian",
+        "modelSlug": "r1s",
+        "modelName": "R1S",
+        "configCount": 94
+      }
+    },
+    {
+      "slug": "ford-maverick-vs-toyota-tacoma",
+      "year": 2026,
+      "classFamily": "Small Pickup Trucks",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "maverick",
+        "modelName": "Maverick",
+        "configCount": 23
+      },
+      "right": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "tacoma",
+        "modelName": "Tacoma",
+        "configCount": 209
+      }
+    },
+    {
+      "slug": "gmc-canyon-vs-nissan-frontier",
+      "year": 2026,
+      "classFamily": "Standard Pickup Trucks",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "gmc",
+        "makeName": "GMC",
+        "modelSlug": "canyon",
+        "modelName": "Canyon",
+        "configCount": 210
+      },
+      "right": {
+        "makeSlug": "nissan",
+        "makeName": "Nissan",
+        "modelSlug": "frontier",
+        "modelName": "Frontier",
+        "configCount": 167
+      }
+    },
+    {
+      "slug": "gmc-yukon-vs-land-rover-range-rover",
+      "year": 2027,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "gmc",
+        "makeName": "GMC",
+        "modelSlug": "yukon",
+        "modelName": "Yukon",
+        "configCount": 352
+      },
+      "right": {
+        "makeSlug": "land-rover",
+        "makeName": "Land Rover",
+        "modelSlug": "range-rover",
+        "modelName": "Range Rover",
+        "configCount": 241
+      }
+    },
+    {
+      "slug": "honda-accord-vs-hyundai-sonata",
+      "year": 2026,
+      "classFamily": "Large Cars",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "honda",
+        "makeName": "Honda",
+        "modelSlug": "accord",
+        "modelName": "Accord",
+        "configCount": 150
+      },
+      "right": {
+        "makeSlug": "hyundai",
+        "makeName": "Hyundai",
+        "modelSlug": "sonata",
+        "modelName": "Sonata",
+        "configCount": 137
+      }
+    },
+    {
+      "slug": "honda-civic-vs-toyota-camry",
+      "year": 2026,
+      "classFamily": "Midsize Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "honda",
+        "makeName": "Honda",
+        "modelSlug": "civic",
+        "modelName": "Civic",
+        "configCount": 240
+      },
+      "right": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "camry",
+        "modelName": "Camry",
+        "configCount": 192
+      }
+    },
+    {
+      "slug": "hyundai-elantra-vs-nissan-altima",
+      "year": 2026,
+      "classFamily": "Midsize Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "hyundai",
+        "makeName": "Hyundai",
+        "modelSlug": "elantra",
+        "modelName": "Elantra",
+        "configCount": 147
+      },
+      "right": {
+        "makeSlug": "nissan",
+        "makeName": "Nissan",
+        "modelSlug": "altima",
+        "modelName": "Altima",
+        "configCount": 123
+      }
+    },
+    {
+      "slug": "hyundai-santa-fe-vs-kia-sportage",
+      "year": 2027,
+      "classFamily": "Small Sport Utility Vehicle",
+      "seen": [
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "hyundai",
+        "makeName": "Hyundai",
+        "modelSlug": "santa-fe",
+        "modelName": "Santa Fe",
+        "configCount": 170
+      },
+      "right": {
+        "makeSlug": "kia",
+        "makeName": "Kia",
+        "modelSlug": "sportage",
+        "modelName": "Sportage",
+        "configCount": 137
+      }
+    },
+    {
+      "slug": "hyundai-tucson-vs-kia-sorento",
+      "year": 2026,
+      "classFamily": "Small Sport Utility Vehicle",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "hyundai",
+        "makeName": "Hyundai",
+        "modelSlug": "tucson",
+        "modelName": "Tucson",
+        "configCount": 114
+      },
+      "right": {
+        "makeSlug": "kia",
+        "makeName": "Kia",
+        "modelSlug": "sorento",
+        "modelName": "Sorento",
+        "configCount": 129
+      }
+    },
+    {
+      "slug": "infiniti-q60-vs-mini-john-cooper-works",
+      "year": 2021,
+      "classFamily": "Subcompact Cars",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "infiniti",
+        "makeName": "Infiniti",
+        "modelSlug": "q60",
+        "modelName": "Q60",
+        "configCount": 40
+      },
+      "right": {
+        "makeSlug": "mini",
+        "makeName": "MINI",
+        "modelSlug": "john-cooper-works",
+        "modelName": "John Cooper Works",
+        "configCount": 78
+      }
+    },
+    {
+      "slug": "jeep-grand-cherokee-vs-porsche-cayenne",
+      "year": 2026,
+      "classFamily": "Standard Sport Utility Vehicle",
+      "seen": [
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "jeep",
+        "makeName": "Jeep",
+        "modelSlug": "grand-cherokee",
+        "modelName": "Grand Cherokee",
+        "configCount": 175
+      },
+      "right": {
+        "makeSlug": "porsche",
+        "makeName": "Porsche",
+        "modelSlug": "cayenne",
+        "modelName": "Cayenne",
+        "configCount": 186
+      }
+    },
+    {
+      "slug": "jeep-wrangler-vs-toyota-rav4",
+      "year": 2026,
+      "classFamily": "Small Sport Utility Vehicle",
+      "seen": [
+        "034f475"
+      ],
+      "left": {
+        "makeSlug": "jeep",
+        "makeName": "Jeep",
+        "modelSlug": "wrangler",
+        "modelName": "Wrangler",
+        "configCount": 144
+      },
+      "right": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "rav4",
+        "modelName": "RAV4",
+        "configCount": 141
+      }
+    },
+    {
+      "slug": "kia-sorento-vs-lexus-rx",
+      "year": 2026,
+      "classFamily": "Small Sport Utility Vehicle",
+      "seen": [
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "kia",
+        "makeName": "Kia",
+        "modelSlug": "sorento",
+        "modelName": "Sorento",
+        "configCount": 129
+      },
+      "right": {
+        "makeSlug": "lexus",
+        "makeName": "Lexus",
+        "modelSlug": "rx",
+        "modelName": "RX",
+        "configCount": 121
+      }
+    },
+    {
+      "slug": "kia-sorento-vs-mitsubishi-outlander",
+      "year": 2026,
+      "classFamily": "Small Sport Utility Vehicle",
+      "seen": [
+        "034f475"
+      ],
+      "left": {
+        "makeSlug": "kia",
+        "makeName": "Kia",
+        "modelSlug": "sorento",
+        "modelName": "Sorento",
+        "configCount": 129
+      },
+      "right": {
+        "makeSlug": "mitsubishi",
+        "makeName": "Mitsubishi",
+        "modelSlug": "outlander",
+        "modelName": "Outlander",
+        "configCount": 141
+      }
+    },
+    {
+      "slug": "lexus-is-vs-mini-cooper",
+      "year": 2026,
+      "classFamily": "Compact Cars",
+      "seen": [
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "lexus",
+        "makeName": "Lexus",
+        "modelSlug": "is",
+        "modelName": "IS",
+        "configCount": 103
+      },
+      "right": {
+        "makeSlug": "mini",
+        "makeName": "MINI",
+        "modelSlug": "cooper",
+        "modelName": "Cooper",
+        "configCount": 244
+      }
+    },
+    {
+      "slug": "lexus-is-vs-toyota-corolla",
+      "year": 2026,
+      "classFamily": "Compact Cars",
+      "seen": [
+        "034f475"
+      ],
+      "left": {
+        "makeSlug": "lexus",
+        "makeName": "Lexus",
+        "modelSlug": "is",
+        "modelName": "IS",
+        "configCount": 101
+      },
+      "right": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "corolla",
+        "modelName": "Corolla",
+        "configCount": 164
+      }
+    },
+    {
+      "slug": "mazda-3-vs-volkswagen-golf-gti",
+      "year": 2026,
+      "classFamily": "Midsize Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "mazda",
+        "makeName": "Mazda",
+        "modelSlug": "3",
+        "modelName": "3",
+        "configCount": 155
+      },
+      "right": {
+        "makeSlug": "volkswagen",
+        "makeName": "Volkswagen",
+        "modelSlug": "golf-gti",
+        "modelName": "Golf/GTI",
+        "configCount": 182
+      }
+    },
+    {
+      "slug": "mercedes-benz-cla-class-vs-volkswagen-jetta",
+      "year": 2027,
+      "classFamily": "Compact Cars",
+      "seen": [
+        "51744f4",
+        "e117648"
+      ],
+      "left": {
+        "makeSlug": "mercedes-benz",
+        "makeName": "Mercedes-Benz",
+        "modelSlug": "cla-class",
+        "modelName": "CLA-Class",
+        "configCount": 58
+      },
+      "right": {
+        "makeSlug": "volkswagen",
+        "makeName": "Volkswagen",
+        "modelSlug": "jetta",
+        "modelName": "Jetta",
+        "configCount": 221
+      }
+    },
+    {
+      "slug": "mercedes-benz-s-class-vs-porsche-panamera",
+      "year": 2026,
+      "classFamily": "Large Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "mercedes-benz",
+        "makeName": "Mercedes-Benz",
+        "modelSlug": "s-class",
+        "modelName": "S-Class",
+        "configCount": 183
+      },
+      "right": {
+        "makeSlug": "porsche",
+        "makeName": "Porsche",
+        "modelSlug": "panamera",
+        "modelName": "Panamera",
+        "configCount": 179
+      }
+    },
+    {
+      "slug": "mercedes-benz-sl-class-vs-porsche-911",
+      "year": 2026,
+      "classFamily": "Minicompact Cars",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "mercedes-benz",
+        "makeName": "Mercedes-Benz",
+        "modelSlug": "sl-class",
+        "modelName": "SL-Class",
+        "configCount": 83
+      },
+      "right": {
+        "makeSlug": "porsche",
+        "makeName": "Porsche",
+        "modelSlug": "911",
+        "modelName": "911",
+        "configCount": 563
+      }
+    },
+    {
+      "slug": "mini-cooper-vs-toyota-corolla",
+      "year": 2026,
+      "classFamily": "Compact Cars",
+      "seen": [
+        "51744f4",
+        "e117648"
+      ],
+      "left": {
+        "makeSlug": "mini",
+        "makeName": "MINI",
+        "modelSlug": "cooper",
+        "modelName": "Cooper",
+        "configCount": 244
+      },
+      "right": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "corolla",
+        "modelName": "Corolla",
+        "configCount": 164
+      }
+    },
+    {
+      "slug": "mini-cooper-vs-volkswagen-jetta",
+      "year": 2026,
+      "classFamily": "Compact Cars",
+      "seen": [
+        "034f475"
+      ],
+      "left": {
+        "makeSlug": "mini",
+        "makeName": "MINI",
+        "modelSlug": "cooper",
+        "modelName": "Cooper",
+        "configCount": 244
+      },
+      "right": {
+        "makeSlug": "volkswagen",
+        "makeName": "Volkswagen",
+        "modelSlug": "jetta",
+        "modelName": "Jetta",
+        "configCount": 221
+      }
+    },
+    {
+      "slug": "mitsubishi-outlander-vs-toyota-rav4",
+      "year": 2026,
+      "classFamily": "Small Sport Utility Vehicle",
+      "seen": [
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "mitsubishi",
+        "makeName": "Mitsubishi",
+        "modelSlug": "outlander",
+        "modelName": "Outlander",
+        "configCount": 141
+      },
+      "right": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "rav4",
+        "modelName": "RAV4",
+        "configCount": 141
+      }
+    },
+    {
+      "slug": "ram-1500-vs-toyota-tundra",
+      "year": 2026,
+      "classFamily": "Standard Pickup Trucks",
+      "seen": [
+        "034f475",
+        "51744f4",
+        "e117648",
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "ram",
+        "makeName": "Ram",
+        "modelSlug": "1500",
+        "modelName": "1500",
+        "configCount": 165
+      },
+      "right": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "tundra",
+        "modelName": "Tundra",
+        "configCount": 161
+      }
+    },
+    {
+      "slug": "toyota-corolla-vs-volkswagen-jetta",
+      "year": 2027,
+      "classFamily": "Compact Cars",
+      "seen": [
+        "92fe42a"
+      ],
+      "left": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "corolla",
+        "modelName": "Corolla",
+        "configCount": 164
+      },
+      "right": {
+        "makeSlug": "volkswagen",
+        "makeName": "Volkswagen",
+        "modelSlug": "jetta",
+        "modelName": "Jetta",
+        "configCount": 221
+      }
+    }
+  ]
+}

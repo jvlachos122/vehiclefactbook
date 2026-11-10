@@ -67,7 +67,7 @@ The set is chosen only from the committed files in `data/site/`:
 4. A pair is two models from different makes with the same anchor year, the same anchor class, the same make tier (volume, luxury, or specialty), and the same fuel type (gasoline, diesel, electric, hydrogen, or natural gas). Regular, midgrade, premium, and flex-fuel count as gasoline.
 5. Pairs are ordered by the sum of EPA configuration rows, then by the sum of published model years on the two make hubs.
 6. Each model is used once. Each class family keeps at most four pairs. The first 30 pairs are published.
-7. A pair the older class-only rule would have published, and this rule drops, stays at the old URL as a noindex refresh to the replacement. Those URLs are not in the sitemap.
+7. A pair the older class-only rule would have published, and this rule drops, stays at the old URL as a noindex refresh. A compare URL that was built on main from an earlier data snapshot and is no longer selected stays the same way. The refresh target is a current comparison that shares one of the two models, otherwise that model's page, otherwise `/compare/`. Those URLs are not in the sitemap. The slugs built on main are listed in `data/compare-published.json`.
 
 `/compare/hybrid/` lists same-model gasoline vs hybrid (and plug-in hybrid) pages. The year is the newest overlap from model year 2020 on. Figures are EPA mpg and fuelCost08. A calculated cost is added only when both sides are regular gasoline or diesel and the committed EIA snapshot has that price.
 

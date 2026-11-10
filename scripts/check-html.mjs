@@ -96,8 +96,11 @@ for (const file of files) {
   const descriptions = [...html.matchAll(/<meta name="description" content="([^"]*)"\s*\/?>/g)];
   if (descriptions.length !== 1 || descriptions[0][1].trim().length < 40) errors.push(`${rel}: description`);
   const canonicals = [...html.matchAll(/<link rel="canonical" href="([^"]+)"\s*\/?>/g)];
-  if (canonicals.length !== 1 || canonicals[0][1] !== expectedCanonical(file)) {
-    errors.push(`${rel}: canonical ${canonicals[0]?.[1] ?? "missing"} != ${expectedCanonical(file)}`);
+  const refreshTarget = html.match(/<meta http-equiv="refresh" content="0;url=([^"]+)"\s*\/?>/i);
+  const compareStub = /^\/compare\/[^/]+\/index\.html$/.test(rel) && refreshTarget;
+  const expected = compareStub ? new URL(refreshTarget[1], site).href : expectedCanonical(file);
+  if (canonicals.length !== 1 || canonicals[0][1] !== expected) {
+    errors.push(`${rel}: canonical ${canonicals[0]?.[1] ?? "missing"} != ${expected}`);
   }
   const h1 = html.match(/<h1\b/g) || [];
   if (h1.length !== 1) errors.push(`${rel}: ${h1.length} h1`);

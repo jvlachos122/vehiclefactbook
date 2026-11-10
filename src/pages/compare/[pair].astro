@@ -48,7 +48,7 @@ const nextPath = moved ? redirect.replacementPath : "";
 <Base
   title={title}
   description={metaDescription(answer)}
-  canonicalPath={path}
+  canonicalPath={moved ? redirect.replacementPath : path}
   noindex={moved}
   refreshPath={moved ? redirect.replacementPath : ""}
   breadcrumbs={crumbs}

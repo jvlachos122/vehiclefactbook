@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { sentenceCount } from "../src/lib/jsonld-audit.js";
-import { loadMeta } from "../src/lib/catalog.js";
+import { findModel, loadMeta } from "../src/lib/catalog.js";
 import { formatDate } from "../src/lib/format.js";
 import {
   BANNED_PAIR_WORDS,
@@ -16,12 +16,14 @@ import {
   fuelAndStars,
   fuelTypeFromConfigs,
   loadExamplePairs,
+  loadPublishedComparePairs,
   loadRemovedPairRedirects,
   makeTier,
   modalClass,
   pairDocument,
   pairSlug,
   redirectAnswer,
+  removedComparePaths,
   selectExamplePairs,
 } from "../src/lib/compare-pairs.js";
 
@@ -199,14 +201,23 @@ test("published pairs follow the rule and two samples match the source files", (
 
   const redirects = loadRemovedPairRedirects();
   const live = new Set(pairs.map((pair) => pair.slug));
+  const published = loadPublishedComparePairs();
+  const publishedBySlug = new Map(published.map((pair) => [pair.slug, pair]));
   assert.ok(redirects.length > 0);
   for (const redirect of redirects) {
     assert.equal(live.has(redirect.slug), false);
-    assert.equal(redirect.replacementPath === "/compare/" || live.has(redirect.replacementSlug), true);
+    const source = publishedBySlug.get(redirect.slug);
+    assert.ok(source, redirect.slug);
+    const expected = expectedRedirect(source, pairs);
+    assert.equal(redirect.replacementKind, expected.kind, redirect.slug);
+    assert.equal(redirect.replacementPath, expected.path, redirect.slug);
+    assert.equal(live.has(redirect.replacementSlug), redirect.replacementKind === "pair");
     const copy = redirectAnswer(redirect);
     assert.doesNotMatch(copy, BANNED_PAIR_WORDS);
     assert.doesNotMatch(copy, /\bVIN\b/);
     assert.ok(sentenceCount(copy) <= 3, copy);
+    if (redirect.reason === "refresh") assert.match(copy, /later refresh/);
+    else assert.match(copy, /fuel type/);
   }
   for (const slug of ["bmw-7-series-vs-honda-accord", "audi-a8-vs-hyundai-sonata"]) {
     assert.equal(live.has(slug), false, slug);
@@ -258,6 +269,92 @@ test("published pairs follow the rule and two samples match the source files", (
       const rowText = doc.rows.find((item) => item.label === "Complaints received so far");
       const shown = side === pair.left ? rowText.left : rowText.right;
       assert.equal(shown, side.complaints.toLocaleString("en-US"));
+    }
+  }
+});
+
+function sharesModel(side, pair) {
+  return (
+    (pair.left.makeSlug === side.makeSlug && pair.left.modelSlug === side.modelSlug) ||
+    (pair.right.makeSlug === side.makeSlug && pair.right.modelSlug === side.modelSlug)
+  );
+}
+
+function expectedRedirect(old, pairs) {
+  const primary = old.left.configCount >= old.right.configCount ? old.left : old.right;
+  const secondary = primary === old.left ? old.right : old.left;
+  const pair = pairs.find((item) => sharesModel(primary, item)) || pairs.find((item) => sharesModel(secondary, item));
+  if (pair) return { kind: "pair", path: `/compare/${pair.slug}/` };
+  for (const side of [primary, secondary]) {
+    const found = findModel(side.makeSlug, side.modelSlug);
+    if (found.make && found.model) return { kind: "model", path: `/${found.make.slug}/${found.model.slug}/` };
+  }
+  return { kind: "index", path: "/compare/" };
+}
+
+function walkFiles(dir, files = []) {
+  for (const entry of readdirSync(dir)) {
+    const path = join(dir, entry);
+    if (statSync(path).isDirectory()) walkFiles(path, files);
+    else files.push(path);
+  }
+  return files;
+}
+
+test("a compare URL built on main stays built or becomes a redirect stub", () => {
+  const pairs = loadExamplePairs();
+  const redirects = loadRemovedPairRedirects();
+  const published = loadPublishedComparePairs();
+  const live = new Set(pairs.map((pair) => pair.slug));
+  const stubbed = new Set(redirects.map((redirect) => redirect.slug));
+  const recorded = new Set(published.map((pair) => pair.slug));
+  assert.equal(recorded.size, published.length);
+  for (const slug of recorded) assert.equal(live.has(slug) || stubbed.has(slug), true, slug);
+  for (const slug of live) assert.equal(recorded.has(slug), true, slug);
+  for (const slug of stubbed) assert.equal(recorded.has(slug), true, slug);
+  const removed = removedComparePaths();
+  for (const slug of stubbed) assert.equal(removed.has(`/compare/${slug}/`), true, slug);
+  for (const slug of live) assert.equal(removed.has(`/compare/${slug}/`), false, slug);
+  const pinned = new Map([
+    ["chevrolet-equinox-vs-kia-sportage", "/compare/hyundai-santa-fe-vs-kia-sportage/"],
+    ["kia-sorento-vs-mitsubishi-outlander", "/compare/mitsubishi-outlander-vs-toyota-rav4/"],
+    ["chevrolet-cruze-vs-volkswagen-beetle", "/volkswagen/beetle/"],
+    ["chevrolet-suburban-vs-porsche-cayenne", "/compare/bmw-x5-vs-porsche-cayenne/"],
+    ["ford-escape-vs-hyundai-santa-fe", "/compare/hyundai-santa-fe-vs-kia-sportage/"],
+    ["ford-explorer-vs-rivian-r1s", "/compare/ford-explorer-vs-gmc-yukon/"],
+    ["jeep-wrangler-vs-toyota-rav4", "/compare/ford-escape-vs-jeep-wrangler/"],
+    ["lexus-is-vs-toyota-corolla", "/compare/toyota-corolla-vs-volkswagen-jetta/"],
+    ["mercedes-benz-cla-class-vs-volkswagen-jetta", "/compare/toyota-corolla-vs-volkswagen-jetta/"],
+    ["mini-cooper-vs-toyota-corolla", "/compare/lexus-is-vs-mini-cooper/"],
+    ["mini-cooper-vs-volkswagen-jetta", "/compare/lexus-is-vs-mini-cooper/"],
+    ["dodge-charger-vs-genesis-g80", "/dodge/charger/"],
+  ]);
+  const bySlug = new Map(redirects.map((redirect) => [redirect.slug, redirect]));
+  for (const [slug, path] of pinned) {
+    const redirect = bySlug.get(slug);
+    assert.ok(redirect, slug);
+    assert.equal(live.has(slug), false, slug);
+    assert.equal(redirect.replacementPath, path, slug);
+    assert.equal(redirect.replacementKind === "pair" || redirect.replacementKind === "model", true, slug);
+    assert.doesNotMatch(redirectAnswer(redirect), BANNED_PAIR_WORDS);
+  }
+  assert.equal(bySlug.get("chevrolet-equinox-vs-kia-sportage").reason, "refresh");
+  assert.equal(bySlug.get("kia-sorento-vs-mitsubishi-outlander").reason, "refresh");
+  assert.equal(bySlug.get("dodge-charger-vs-genesis-g80").reason, "rule");
+  const page = readFileSync(join(root, "src/pages/compare/[pair].astro"), "utf8");
+  assert.match(page, /canonicalPath=\{moved \? redirect\.replacementPath : path\}/);
+  assert.match(page, /noindex=\{moved\}/);
+  assert.match(page, /refreshPath=\{moved \? redirect\.replacementPath : ""\}/);
+  assert.match(page, /<a href=\{redirect\.replacementPath\}>/);
+  const roots = ["src/pages", "src/components", "src/layouts", "public"].map((dir) => join(root, dir));
+  const docs = [join(root, "README.md"), join(root, "public/llms.txt")];
+  const files = [...docs];
+  for (const dir of roots) files.push(...walkFiles(dir));
+  for (const file of files) {
+    if (!/\.(astro|js|mjs|md|txt|html)$/.test(file)) continue;
+    const text = readFileSync(file, "utf8");
+    for (const slug of stubbed) {
+      assert.equal(text.includes(`/compare/${slug}/`), false, `${file} links to /compare/${slug}/`);
     }
   }
 });

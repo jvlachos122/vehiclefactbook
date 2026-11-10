@@ -18,7 +18,7 @@ Manufacturer communications (TSBs) are not imported. The file-name list for thos
 ## URLs
 
 - / tools and lookup: /tools/fuel-cost-calculator/ (trip mode at #trip) /tools/trip-fuel-cost/ /tools/mpg-calculator/ /compare/ /compare/hybrid/ /recalls/lookup/
-- /compare/{make}-{model}-vs-{make}-{model}/ example comparison of two models that share an EPA class, a make tier, and a fuel type in the newest matched model year
+- /compare/{make}-{model}-vs-{make}-{model}/ example comparison of two models that share an EPA class, a make tier, and a fuel type in the newest matched model year. An older address that is no longer selected stays at that URL as a noindex refresh and is omitted from the sitemap.
 - /compare/hybrid/{make}-{model}-hybrid-vs-gasoline/ and /compare/hybrid/{make}-{model}-plug-in-hybrid-vs-gasoline/ EPA mpg and annual fuel cost for gasoline and hybrid configurations of the same model
 - /{make}/ make hub
 - /{make}/{model}/ model hub

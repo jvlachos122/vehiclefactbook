@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { removedComparePaths } from "../src/lib/compare-pairs.js";
 import { EV_RANGE_INDEX, loadEvRangePages } from "../src/lib/ev-range.js";
 import { INVESTIGATIONS_INDEX, loadInvestigationPages } from "../src/lib/investigations.js";
 import { dirname, join, normalize, resolve } from "node:path";
@@ -41,6 +42,11 @@ function pageUrl(file) {
   return rel;
 }
 
+function slashPath(pathname) {
+  if (!pathname || pathname === "/") return "/";
+  return pathname.endsWith("/") ? pathname : `${pathname}/`;
+}
+
 function fileForPath(urlPath) {
   const path = decodeURIComponent(urlPath.split("#")[0].split("?")[0]);
   if (path === "/" || path === "") return join(dist, "index.html");
@@ -52,6 +58,7 @@ function idsIn(html) {
   return new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
 }
 
+const removedCompares = removedComparePaths();
 const files = walk(dist);
 const htmlByFile = new Map();
 for (const file of files) htmlByFile.set(resolve(file), readFileSync(file, "utf8"));
@@ -78,6 +85,12 @@ for (const [file, html] of htmlByFile) {
       continue;
     }
     if (url.origin !== site) continue;
+    const from = slashPath(pageUrl(file));
+    const to = slashPath(url.pathname);
+    if (removedCompares.has(to) && from !== to) {
+      errors.push(`${file.slice(dist.length)}: links to retired compare ${to}`);
+      continue;
+    }
     const target = fileForPath(url.pathname);
     if (!existsSync(target)) {
       errors.push(`${file.slice(dist.length)}: missing ${url.pathname}`);

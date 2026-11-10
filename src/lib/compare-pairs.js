@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadSummary } from "./catalog.js";
+import { findModel, loadSummary } from "./catalog.js";
 import { formatDate, formatNumber, kwhSpan, money, nhtsaVehicleUrl, span } from "./format.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -33,6 +33,14 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
  * `rule: "class"` repeats the older class-only selection. It exists so a dropped
  * example URL can stay up as a noindex refresh to the replacement page. Those
  * refresh URLs are not part of the published set and are left out of the sitemap.
+ *
+ * data/compare-published.json lists every compare slug built on main. The slugs
+ * were generated at build time, so they are not in git history as text. A slug
+ * in that file that the current files no longer select also stays up as a refresh.
+ * The target is the current comparison that shares one of the two models, preferring
+ * the model with more EPA configuration rows. If neither model is in a current
+ * comparison, the target is that model's page, and the higher configuration count
+ * is preferred. If neither model page exists, the target is /compare/.
  *
  * Unlisted makes are volume, so a new mainstream brand still pairs inside volume.
  * Luxury and specialty makes are listed so they stay out of volume pairs.
@@ -153,6 +161,7 @@ const PUBLIC_SIDE_KEYS = [
 let recordCache;
 let pairCache;
 let redirectCache;
+let publishedCache;
 
 export function classFamily(vclass) {
   return String(vclass || "")
@@ -557,6 +566,16 @@ export function loadExamplePairs() {
   return pairCache;
 }
 
+function modelTarget(side) {
+  if (!side?.makeSlug || !side?.modelSlug) return null;
+  const found = findModel(side.makeSlug, side.modelSlug);
+  if (!found.make || !found.model) return null;
+  return {
+    path: `/${found.make.slug}/${found.model.slug}/`,
+    title: `${found.make.name} ${found.model.name}`,
+  };
+}
+
 export function buildPairRedirects(legacy, current) {
   const live = new Set(current.map((pair) => pair.slug));
   const redirects = [];
@@ -567,12 +586,25 @@ export function buildPairRedirects(legacy, current) {
       (pair.right.makeSlug === side.makeSlug && pair.right.modelSlug === side.modelSlug);
     const primary = old.left.configCount >= old.right.configCount ? old.left : old.right;
     const secondary = primary === old.left ? old.right : old.left;
-    const replacement =
-      current.find(shares(primary)) ||
-      current.find(shares(secondary)) ||
-      current.find((pair) => pair.classFamily === old.classFamily) ||
-      null;
+    const replacement = current.find(shares(primary)) || current.find(shares(secondary)) || null;
     const title = `${old.year} ${old.left.makeName} ${old.left.modelName} vs ${old.year} ${old.right.makeName} ${old.right.modelName}`;
+    let replacementSlug = "";
+    let replacementPath = "/compare/";
+    let replacementTitle = "Example comparisons";
+    let replacementKind = "index";
+    if (replacement) {
+      replacementSlug = replacement.slug;
+      replacementPath = `/compare/${replacement.slug}/`;
+      replacementTitle = `${replacement.year} ${replacement.left.makeName} ${replacement.left.modelName} vs ${replacement.year} ${replacement.right.makeName} ${replacement.right.modelName}`;
+      replacementKind = "pair";
+    } else {
+      const model = modelTarget(primary) || modelTarget(secondary);
+      if (model) {
+        replacementPath = model.path;
+        replacementTitle = model.title;
+        replacementKind = "model";
+      }
+    }
     redirects.push({
       slug: old.slug,
       year: old.year,
@@ -580,11 +612,11 @@ export function buildPairRedirects(legacy, current) {
       title,
       leftName: `${old.left.makeName} ${old.left.modelName}`,
       rightName: `${old.right.makeName} ${old.right.modelName}`,
-      replacementSlug: replacement?.slug || "",
-      replacementPath: replacement ? `/compare/${replacement.slug}/` : "/compare/",
-      replacementTitle: replacement
-        ? `${replacement.year} ${replacement.left.makeName} ${replacement.left.modelName} vs ${replacement.year} ${replacement.right.makeName} ${replacement.right.modelName}`
-        : "Example comparisons",
+      reason: old.reason === "refresh" ? "refresh" : "rule",
+      replacementSlug,
+      replacementPath,
+      replacementTitle,
+      replacementKind,
     });
   }
   return redirects;
@@ -592,19 +624,57 @@ export function buildPairRedirects(legacy, current) {
 
 export function redirectAnswer(redirect) {
   const moved = `The example comparison of the ${redirect.year} ${redirect.leftName} and the ${redirect.year} ${redirect.rightName} is not in the current example set.`;
-  const why = "Example pages now keep two models only when they share an EPA class, a similar make tier, and a fuel type.";
-  const next = redirect.replacementSlug
-    ? `The replacement example is ${redirect.replacementTitle}.`
-    : "The current example comparisons are listed on the compare page.";
+  const why =
+    redirect.reason === "refresh"
+      ? "A later refresh of the committed EPA and NHTSA files no longer selects this pair."
+      : "Example pages now keep two models only when they share an EPA class, a similar make tier, and a fuel type.";
+  let next = "The current example comparisons are listed on the compare page.";
+  if (redirect.replacementKind === "pair" || (redirect.replacementKind == null && redirect.replacementSlug)) {
+    next = `The replacement example is ${redirect.replacementTitle}.`;
+  } else if (redirect.replacementKind === "model") {
+    next = `The ${redirect.replacementTitle} page is still published.`;
+  }
   return `${moved} ${why} ${next}`;
+}
+
+function publishedPairError(pair, message) {
+  const slug = pair?.slug || "(missing slug)";
+  throw new Error(`published compare ${slug} ${message}`);
+}
+
+export function loadPublishedComparePairs() {
+  if (publishedCache) return publishedCache;
+  const file = JSON.parse(readFileSync(join(root, "data/compare-published.json"), "utf8"));
+  if (!Array.isArray(file.pairs) || !file.pairs.length) throw new Error("compare-published.json has no pairs");
+  const slugs = new Set();
+  for (const pair of file.pairs) {
+    if (!pair || typeof pair.slug !== "string" || !pair.slug) publishedPairError(pair, "is missing a slug");
+    if (slugs.has(pair.slug)) publishedPairError(pair, "is duplicated");
+    slugs.add(pair.slug);
+    if (!Number.isInteger(pair.year)) publishedPairError(pair, "is missing a year");
+    if (!pair.classFamily) publishedPairError(pair, "is missing a class");
+    for (const side of ["left", "right"]) {
+      const item = pair[side];
+      if (!item?.makeSlug || !item?.modelSlug || !item?.makeName || !item?.modelName) {
+        publishedPairError(pair, `is missing ${side}`);
+      }
+      if (!Number.isInteger(item.configCount) || item.configCount < 0) {
+        publishedPairError(pair, `is missing ${side} configCount`);
+      }
+    }
+  }
+  publishedCache = file.pairs;
+  return publishedCache;
 }
 
 export function loadRemovedPairRedirects() {
   if (redirectCache) return redirectCache;
-  const records = loadRecords();
   const current = loadExamplePairs();
-  const legacy = selectExamplePairs(records, { rule: "class" });
-  redirectCache = buildPairRedirects(legacy, current);
+  const legacy = selectExamplePairs(loadRecords(), { rule: "class" });
+  const bySlug = new Map();
+  for (const pair of loadPublishedComparePairs()) bySlug.set(pair.slug, { ...pair, reason: "refresh" });
+  for (const pair of legacy) bySlug.set(pair.slug, { ...pair, reason: "rule" });
+  redirectCache = buildPairRedirects([...bySlug.values()], current);
   return redirectCache;
 }
 

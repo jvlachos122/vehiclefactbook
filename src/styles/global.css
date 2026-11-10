@@ -110,6 +110,13 @@ a:hover { color: var(--link-hover); }
   margin: 1rem 0 1.2rem;
 }
 .answer p { margin: 0; }
+p.years-caveat {
+  margin: 0 0 1.2rem;
+  padding: 0.85rem 1rem;
+  background: var(--caveat-bg);
+  border: 1px solid var(--caveat-line);
+  border-left: 4px solid var(--caveat);
+}
 
 .data-note {
   display: inline-flex;

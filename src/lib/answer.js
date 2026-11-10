@@ -181,14 +181,4 @@ export function modelAnswer(make, model, years, dates) {
   return sentences.join(" ");
 }
 
-export function yearsAnswer(make, model, years, dates) {
-  const withComplaints = years.filter((year) => year.hasNhtsa);
-  const complaintDate = formatDate(dates.complaints);
-  if (withComplaints.length < 1) {
-    return `NHTSA's files dated ${complaintDate} do not have matched complaint counts for the ${make} ${model} model years in this table.`;
-  }
-  const ranked = [...withComplaints].sort((a, b) => b.complaints - a.complaints || b.y - a.y);
-  const high = ranked[0];
-  const low = ranked[ranked.length - 1];
-  return `For the ${make} ${model}, matched NHTSA complaint counts in this table run from ${low.complaints.toLocaleString("en-US")} (${low.y}) to ${high.complaints.toLocaleString("en-US")} (${high.y}). The complaint file is dated ${complaintDate}. These are raw counts, not rates, and a higher count can mean more vehicles were sold or that a newer model year has had less time for complaints to be reported.`;
-}
+export { yearsAnswer } from "./years.js";

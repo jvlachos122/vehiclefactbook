@@ -1,0 +1,88 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import FuelCostTable from "../../components/FuelCostTable.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import {
+  FUEL_COST_INDEX,
+  findFuelCostPage,
+  fuelCostAnswer,
+  fuelCostCaveatParts,
+  fuelCostFaqs,
+  fuelCostPaths,
+  fuelCostSourceParts,
+  orderedSections,
+  temporalCoverage,
+} from "../../lib/fuel-classes.js";
+import { metaDescription } from "../../lib/format.js";
+import { dataset, epaOrg, faqPage } from "../../lib/schema.js";
+import { site } from "../../lib/site.js";
+
+export function getStaticPaths() {
+  return fuelCostPaths();
+}
+
+const { slug } = Astro.props;
+const page = findFuelCostPage(slug);
+if (!page) throw new Error(`Missing fuel cost class ${slug}`);
+const meta = loadMeta();
+const text = fuelCostAnswer(page, meta.dates.epa);
+const faqs = fuelCostFaqs(page);
+const sections = orderedSections(page, meta.dates.epa);
+const source = fuelCostSourceParts(page, meta.dates.epa);
+const caveat = fuelCostCaveatParts();
+const path = page.path;
+---
+
+<Base
+  title={`${page.label} annual fuel cost`}
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Fuel cost", href: FUEL_COST_INDEX },
+    { label: page.label, href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: `${page.label} annual fuel cost`,
+      description: text,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.epa,
+      creators: [epaOrg],
+      temporalCoverage: temporalCoverage(page.years),
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">EPA fuelCost08</p>
+    <h1>{page.label} annual fuel cost</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      {caveat.before}<a href={caveat.href}>{caveat.linkLabel}</a>{caveat.after}
+    </p>
+    <p>
+      {source.before}<a href={source.href}>{source.linkLabel}</a>{source.after}
+    </p>
+    {
+      sections.map((section) => (
+        <>
+          <h2>{section.heading}</h2>
+          <FuelCostTable caption={section.caption} rows={section.rows} combHeading={section.combHeading} />
+        </>
+      ))
+    }
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

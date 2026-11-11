@@ -6,6 +6,7 @@ import { loadMeta } from "../lib/catalog.js";
 import { EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE, loadPriceSnapshot } from "../lib/eia-prices.js";
 import { COMPONENT_MIN } from "../lib/components.js";
 import { evRangeRowCount, loadEvRangePages } from "../lib/ev-range.js";
+import { FUEL_COST_MIN_MODELS, FUEL_COST_YEAR_COUNT, fuelCostRowCount, loadFuelCostPages, loadFuelCostYears, yearPhrase } from "../lib/fuel-classes.js";
 import { loadInvestigationPages } from "../lib/investigations.js";
 import { HYBRID_MIN_YEAR, HYBRID_PAIR_LIMIT } from "../lib/hybrid-pairs.js";
 import { formatPeriod } from "../lib/fuel-cost.js";
@@ -21,6 +22,8 @@ const eiaGas = eiaPrices.find((row) => row.product === "gasoline" && row.area ==
 const eiaElectric = eiaPrices.find((row) => row.product === "electricity" && row.area === "US");
 const investigationPages = loadInvestigationPages();
 const evRangePages = loadEvRangePages();
+const fuelCostPages = loadFuelCostPages();
+const fuelCostYears = yearPhrase(loadFuelCostYears());
 const text = `Counts on this site come from NHTSA flat files dated ${formatDate(dates.recalls)} (recalls), ${formatDate(dates.complaints)} (complaints), and ${formatDate(dates.investigations)} (investigations), and from the EPA fuel-economy file dated ${formatDate(dates.epa)}. Complaint totals are distinct complaint numbers, not raw rows.`;
 const path = "/methodology/";
 ---
@@ -114,6 +117,19 @@ const path = "/methodology/";
     </p>
     <p>
       The fuel-cost calculator also multiplies the miles you enter by the EPA rate and by a price. For regular gasoline and diesel, the price box can start from the weekly retail average, including taxes, in EIA's <a href={EIA_GASOLINE_SOURCE}>Gasoline and Diesel Fuel Update</a>. For electricity, it can start from the residential price in <a href={EIA_ELECTRICITY_SOURCE}>Electric Power Monthly Table 5.6.A</a>. The committed snapshot is data/eia-fuel-prices.csv, retrieved {formatDate(eiaGas.retrieved)}. Gasoline and diesel use the week of {formatDate(eiaGas.period)}. Electricity uses {formatPeriod(eiaElectric.period)}, and EIA marks those 2026 values preliminary. Premium gasoline, midgrade gasoline, and other fuels have no default. Clearing the price leaves the calculated cost blank and leaves fuelCost08 as published. <a href={EIA_LICENSE}>EIA's copyright and reuse note</a> places U.S. government publications on its site in the public domain.
+    </p>
+
+    <h2>Annual fuel cost by class</h2>
+    <p>
+      <a href="/fuel-cost/">Annual fuel cost by class</a> sorts EPA fuelCost08 for {fuelCostYears}, the newest {FUEL_COST_YEAR_COUNT} model years in the fuel economy file dated {formatDate(dates.epa)}.
+      An EPA class family drops a trailing 2WD or 4WD label from VClass, the same rule as the comparison pages.
+      A class page is published when at least {FUEL_COST_MIN_MODELS} models in those years have a positive fuelCost08.
+      This copy has {formatNumber(fuelCostPages.length)} class pages and {formatNumber(fuelCostRowCount(fuelCostPages))} table rows.
+      Each model is listed at its lowest fuelCost08 and again when another configuration costs more.
+      Electric and plug-in hybrid rows are in their own table so MPGe is not labeled as mpg.
+      A configuration with no positive fuelCost08 is left out.
+      The figure uses 15,000 miles and 55 percent city driving. The file does not list the fuel prices EPA used, and the page does not state a price.
+      The <a href="/tools/fuel-cost-calculator/">fuel cost calculator</a> takes a price you enter.
     </p>
 
     <h2>EPA range by year</h2>

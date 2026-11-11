@@ -5,6 +5,7 @@ import Answer from "../../components/Answer.astro";
 import EiaPriceTable from "../../components/EiaPriceTable.astro";
 import { loadMeta } from "../../lib/catalog.js";
 import { loadPriceSnapshot, EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE } from "../../lib/eia-prices.js";
+import { loadFuelCostYears, yearPhrase } from "../../lib/fuel-classes.js";
 import { clientPriceRows, formatPeriod, fuelPageAnswer } from "../../lib/fuel-cost.js";
 import { formatDate, formatNumber, metaDescription } from "../../lib/format.js";
 import { webApp } from "../../lib/schema.js";
@@ -15,6 +16,7 @@ const gas = prices.find((row) => row.product === "gasoline" && row.area === "US"
 const diesel = prices.find((row) => row.product === "diesel" && row.area === "US");
 const elec = prices.find((row) => row.product === "electricity" && row.area === "US");
 if (!gas || !diesel || !elec) throw new Error("EIA snapshot is missing a U.S. price");
+const fuelYears = yearPhrase(loadFuelCostYears());
 const text = fuelPageAnswer({
   epaDate: formatDate(meta.dates.epa),
   epaRows: formatNumber(meta.counts.epaRowsMy2000),
@@ -173,7 +175,10 @@ const electricRows = prices.filter((row) => row.product === "electricity");
         </tbody>
       </table>
     </div>
-    <p>For miles divided by gallons, use the <a href="/tools/mpg-calculator/">MPG calculator</a>.</p>
+    <p>
+      For miles divided by gallons, use the <a href="/tools/mpg-calculator/">MPG calculator</a>.
+      <a href="/fuel-cost/">Annual fuel cost by EPA class</a> sorts fuelCost08 for {fuelYears}.
+    </p>
     <details class="panel">
       <summary>EIA prices used when the box matches the average</summary>
       <p>

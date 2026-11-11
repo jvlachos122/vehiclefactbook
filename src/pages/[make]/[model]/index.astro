@@ -6,6 +6,7 @@ import YearTable from "../../../components/YearTable.astro";
 import { findModel, loadMeta, modelPaths } from "../../../lib/catalog.js";
 import { COMPONENT_MIN, modelHasComponentPage } from "../../../lib/components.js";
 import { findEvRangePage } from "../../../lib/ev-range.js";
+import { loadFuelCostYears, modelFuelCostLinks, yearPhrase } from "../../../lib/fuel-classes.js";
 import { modelInvestigationCount } from "../../../lib/investigations.js";
 import { modelAnswer } from "../../../lib/answer.js";
 import { formatNumber, metaDescription, money, span } from "../../../lib/format.js";
@@ -24,6 +25,8 @@ const text = modelAnswer(make.name, model.name, years, meta.dates);
 const path = `/${make.slug}/${model.slug}/`;
 const latest = years[years.length - 1];
 const evRange = findEvRangePage(make.slug, model.slug);
+const fuelLinks = modelFuelCostLinks(make.slug, model.slug);
+const fuelYears = yearPhrase(loadFuelCostYears());
 const crumbs = [
   { label: "Home", href: "/" },
   { label: make.name, href: `/${make.slug}/` },
@@ -80,6 +83,20 @@ const crumbs = [
     <p>
       Combined mpg below is EPA's figure for non-electric configurations in the file dated {meta.dates.epa}. Electric configurations are shown as MPGe when that is the only figure. Annual fuel cost is EPA's published fuelCost08 range for the configurations of that year.
     </p>
+    {
+      fuelLinks.length ? (
+        <p>
+          EPA class pages for annual fuel cost in {fuelYears}:{" "}
+          {fuelLinks.map((link, index) => (
+            <>
+              {index ? ", " : null}
+              <a href={link.path}>{link.label}</a>
+            </>
+          ))}
+          .
+        </p>
+      ) : null
+    }
     {
       evRange ? (
         <p>

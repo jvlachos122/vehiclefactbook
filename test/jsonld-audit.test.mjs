@@ -77,6 +77,10 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/investigations/EA21002/index.html"), "investigation");
   assert.equal(classifyPage("/ev-range/index.html"), "ev-range-index");
   assert.equal(classifyPage("/tesla/model-3/range/index.html"), "ev-range");
+  assert.equal(classifyPage("/fuel-cost/index.html"), "fuel-cost-index");
+  assert.equal(classifyPage("/fuel-cost/small-suv/index.html"), "fuel-cost");
+  assert.equal(classifyPage("/fuel-cost/midsize-car/index.html"), "fuel-cost");
+  assert.equal(classifyPage("/fuel-cost/standard-pickup/index.html"), "fuel-cost");
 });
 
 test("representative pages pass the JSON-LD rules", () => {
@@ -215,6 +219,34 @@ test("representative pages pass the JSON-LD rules", () => {
       ],
     ],
     [
+      "/fuel-cost/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "EPA annual fuel cost by size class",
+          description: "Annual fuel cost by EPA class.",
+          url: "https://vehiclefactbook.com/fuel-cost/",
+          dateModified: "2026-09-29",
+          creators: [epaOrg],
+          temporalCoverage: "2025/2027",
+        }),
+      ],
+    ],
+    [
+      "/fuel-cost/small-suv/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "Small SUV annual fuel cost",
+          description: "Annual fuel cost for small SUVs.",
+          url: "https://vehiclefactbook.com/fuel-cost/small-suv/",
+          dateModified: "2026-09-29",
+          creators: [epaOrg],
+          temporalCoverage: "2025/2027",
+        }),
+      ],
+    ],
+    [
       "/tesla/model-3/range/index.html",
       [
         crumb(),
@@ -289,6 +321,19 @@ test("a component dataset lists NHTSA and leaves EPA off", () => {
     "/tesla/model-3/range/index.html",
   );
   assert.ok(evRange.errors.includes("EV range Dataset must not list NHTSA as creator"));
+  const fuelCost = auditHtml(
+    page(answer, [
+      crumb(),
+      dataset({
+        name: "Small SUV annual fuel cost",
+        description: "Annual fuel cost for small SUVs.",
+        url: "https://vehiclefactbook.com/fuel-cost/small-suv/",
+        dateModified: "2026-09-29",
+      }),
+    ]),
+    "/fuel-cost/small-suv/index.html",
+  );
+  assert.ok(fuelCost.errors.includes("fuel cost Dataset must not list NHTSA as creator"));
 });
 
 test("guide FAQ text must be visible", () => {

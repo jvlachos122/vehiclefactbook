@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { removedComparePaths } from "../src/lib/compare-pairs.js";
 import { evRangeRowCount, loadEvRangePages } from "../src/lib/ev-range.js";
+import { fuelCostRowCount, loadFuelCostPages } from "../src/lib/fuel-classes.js";
 
 const root = join(import.meta.dirname, "..");
 const dist = join(root, "dist");
@@ -20,6 +21,7 @@ function kind(rel) {
   if (rel === "/index.html") return "home";
   if (rel === "/404.html") return "404";
   if (rel === "/ev-range/index.html") return "ev-range-index";
+  if (rel === "/fuel-cost/index.html") return "fuel-cost-index";
   const parts = rel.split("/").filter(Boolean);
   if (parts[0] === "tools") return `tool:${parts[1]}`;
   if (parts[0] === "investigations" && parts.length === 2) return "investigation-index";
@@ -38,6 +40,7 @@ function kind(rel) {
     if (removedCompares.has(asPath)) return "compare-redirect";
     return "compare-pair";
   }
+  if (parts[0] === "fuel-cost" && parts.length === 3) return "fuel-cost";
   if (parts.length === 2) return "make";
   if (parts.length === 3) return "model";
   if (parts.length === 4 && parts[2] === "years") return "years";
@@ -66,6 +69,8 @@ console.log("PAGE COUNTS");
 for (const [name, count] of Object.entries(counts).sort()) console.log(`  ${name}: ${count}`);
 const evPages = loadEvRangePages();
 console.log(`EV range pages: ${evPages.length}; all-electric configuration rows: ${evRangeRowCount(evPages)}`);
+const fuelPages = loadFuelCostPages();
+console.log(`Fuel cost class pages: ${fuelPages.length}; table rows: ${fuelCostRowCount(fuelPages)}`);
 console.log(`HTML files: ${html}`);
 console.log(`All dist files: ${files.length}`);
 console.log(`Build size: ${du}`);

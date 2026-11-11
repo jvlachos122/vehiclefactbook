@@ -46,6 +46,7 @@ const validator = new HtmlValidate({
 });
 
 const YEARS_BANNED = /\b(avoid|best|worst|reliable)\b|problem years|years to avoid/i;
+const FUEL_BANNED = /\b(avoid|best|worst|reliable|unreliable)\b/i;
 const YEARS_PHRASES = [
   "raw counts, not rates",
   "reporting lag",
@@ -66,6 +67,16 @@ for (const file of files) {
   const html = readFileSync(file, "utf8");
   const rel = file.slice(dist.length).replaceAll("\\", "/");
   const audit = auditHtml(html, rel);
+  if (classifyPage(rel) === "fuel-cost" || classifyPage(rel) === "fuel-cost-index") {
+    const visible = mainText(html);
+    if (FUEL_BANNED.test(visible)) errors.push(`${rel}: banned wording on a fuel-cost page`);
+    if (!visible.includes("15,000")) errors.push(`${rel}: missing EPA mileage assumption`);
+    if (!visible.includes("55 percent")) errors.push(`${rel}: missing EPA city-driving assumption`);
+    if (!visible.includes("Your cost will differ")) errors.push(`${rel}: missing fuel-cost caveat`);
+    if (!html.includes('href="/tools/fuel-cost-calculator/"')) errors.push(`${rel}: missing fuel cost calculator link`);
+    if (!html.includes("<h2>Questions</h2>")) errors.push(`${rel}: missing visible questions`);
+    if (/>\$0</.test(html)) errors.push(`${rel}: a fuel cost is shown as $0`);
+  }
   if (classifyPage(rel) === "years") {
     const visible = mainText(html);
     if (YEARS_BANNED.test(visible)) errors.push(`${rel}: banned wording on a years page`);

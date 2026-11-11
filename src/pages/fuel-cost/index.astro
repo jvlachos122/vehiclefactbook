@@ -1,0 +1,106 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import {
+  FUEL_COST_INDEX,
+  blankClassNote,
+  fuelCostCaveatParts,
+  fuelCostIndexAnswer,
+  fuelCostIndexCaption,
+  fuelCostIndexFaqs,
+  fuelCostIndexSourceParts,
+  loadFuelCostCatalog,
+  omittedClassNote,
+  temporalCoverage,
+} from "../../lib/fuel-classes.js";
+import { formatNumber, metaDescription } from "../../lib/format.js";
+import { dataset, epaOrg, faqPage } from "../../lib/schema.js";
+import { site } from "../../lib/site.js";
+
+const meta = loadMeta();
+const catalog = loadFuelCostCatalog();
+const text = fuelCostIndexAnswer(catalog.pages, catalog.years, meta.dates.epa);
+const faqs = fuelCostIndexFaqs(catalog.years);
+const source = fuelCostIndexSourceParts(catalog.years, meta.dates.epa);
+const caveat = fuelCostCaveatParts();
+const omitted = omittedClassNote(catalog.omitted);
+const blank = blankClassNote(catalog.blankClass);
+const path = FUEL_COST_INDEX;
+---
+
+<Base
+  title="Annual fuel cost by EPA class"
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Fuel cost", href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: "EPA annual fuel cost by size class",
+      description: text,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.epa,
+      creators: [epaOrg],
+      temporalCoverage: temporalCoverage(catalog.years),
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">EPA fuelCost08</p>
+    <h1>Annual fuel cost by EPA class</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      {caveat.before}<a href={caveat.href}>{caveat.linkLabel}</a>{caveat.after}
+    </p>
+    <p>
+      {source.before}<a href={source.href}>{source.linkLabel}</a>{source.after}
+    </p>
+    <h2>Classes</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{fuelCostIndexCaption(catalog.years, meta.dates.epa)}</caption>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th class="num">Models</th>
+            <th class="num">Lowest annual fuel cost</th>
+            <th>Year</th>
+            <th>Vehicle</th>
+            <th>Fuel</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            catalog.pages.map((page) => (
+              <tr>
+                <td><a href={page.path}>{page.label}</a></td>
+                <td class="num">{formatNumber(page.modelCount)}</td>
+                <td class="num">{page.low.costLabel}</td>
+                <td>{page.low.year}</td>
+                <td><a href={page.low.href}>{page.low.make} {page.low.model}</a></td>
+                <td>{page.low.fuel}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    {omitted ? <p>{omitted}</p> : null}
+    {blank ? <p>{blank}</p> : null}
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

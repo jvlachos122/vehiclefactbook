@@ -1,0 +1,35 @@
+---
+const { caption, rows, combHeading } = Astro.props;
+---
+
+<div class="table-wrap">
+  <table>
+    <caption>{caption}</caption>
+    <thead>
+      <tr>
+        <th>Year</th>
+        <th>Make</th>
+        <th>Model</th>
+        <th>Engine, transmission, or trim</th>
+        <th>Fuel</th>
+        <th class="num">{combHeading}</th>
+        <th class="num">Annual fuel cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <td>{row.year}</td>
+            <td>{row.make}</td>
+            <td><a href={row.href}>{row.model}</a></td>
+            <td>{row.trim}</td>
+            <td>{row.fuel}</td>
+            <td class="num">{row.combLabel}</td>
+            <td class="num">{row.costLabel}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

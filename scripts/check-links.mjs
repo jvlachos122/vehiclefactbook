@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { removedComparePaths } from "../src/lib/compare-pairs.js";
 import { EV_RANGE_INDEX, loadEvRangePages } from "../src/lib/ev-range.js";
+import { FUEL_COST_INDEX, loadFuelCostPages } from "../src/lib/fuel-classes.js";
 import { INVESTIGATIONS_INDEX, loadInvestigationPages } from "../src/lib/investigations.js";
 import { dirname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -155,6 +156,9 @@ for (const path of [INVESTIGATIONS_INDEX, ...loadInvestigationPages().map((recor
 }
 for (const path of [EV_RANGE_INDEX, ...loadEvRangePages().map((page) => page.path)]) {
   if (!sitemapPaths.has(path)) errors.push(`sitemap missing ev range ${path}`);
+}
+for (const path of [FUEL_COST_INDEX, ...loadFuelCostPages().map((page) => page.path)]) {
+  if (!sitemapPaths.has(path)) errors.push(`sitemap missing fuel cost ${path}`);
 }
 
 if (errors.length) {

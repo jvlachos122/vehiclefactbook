@@ -20,8 +20,19 @@ from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
+from communications import (
+    apply_public,
+    apply_published_documents,
+    communication_paths,
+    empty_payload,
+    insert_summary_count,
+    load_target_keys,
+    merge_payloads,
+    scan_communication_files,
+    sync_years_pages,
+)
 from lib_norm import assign_year, load_manual, norm_make, norm_model, slug
-from sources import SOURCES, require_texts, resolve_io_dirs
+from sources import MFR_COMMS_SOURCES, SOURCES, require_texts, resolve_io_dirs
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "data" / "site"
@@ -405,7 +416,7 @@ def init_details(makes, match_meta):
     return details
 
 
-def aggregate(raw_dir: Path, makes, target, details, raw_names):
+def aggregate(raw_dir: Path, zip_dir: Path, makes, target, details, raw_names):
     advisories = {}
     campaign_dates = {}
     takata_camps = set()
@@ -610,7 +621,18 @@ def aggregate(raw_dir: Path, makes, target, details, raw_names):
             "top": [{"component": name, "n": count} for name, count in top],
             "byYear": [{"year": y, "n": by_year[y]} for y in sorted(by_year)],
         }
-    return advisories, campaign_dates, takata_camps, open_actions
+
+    log("aggregating manufacturer communications")
+    scanned = scan_communication_files(communication_paths(raw_dir, zip_dir), set(target))
+    for key, payload in scanned["by_key"].items():
+        spine = target.get(key)
+        if not spine or not payload.get("ids"):
+            continue
+        _make_norm, model_norm, year = key
+        year_row = details[spine]["years"][year]
+        named = year_row["byName"].setdefault(model_norm, {"recalls": {}, "complaints": None, "investigations": {}})
+        named["communications"] = payload
+    return advisories, campaign_dates, takata_camps, open_actions, scanned
 
 
 def display_names(info_names: list[str], make_norm: str, year: int, raw_names) -> list[str]:
@@ -644,6 +666,7 @@ def pack_name(model_norm: str, label: str, exact: bool, named: dict) -> dict:
         "recalls": recalls,
         "complaints": named.get("complaints") or empty_counts(),
         "investigations": investigations,
+        "communications": named.get("communications") or empty_payload(),
     }
 
 
@@ -679,6 +702,7 @@ def finalize_year_lists(details, match_meta, raw_names):
             year_row["recalls"] = headline["recalls"]
             year_row["complaints"] = headline["complaints"]
             year_row["investigations"] = headline["investigations"]
+            year_row["communications"] = headline.get("communications") or empty_payload()
             year_row["also"] = also
             year_row["nhtsaModels"] = display_names(info["names"], doc["makeNorm"], year, raw_names)
 
@@ -687,6 +711,7 @@ def merge_names(packed: list[dict], label: str) -> dict:
     recalls = {}
     investigations = {}
     complaints = empty_counts()
+    communication_payloads = []
     seen = set()
     by_year = defaultdict(int)
     top = defaultdict(int)
@@ -704,6 +729,7 @@ def merge_names(packed: list[dict], label: str) -> dict:
         complaints["fire"] += item["complaints"]["fire"]
         complaints["injured"] += item["complaints"]["injured"]
         complaints["deaths"] += item["complaints"]["deaths"]
+        communication_payloads.append(item.get("communications") or empty_payload())
         seen.add(item["norm"])
     complaints["byYear"] = [{"year": year, "n": by_year[year]} for year in sorted(by_year)]
     complaints["top"] = [
@@ -719,6 +745,7 @@ def merge_names(packed: list[dict], label: str) -> dict:
         "recalls": recall_list,
         "complaints": complaints,
         "investigations": inv_list,
+        "communications": merge_payloads(communication_payloads),
         "names": sorted(seen),
     }
 
@@ -769,12 +796,13 @@ def year_summary(year: int, year_row: dict) -> dict:
     complaints = year_row["complaints"] or empty_counts()
     recalls = year_row["recalls"]
     investigations = year_row["investigations"]
+    communication_ids = (year_row.get("communications") or empty_payload()).get("ids") or []
     also_complaints = 0 if year_row.get("splitNames") else sum(item["complaints"]["n"] for item in year_row.get("also") or [])
     also_recalls = 0 if year_row.get("splitNames") else sum(len(item["recalls"]) for item in year_row.get("also") or [])
     numbers = summary_numbers(year_row["configs"])
     star_min, star_max = star_span(year_row["ncap"])
     has_nhtsa = year_row["match"] != "none" and (
-        recalls or complaints.get("n") or investigations
+        recalls or complaints.get("n") or investigations or communication_ids
     )
     return {
         "y": year,
@@ -788,6 +816,7 @@ def year_summary(year: int, year_row: dict) -> dict:
         "deaths": complaints.get("deaths", 0),
         "investigations": len(investigations),
         "invOpen": sum(1 for item in investigations if not item["closeDateInFile"]),
+        "communications": len(communication_ids),
         "starMin": star_min,
         "starMax": star_max,
         "match": year_row["match"],
@@ -806,6 +835,7 @@ def write_models(details):
     makes_summary = []
     lookup_makes = []
     config_doc = {}
+    communication_index = {}
     mmy_count = 0
     years_pages = 0
     for (make_slug, model_slug), doc in sorted(details.items()):
@@ -817,7 +847,19 @@ def write_models(details):
         for year in sorted(doc["years"]):
             year_row = doc["years"][year]
             split = bool(year_row.get("splitNames"))
-            serial_years[str(year)] = {
+            also_public = []
+            for group in year_row.get("also") or []:
+                public = {
+                    "norm": group["norm"],
+                    "name": group["name"],
+                    "exact": group["exact"],
+                    "recalls": group["recalls"],
+                    "complaints": group["complaints"],
+                    "investigations": group["investigations"],
+                }
+                apply_public(public, group.get("communications"))
+                also_public.append(public)
+            serial = {
                 "match": year_row["match"],
                 "nhtsaModels": year_row["nhtsaModels"],
                 "configs": year_row["configs"],
@@ -826,9 +868,22 @@ def write_models(details):
                 "recalls": [] if split else year_row["recalls"],
                 "complaints": empty_counts() if split else (year_row["complaints"] or empty_counts()),
                 "investigations": [] if split else year_row["investigations"],
-                "also": year_row.get("also") or [],
+                "also": also_public,
                 "ncap": year_row["ncap"],
             }
+            apply_public(serial, year_row.get("communications"))
+            serial_years[str(year)] = serial
+            by_norm = {}
+            if year_row.get("headlineExact"):
+                headline_ids = (year_row.get("communications") or empty_payload()).get("ids") or []
+                if headline_ids:
+                    by_norm[doc["modelNorm"]] = headline_ids
+            for group in year_row.get("also") or []:
+                group_ids = (group.get("communications") or empty_payload()).get("ids") or []
+                if group_ids:
+                    by_norm[group["norm"]] = group_ids
+            if by_norm:
+                communication_index.setdefault(f"{make_slug}/{model_slug}", {})[str(year)] = by_norm
             summary = year_summary(year, year_row)
             summary_years.append(summary)
             lookup_years.append(
@@ -881,6 +936,8 @@ def write_models(details):
         (out_dir / f"{model_slug}.json").write_text(json.dumps(payload, separators=(",", ":")) + "\n")
         makes_summary.append((make_slug, doc["make"], model_slug, doc["model"], summary_years, years_page))
         lookup_makes.append((make_slug, doc["make"], model_slug, doc["model"], lookup_years))
+    (SITE / "communication-ids.json").write_text(json.dumps(communication_index, separators=(",", ":")) + "\n")
+    log(f"manufacturer communication index models {len(communication_index):,}")
     return makes_summary, lookup_makes, config_doc, mmy_count, years_pages
 
 
@@ -1041,14 +1098,16 @@ def attach_ncap(makes, details, manual):
     return per_year
 
 
-def write_outputs(sources, stats, makes, details, match_meta, raw_names, method_counts, matched, total, raw_makes, raw_models, rows_2000, open_actions, advisory_counts, per_year):
+def write_outputs(sources, stats, makes, details, match_meta, raw_names, method_counts, matched, total, raw_makes, raw_models, rows_2000, open_actions, advisory_counts, per_year, scanned):
     finalize_year_lists(details, match_meta, raw_names)
     makes_summary, lookup_makes, config_doc, mmy_count, years_pages = write_models(details)
     make_list, lookup_list = nest_summaries(makes_summary, lookup_makes)
+    comm_dates = [sources[key]["fileDate"] for key, *_rest in MFR_COMMS_SOURCES if (sources.get(key) or {}).get("fileDate")]
     dates = {
         "recalls": sources["recalls_post_2010"]["fileDate"],
         "complaints": sources["complaints"]["fileDate"],
         "investigations": sources["investigations"]["fileDate"],
+        "communications": max(comm_dates) if comm_dates else "",
         "epa": sources["epa"]["fileDate"],
     }
     meta = {
@@ -1076,6 +1135,11 @@ def write_outputs(sources, stats, makes, details, match_meta, raw_names, method_
             "investigationRows": stats["investigation_rows"],
             "investigationActions": len(stats["investigation_actions"]),
             "investigationActionsNoCloseDate": len(open_actions),
+            "communicationRows": scanned.get("rows", 0),
+            "communicationIds": scanned.get("ids", 0),
+            "communicationMatched": scanned.get("matched", 0),
+            "communicationAddedMin": scanned.get("addedMin", ""),
+            "communicationAddedMax": scanned.get("addedMax", ""),
             **advisory_counts,
         },
         "ncap": {str(year): info for year, info in sorted(per_year.items())},
@@ -1106,13 +1170,85 @@ def write_unmatched(rows):
     log(f"wrote {path} ({len(rows):,} rows)")
 
 
+def publish_communications(raw_dir: Path, zip_dir: Path) -> None:
+    """Add manufacturer communications without rebuilding recalls or complaints."""
+    started = time.time()
+    keys = load_target_keys(MODELS)
+    log(f"manufacturer communication target names {len(keys):,}")
+    scanned = scan_communication_files(communication_paths(raw_dir, zip_dir), keys)
+    index, counts, rewritten = apply_published_documents(MODELS, scanned["by_key"])
+    SITE.mkdir(parents=True, exist_ok=True)
+    (SITE / "communication-ids.json").write_text(json.dumps(index, separators=(",", ":")) + "\n")
+    summary = json.loads((SITE / "summary.json").read_text())
+    years_pages = 0
+    for make in summary["makes"]:
+        for model in make["models"]:
+            model["years"] = [
+                insert_summary_count(year, counts.get((make["slug"], model["slug"], year["y"]), 0))
+                for year in model["years"]
+            ]
+            model["yearsPage"] = sum(1 for year in model["years"] if year["hasNhtsa"]) >= 3
+            if model["yearsPage"]:
+                years_pages += 1
+    page_rewrites = sync_years_pages(MODELS, summary)
+    sources = json.loads((ROOT / "data" / "sources.json").read_text()) if (ROOT / "data" / "sources.json").exists() else {}
+    for key, url, zip_name, text_name in MFR_COMMS_SOURCES:
+        zip_path = zip_dir / zip_name
+        last_modified = header_value(url, "Last-Modified")
+        sources[key] = {
+            "url": url,
+            "sha256": sha256_file(zip_path) if zip_path.is_file() else "",
+            "bytes": zip_path.stat().st_size if zip_path.is_file() else 0,
+            "lastModified": last_modified,
+            "fileDate": file_day(last_modified),
+            "textFile": text_name,
+        }
+        log(f"source {key}: {sources[key]['fileDate']} {sources[key]['sha256'][:12]} {sources[key]['bytes']:,} bytes")
+    comm_dates = [item["fileDate"] for item in sources.values() if item.get("textFile", "").startswith("TSBS_RECEIVED_") and item.get("fileDate")]
+    file_date = max(comm_dates) if comm_dates else scanned.get("addedMax") or ""
+    summary_dates = summary.setdefault("dates", {})
+    summary_dates["communications"] = file_date
+    (SITE / "summary.json").write_text(json.dumps(summary, separators=(",", ":")) + "\n")
+    lookup_path = SITE / "lookup.json"
+    if lookup_path.exists():
+        lookup = json.loads(lookup_path.read_text())
+        lookup.setdefault("dates", {})["communications"] = file_date
+        lookup_path.write_text(json.dumps(lookup, separators=(",", ":")) + "\n")
+    meta = json.loads((SITE / "meta.json").read_text())
+    meta.setdefault("dates", {})["communications"] = file_date
+    dated = [value for value in meta["dates"].values() if value]
+    if dated:
+        meta["generatedAt"] = f"{max(dated)}T00:00:00Z"
+    meta.setdefault("counts", {}).update(
+        {
+            "yearsPages": years_pages,
+            "communicationRows": scanned.get("rows", 0),
+            "communicationIds": scanned.get("ids", 0),
+            "communicationMatched": scanned.get("matched", 0),
+            "communicationAddedMin": scanned.get("addedMin", ""),
+            "communicationAddedMax": scanned.get("addedMax", ""),
+        }
+    )
+    (SITE / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
+    (ROOT / "data" / "sources.json").write_text(json.dumps(sources, indent=2) + "\n")
+    log(
+        f"communications attached; model files rewritten {rewritten:,}; "
+        f"years-page flags {page_rewrites:,}; years pages {years_pages:,}; "
+        f"done in {time.time() - started:.0f}s"
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--match-only", action="store_true")
+    parser.add_argument("--communications-only", action="store_true", help="Attach manufacturer communications to the committed model files")
     parser.add_argument("--raw", default=None, help="Directory of extracted flat files (default: $VF_RAW/extracted)")
     parser.add_argument("--zips", default=None, help="Directory of downloaded zip files (default: $VF_ZIPS or $VF_RAW)")
     args = parser.parse_args()
     raw_dir, zip_dir = resolve_io_dirs(args.raw, args.zips)
+    if args.communications_only:
+        publish_communications(raw_dir, zip_dir)
+        return
     started = time.time()
     sources = load_sources(raw_dir, zip_dir)
     grouped, rows_2000, raw_makes, raw_models = load_epa(raw_dir / "vehicles.csv")
@@ -1131,7 +1267,7 @@ def main() -> None:
     stats["complaintVehicleOdino"] = len(stats["complaint_vehicle_odino"])
     stats["complaint_vehicle_odino"] = set()
     details = init_details(makes, match_meta)
-    advisories, campaign_dates, _takata, open_actions = aggregate(raw_dir, makes, target, details, raw_names)
+    advisories, campaign_dates, _takata, open_actions, scanned = aggregate(raw_dir, zip_dir, makes, target, details, raw_names)
     del target, keys
     stats["complaint_vehicle_odino_count_holder"] = stats["complaint_vehicle_odino"]
     per_year = attach_ncap(makes, details, manual)
@@ -1152,6 +1288,7 @@ def main() -> None:
         open_actions,
         advisory_counts,
         per_year,
+        scanned,
     )
     log(f"data build finished in {time.time() - started:.0f}s")
 

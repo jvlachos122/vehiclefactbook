@@ -24,7 +24,11 @@ const investigationPages = loadInvestigationPages();
 const evRangePages = loadEvRangePages();
 const fuelCostPages = loadFuelCostPages();
 const fuelCostYears = yearPhrase(loadFuelCostYears());
-const text = `Counts on this site come from NHTSA flat files dated ${formatDate(dates.recalls)} (recalls), ${formatDate(dates.complaints)} (complaints), and ${formatDate(dates.investigations)} (investigations), and from the EPA fuel-economy file dated ${formatDate(dates.epa)}. Complaint totals are distinct complaint numbers, not raw rows.`;
+const sources = JSON.parse(readFileSync(new URL("../../data/sources.json", import.meta.url), "utf8"));
+const communicationFiles = Object.values(sources)
+  .filter((item) => String(item.textFile || "").startsWith("TSBS_RECEIVED_"))
+  .sort((a, b) => a.textFile.localeCompare(b.textFile));
+const text = `Counts on this site come from NHTSA flat files dated ${formatDate(dates.recalls)} (recalls), ${formatDate(dates.complaints)} (complaints), ${formatDate(dates.investigations)} (investigations), and ${formatDate(dates.communications)} (manufacturer communications), and from the EPA fuel-economy file dated ${formatDate(dates.epa)}. Complaint totals are distinct complaint numbers, not raw rows.`;
 const path = "/methodology/";
 ---
 
@@ -62,7 +66,7 @@ const path = "/methodology/";
       Of {formatNumber(counts.mmySpine)} model years, {formatNumber(counts.matchedMmy)} match at least one NHTSA name and {formatNumber(counts.unmatchedMmy)} do not. An unmatched page still shows EPA fuel economy and says that no NHTSA name was matched. It does not borrow another vehicle's complaints.
     </p>
     <p>
-      When the EPA name itself is one of the matched NHTSA names, the headline counts are that name only. Other matched names, such as a hybrid, are listed separately and are not added in. When the EPA name is a class or series and no exact name exists, the headline is the sum of the matched names and the page says so. {formatNumber(counts.yearsPages)} models have a by-year page because at least three model years have a matched recall, complaint, or investigation.
+      When the EPA name itself is one of the matched NHTSA names, the headline counts are that name only. Other matched names, such as a hybrid, are listed separately and are not added in. When the EPA name is a class or series and no exact name exists, the headline is the sum of the matched names and the page says so. {formatNumber(counts.yearsPages)} models have a by-year page because at least three model years have a matched recall, complaint, investigation, or manufacturer communication.
     </p>
     <p>Match methods for the {formatNumber(counts.matchedMmy)} matched model years:</p>
     <ul>
@@ -110,6 +114,38 @@ const path = "/methodology/";
     <p>
       An action attached to a published model year, with no close date on any stored row, has its own page under <a href="/investigations/">/investigations/</a>. That set is {formatNumber(investigationPages.length)} actions. The file count above also includes actions that are not attached to a published model year, and those actions do not have a page. The model year table links the action number when a page exists. The investigation page lists the shortened subject, the component, the open date, and the model years. It does not copy the summary.
     </p>
+
+    <h2>Manufacturer communications</h2>
+    <p>
+      NHTSA publishes manufacturer communications, including technical service bulletins, as tab-separated flat files in <a href="https://static.nhtsa.gov/odi/ffdd/tsbs/">static.nhtsa.gov/odi/ffdd/tsbs/</a>. The field list is <a href="https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS.txt">TSBS.txt</a>. A row is one communication, one product, and one component. The CSV files named MFR_COMMS_RECEIVED have no component and no date, so they are not imported. TSBS_RECEIVED_2025-2025.zip is not downloaded: on November 12, 2026 every NHTSA ID in that zip was also in TSBS_RECEIVED_2025-2026.zip, and the 2025–2026 file is the one NHTSA is still updating.
+    </p>
+    <p>
+      The imported files dated {formatDate(dates.communications)} have {formatNumber(counts.communicationRows)} rows and {formatNumber(counts.communicationIds)} distinct NHTSA ID numbers. Dates added to the file run from {formatDate(counts.communicationAddedMin)} through {formatDate(counts.communicationAddedMax)}. The same ID can appear in more than one five-year file, and it is counted once. Model year 9999 and years outside 2000–2035 are not attached. {formatNumber(counts.communicationMatched)} ID-and-name pairs match a published model year.
+    </p>
+    <p>
+      A model year count is distinct NHTSA ID numbers for the matched name. When the headline is a sum of names, an ID listed under two of those names is counted once. The table lists the newest eight: the manufacturer communication date when that date is a real day from 1995 through 2027, otherwise the date NHTSA added the row. The component is NHTSA's component field. The summary is shortened, and a 17-character vehicle identifier in a summary is not stored. A communication is repair guidance sent to dealers, not a recall. The explanation is <a href="/guides/what-is-a-tsb/">What is a TSB</a>.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>Manufacturer communications flat files imported for this copy</caption>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th class="num">Bytes</th>
+            <th>File date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {communicationFiles.map((item) => (
+            <tr>
+              <td class="mono">{item.textFile.replace(/\.txt$/, ".zip")}</td>
+              <td class="num">{formatNumber(item.bytes)}</td>
+              <td>{formatDate(item.fileDate)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
 
     <h2>Fuel economy</h2>
     <p>

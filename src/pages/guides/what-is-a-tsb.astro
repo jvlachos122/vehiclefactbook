@@ -1,18 +1,22 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatDate, formatNumber } from "../../lib/format.js";
 import { article, faqPage } from "../../lib/schema.js";
 
+const meta = loadMeta();
+const fileDate = formatDate(meta.dates.communications);
 const faqs = [
   {
     q: "What is a TSB?",
-    a: "A TSB is a technical service bulletin, a manufacturer communication to dealers about a repair or a condition. NHTSA's current name for the download files is Manufacturer Communications. A TSB is not a recall.",
+    a: "A TSB is a technical service bulletin, a manufacturer communication to dealers about a repair or a condition. NHTSA publishes these records as manufacturer communications. A TSB is not a recall.",
   },
   {
     q: "Does VehicleFactbook list TSBs?",
-    a: "No. NHTSA's TSBS dictionary says the files are published in five-year chunks under the Manufacturer Communications name. The zip file names were not verified for this site, so no TSB rows are published.",
+    a: `Yes. Each model year page counts distinct NHTSA ID numbers from the manufacturer communications flat files${fileDate ? ` dated ${fileDate}` : ""} and lists the newest ones. A communication in that table is repair guidance sent to dealers, not a recall.`,
   },
 ];
-const description = "A TSB is a manufacturer technical service bulletin, not a recall. VehicleFactbook does not publish TSB rows because the download file names were not verified.";
+const description = "A TSB is a manufacturer technical service bulletin, not a recall. VehicleFactbook counts NHTSA manufacturer communications on the model year page.";
 ---
 
 <Base
@@ -30,7 +34,7 @@ const description = "A TSB is a manufacturer technical service bulletin, not a r
       description,
       url: "https://vehiclefactbook.com/guides/what-is-a-tsb/",
       datePublished: "2026-10-24",
-      dateModified: "2026-10-24",
+      dateModified: "2026-11-12",
     }),
     faqPage(faqs),
   ]}
@@ -39,14 +43,14 @@ const description = "A TSB is a manufacturer technical service bulletin, not a r
     <h1>What is a TSB?</h1>
     <div class="answer">
       <p>
-        A TSB, or technical service bulletin, is a manufacturer communication to its dealers, not a safety recall. NHTSA's TSBS dictionary, dated in the file notes as September 25, 2026, says those downloads were renamed Manufacturer Communications and are split into five-year files. This site does not publish them, because the zip names were not verified.
+        A TSB, or technical service bulletin, is repair guidance a manufacturer sends to its dealers, not a safety recall. NHTSA publishes these records as manufacturer communications, and each model year page counts distinct NHTSA ID numbers for the matched name{fileDate ? ` (file dated ${fileDate})` : ""}. A communication in that table is not a recall.
       </p>
     </div>
     <p>
-      A recall in NHTSA's recall flat file is a campaign with a campaign number, a defect description, and a remedy. Those campaigns are what the model year pages count. A TSB can describe a repair that is not a recall. Treating a bulletin as if it were a recall would mix two different records.
+      A recall in NHTSA's recall flat file is a campaign with a campaign number, a defect description, and a remedy. Those campaigns are what the model year pages count separately. A TSB can describe a repair that is not a recall. The manufacturer communications file{fileDate ? ` dated ${fileDate}` : ""} has {formatNumber(meta.counts.communicationIds)} distinct NHTSA ID numbers, and the model year table lists the newest ones rather than every row.
     </p>
     <p>
-      NHTSA describes manufacturer communications separately from recalls. The recall side of this site starts from the flat files linked on the <a href="/methodology/">methodology</a> page. Until a Manufacturer Communications download name is confirmed, there is no TSB count here, and no page will imply one.
+      The files and the counting rule are on the <a href="/methodology/">methodology</a> page. The download directory is <a href="https://static.nhtsa.gov/odi/ffdd/tsbs/">static.nhtsa.gov/odi/ffdd/tsbs/</a>, and the field list is <a href="https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS.txt">TSBS.txt</a>.
     </p>
     <h2>Questions</h2>
     {

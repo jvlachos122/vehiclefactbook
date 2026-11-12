@@ -16,7 +16,7 @@ const meta = loadMeta();
     <h1>Guides</h1>
     <div class="answer">
       <p>
-        These notes use NHTSA's published descriptions and the recall file dated {formatDate(meta.dates.recalls)}, which lists {formatNumber(meta.counts.vehicleCampaignsPost2010)} vehicle campaigns from 2010 on and {formatNumber(meta.counts.vehicleCampaignsPre2010)} in the older file. This site has not imported manufacturer communications.
+        These notes use NHTSA's published descriptions and the recall file dated {formatDate(meta.dates.recalls)}, which lists {formatNumber(meta.counts.vehicleCampaignsPost2010)} vehicle campaigns from 2010 on and {formatNumber(meta.counts.vehicleCampaignsPre2010)} in the older file. Model year pages count manufacturer communications from the flat files{meta.dates.communications ? ` dated ${formatDate(meta.dates.communications)}` : ""}, and a TSB is repair guidance sent to dealers, not a recall.
       </p>
     </div>
     <ul>

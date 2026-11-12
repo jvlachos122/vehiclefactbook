@@ -20,7 +20,7 @@ export const TOP_MODEL_COUNT = 50;
 export const NOT_LISTED = "not listed";
 export const PRE_2011_STARS = "Pre-2011 rating, not comparable";
 export const YEARS_CAPTION =
-  "One row per model year: recalls, complaints, complaints with a crash or fire flag, investigations, NCAP overall stars, and EPA combined mpg. A blank cell says not listed.";
+  "One row per model year: recalls, complaints, complaints with a crash or fire flag, investigations, manufacturer communications, NCAP overall stars, and EPA combined mpg. A communication is dealer repair guidance, not a recall. A blank cell says not listed.";
 export const YEARS_FAQ_RATE =
   "No. A high complaint count is a raw count, not a rate, and more cars sold can mean more complaints. Complaints have a reporting lag, so a newer model year can show a lower count because less time has passed. The complaint file's own documentation describes a format change in 2021.";
 export const YEARS_BANNED = /\b(avoid|best|worst|reliable)\b|problem years|years to avoid/i;
@@ -283,7 +283,7 @@ export function yearsStarNote(years) {
   const stars = hasOld
     ? `Star cells say "${PRE_2011_STARS}" for model years before 2011, because those ratings use a different NHTSA method.`
     : "Overall stars in this table are matched NHTSA ratings for model years 2011 and newer.";
-  return `${stars} For 2011 and newer, a star cell says not listed when no overall star was matched. A recall, complaint, crash, fire, or investigation cell says not listed when no NHTSA name was matched, and a matched zero stays zero. Combined mpg says not listed when the EPA file has no positive combined mpg. An electric configuration with no mpg can show MPGe.`;
+  return `${stars} For 2011 and newer, a star cell says not listed when no overall star was matched. A recall, complaint, crash, fire, investigation, or communications cell says not listed when no NHTSA name was matched, and a matched zero stays zero. Combined mpg says not listed when the EPA file has no positive combined mpg. An electric configuration with no mpg can show MPGe.`;
 }
 
 export function yearsPageText({ make, model, years, dates }) {

@@ -6,6 +6,7 @@ import CampaignLinks from "../../../../components/CampaignLinks.astro";
 import RecallList from "../../../../components/RecallList.astro";
 import ComplaintBars from "../../../../components/ComplaintBars.astro";
 import Investigations from "../../../../components/Investigations.astro";
+import Communications from "../../../../components/Communications.astro";
 import NcapTable from "../../../../components/NcapTable.astro";
 import ConfigTable from "../../../../components/ConfigTable.astro";
 import { mmyCampaignLinkPlan, primaryNameGroup } from "../../../../lib/campaigns.js";
@@ -79,7 +80,7 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
   jsonLd={[
     dataset({
       name: `${year} ${make.name} ${model.name}`,
-      description: `NHTSA recall, complaint, and investigation counts and EPA fuel economy for the ${year} ${make.name} ${model.name}.`,
+      description: `NHTSA recall, complaint, investigation, and manufacturer communication counts and EPA fuel economy for the ${year} ${make.name} ${model.name}.`,
       url: new URL(path, site.url).href,
       dateModified: meta.dates.complaints,
     }),
@@ -115,7 +116,7 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
         <>
           <h2>Matched NHTSA names</h2>
           <p>
-            The EPA model name is not itself a name in the NHTSA file for {year}. The counts in the answer are the sum of the names below. Overlap between those names is not removed.
+            The EPA model name is not itself a name in the NHTSA file for {year}. The recall and complaint counts in the answer are the sum of the names below. Overlap between those names is not removed. Manufacturer communications in the answer are distinct NHTSA ID numbers across those names.
           </p>
           <div class="table-wrap">
             <table>
@@ -126,6 +127,7 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
                   <th class="num">Recalls</th>
                   <th class="num">Complaints</th>
                   <th class="num">Investigations</th>
+                  <th class="num">Communications</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,6 +137,7 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
                     <td class="num">{(group.recalls || []).length.toLocaleString("en-US")}</td>
                     <td class="num">{formatNumber(group.complaints?.n || 0)}</td>
                     <td class="num">{(group.investigations || []).length.toLocaleString("en-US")}</td>
+                    <td class="num">{(group.communicationCount || 0).toLocaleString("en-US")}</td>
                   </tr>
                 ))}
               </tbody>
@@ -150,6 +153,8 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
                 <ComplaintBars complaints={primary.complaints} hrefs={complaintLinks} />
                 <h2>Investigations for {primary.name}</h2>
                 <Investigations investigations={primary.investigations} />
+                <h2 id="communications">Manufacturer communications (TSBs) for {primary.name}</h2>
+                <Communications count={primary.communicationCount || 0} rows={primary.communications || []} />
               </>
             ) : null
           }
@@ -174,6 +179,7 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
                         <th>Name</th>
                         <th class="num">Recalls</th>
                         <th class="num">Complaints</th>
+                        <th class="num">Communications</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -182,6 +188,7 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
                           <td>{group.name}</td>
                           <td class="num">{(group.recalls || []).length.toLocaleString("en-US")}</td>
                           <td class="num">{formatNumber(group.complaints?.n || 0)}</td>
+                          <td class="num">{(group.communicationCount || 0).toLocaleString("en-US")}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -192,6 +199,8 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
           }
           <h2 id="investigations">Investigations</h2>
           <Investigations investigations={yearDetail.investigations} />
+          <h2 id="communications">Manufacturer communications (TSBs)</h2>
+          <Communications count={yearDetail.communicationCount || 0} rows={yearDetail.communications || []} />
         </>
       )
     }

@@ -10,6 +10,7 @@ const required = [
   "data/site/lookup.json",
   "data/site/configs.json",
   "data/site/advisories.json",
+  "data/site/communication-ids.json",
   "data/recent.json",
   "data/model-crosswalk.csv",
   "data/unmatched.csv",
@@ -64,6 +65,12 @@ let yearsPages = 0;
 for (const make of summary.makes) {
   models += make.models.length;
   for (const model of make.models) {
+    for (const year of model.years) {
+      if (!Number.isInteger(year.communications) || year.communications < 0) {
+        console.error(`${make.slug}/${model.slug}/${year.y} communications count is missing`);
+        process.exit(1);
+      }
+    }
     const nhtsaYears = model.years.filter((year) => year.hasNhtsa).length;
     if (model.yearsPage !== (nhtsaYears >= 3)) {
       console.error(`${make.slug}/${model.slug} years page flag does not match ${nhtsaYears} NHTSA years`);

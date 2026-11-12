@@ -27,6 +27,7 @@ function cells(row) {
       crash: { text: row.crash.toLocaleString("en-US"), sort: row.crash },
       fire: { text: row.fire.toLocaleString("en-US"), sort: row.fire },
       investigations: { text: row.investigations.toLocaleString("en-US"), sort: row.investigations },
+      communications: { text: (row.communications ?? 0).toLocaleString("en-US"), sort: row.communications ?? 0 },
       stars: { text: legacyStars(row), sort: row.starMax ?? -1 },
       mpg: { text: mpgText, sort: row.mpgMax ?? -1 },
     };
@@ -37,13 +38,14 @@ function cells(row) {
     crash: countCell(row, "crash"),
     fire: countCell(row, "fire"),
     investigations: countCell(row, "investigations"),
+    communications: countCell(row, "communications"),
     stars: starsCell(row),
     mpg: mpgCell(row),
   };
 }
 
 const rendered = rows.map((row) => ({ row, cells: cells(row) }));
-const captionText = caption || "One row per model year. Complaint and recall figures are matched raw counts.";
+const captionText = caption || "One row per model year. Recalls, complaints, and manufacturer communications are matched raw counts. A communication is dealer repair guidance, not a recall.";
 ---
 
 <div class="table-wrap">
@@ -57,6 +59,7 @@ const captionText = caption || "One row per model year. Complaint and recall fig
         <th class="num">{sortable ? <button type="button">Crash</button> : "Crash"}</th>
         <th class="num">{sortable ? <button type="button">Fire</button> : "Fire"}</th>
         <th class="num">{sortable ? <button type="button">Investigations</button> : "Investigations"}</th>
+        <th class="num">{sortable ? <button type="button">Communications</button> : "Communications"}</th>
         <th>{sortable ? <button type="button">Stars</button> : "Stars"}</th>
         <th class="num">{sortable ? <button type="button">Comb mpg</button> : "Comb mpg"}</th>
       </tr>
@@ -74,6 +77,7 @@ const captionText = caption || "One row per model year. Complaint and recall fig
             <td class="num" data-value={cell.crash.sort}>{cell.crash.text}</td>
             <td class="num" data-value={cell.fire.sort}>{cell.fire.text}</td>
             <td class="num" data-value={cell.investigations.sort}>{cell.investigations.text}</td>
+            <td class="num" data-value={cell.communications.sort}>{cell.communications.text}</td>
             <td data-value={cell.stars.sort}>{cell.stars.text}</td>
             <td class="num" data-value={cell.mpg.sort}>{cell.mpg.text}</td>
           </tr>

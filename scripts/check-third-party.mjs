@@ -3,7 +3,8 @@ import { join } from "node:path";
 
 const dist = join(import.meta.dirname, "..", "dist");
 const errors = [];
-const blocked = /googletagmanager|google-analytics|fonts\.googleapis|fonts\.gstatic|cdn\.jsdelivr|unpkg|cdnjs|cloudflareinsights|plausible|umami/i;
+// Word boundaries keep an NHTSA summary that says "implausible" from matching the Plausible host.
+const blocked = /googletagmanager|google-analytics|fonts\.googleapis|fonts\.gstatic|cdn\.jsdelivr|\bunpkg\b|\bcdnjs\b|cloudflareinsights|\bplausible\b|\bumami\b/i;
 
 function walk(dir, files = []) {
   for (const entry of readdirSync(dir)) {

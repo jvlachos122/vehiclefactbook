@@ -21,12 +21,27 @@ from typing import NoReturn
 DEFAULT_ROOT = Path("/tmp/vf-raw")
 
 # key, url, zip name, extracted text name
+#
+# Manufacturer communications are the TSBS_RECEIVED flat files. The CSV zips
+# named MFR_COMMS_RECEIVED have no component and no date. TSBS_RECEIVED_2025-2025.zip
+# is left out: every NHTSA ID in it is also in TSBS_RECEIVED_2025-2026.zip.
+MFR_COMMS_SOURCES = [
+    ("mfr_comms_1995_1999", "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_1995-1999.zip", "TSBS_RECEIVED_1995-1999.zip", "TSBS_RECEIVED_1995-1999.txt"),
+    ("mfr_comms_2000_2004", "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2000-2004.zip", "TSBS_RECEIVED_2000-2004.zip", "TSBS_RECEIVED_2000-2004.txt"),
+    ("mfr_comms_2005_2009", "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2005-2009.zip", "TSBS_RECEIVED_2005-2009.zip", "TSBS_RECEIVED_2005-2009.txt"),
+    ("mfr_comms_2010_2014", "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2010-2014.zip", "TSBS_RECEIVED_2010-2014.zip", "TSBS_RECEIVED_2010-2014.txt"),
+    ("mfr_comms_2015_2019", "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2015-2019.zip", "TSBS_RECEIVED_2015-2019.zip", "TSBS_RECEIVED_2015-2019.txt"),
+    ("mfr_comms_2020_2024", "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2020-2024.zip", "TSBS_RECEIVED_2020-2024.zip", "TSBS_RECEIVED_2020-2024.txt"),
+    ("mfr_comms_2025_2026", "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2025-2026.zip", "TSBS_RECEIVED_2025-2026.zip", "TSBS_RECEIVED_2025-2026.txt"),
+]
+
 SOURCES = [
     ("recalls_post_2010", "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip", "FLAT_RCL_POST_2010.zip", "FLAT_RCL_POST_2010.txt"),
     ("recalls_pre_2010", "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip", "FLAT_RCL_PRE_2010.zip", "FLAT_RCL_PRE_2010.txt"),
     ("complaints", "https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip", "FLAT_CMPL.zip", "FLAT_CMPL.txt"),
     ("investigations", "https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip", "FLAT_INV.zip", "FLAT_INV.txt"),
     ("epa", "https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip", "vehicles.csv.zip", "vehicles.csv"),
+    *MFR_COMMS_SOURCES,
 ]
 
 

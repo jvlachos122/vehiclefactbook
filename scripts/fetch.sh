@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Download the five public source archives.
+# Download the public source archives.
 # Zips stay in $VF_RAW. Text is extracted to $VF_RAW/extracted and is not committed.
 set -euo pipefail
 

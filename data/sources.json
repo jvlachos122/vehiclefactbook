@@ -38,5 +38,61 @@
     "lastModified": "Wed, 04 Nov 2026 14:31:23 GMT",
     "fileDate": "2026-11-04",
     "textFile": "vehicles.csv"
+  },
+  "mfr_comms_1995_1999": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_1995-1999.zip",
+    "sha256": "31fa5486898df62648f1894bb0a0629c01fa37c577e9f6b4db6639cd68f31146",
+    "bytes": 1103500,
+    "lastModified": "Wed, 11 Nov 2026 11:04:23 GMT",
+    "fileDate": "2026-11-11",
+    "textFile": "TSBS_RECEIVED_1995-1999.txt"
+  },
+  "mfr_comms_2000_2004": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2000-2004.zip",
+    "sha256": "b11a9ea4c3d18113d2d9189ca6f4e8d7540d46348f9073b66654b0e17f265f5e",
+    "bytes": 2730091,
+    "lastModified": "Wed, 11 Nov 2026 11:04:26 GMT",
+    "fileDate": "2026-11-11",
+    "textFile": "TSBS_RECEIVED_2000-2004.txt"
+  },
+  "mfr_comms_2005_2009": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2005-2009.zip",
+    "sha256": "558be05ffe238ddd545545fe7e32a478b8385c8459a696f4892e3b195523f57a",
+    "bytes": 1632464,
+    "lastModified": "Wed, 11 Nov 2026 11:04:20 GMT",
+    "fileDate": "2026-11-11",
+    "textFile": "TSBS_RECEIVED_2005-2009.txt"
+  },
+  "mfr_comms_2010_2014": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2010-2014.zip",
+    "sha256": "ef27c8b6287dae5be20e438e91fd4909a65f7cfaaff54be190fb01ce1504a2fa",
+    "bytes": 4458637,
+    "lastModified": "Wed, 11 Nov 2026 11:04:38 GMT",
+    "fileDate": "2026-11-11",
+    "textFile": "TSBS_RECEIVED_2010-2014.txt"
+  },
+  "mfr_comms_2015_2019": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2015-2019.zip",
+    "sha256": "32ac67df984f108c8dd1da5ecc4e12d377045203274724db5231c3236aa235ba",
+    "bytes": 32923167,
+    "lastModified": "Wed, 11 Nov 2026 11:10:07 GMT",
+    "fileDate": "2026-11-11",
+    "textFile": "TSBS_RECEIVED_2015-2019.txt"
+  },
+  "mfr_comms_2020_2024": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2020-2024.zip",
+    "sha256": "02b4f3459e84abca97c64e8af1dafe69d6300cc554304ac0ebc2ad590d22ad94",
+    "bytes": 31779798,
+    "lastModified": "Wed, 11 Nov 2026 11:10:54 GMT",
+    "fileDate": "2026-11-11",
+    "textFile": "TSBS_RECEIVED_2020-2024.txt"
+  },
+  "mfr_comms_2025_2026": {
+    "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2025-2026.zip",
+    "sha256": "281681b0a24275c8e65d0fde071407f3dda4631c25024ccb587ecc88018b9243",
+    "bytes": 13028667,
+    "lastModified": "Wed, 11 Nov 2026 11:06:01 GMT",
+    "fileDate": "2026-11-11",
+    "textFile": "TSBS_RECEIVED_2025-2026.txt"
   }
 }

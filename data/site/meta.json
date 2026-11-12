@@ -1,10 +1,11 @@
 {
-  "generatedAt": "2026-11-09T00:00:00Z",
+  "generatedAt": "2026-11-11T00:00:00Z",
   "dates": {
     "recalls": "2026-11-09",
     "complaints": "2026-11-09",
     "investigations": "2026-11-09",
-    "epa": "2026-11-04"
+    "epa": "2026-11-04",
+    "communications": "2026-11-11"
   },
   "counts": {
     "epaRowsMy2000": 32670,
@@ -42,7 +43,12 @@
     "doNotDrive": 205,
     "parkOutside": 103,
     "takata": 31,
-    "thisWeek": 7
+    "thisWeek": 7,
+    "communicationRows": 5915659,
+    "communicationIds": 261513,
+    "communicationMatched": 2736085,
+    "communicationAddedMin": "1995-01-05",
+    "communicationAddedMax": "2026-11-11"
   },
   "ncap": {
     "2011": {

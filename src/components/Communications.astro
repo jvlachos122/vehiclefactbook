@@ -1,0 +1,52 @@
+---
+import { formatDate, plain } from "../lib/format.js";
+
+const { rows = [], count = 0 } = Astro.props;
+const shown = Array.isArray(rows) ? rows : [];
+const total = Number(count) || 0;
+const extra = total > shown.length ? total - shown.length : 0;
+---
+
+{
+  total ? (
+    <div class="table-wrap">
+      <table>
+        <caption>
+          Manufacturer communications in the NHTSA file ({total.toLocaleString("en-US")}). These are repair guidance sent to dealers, not recalls.
+          {extra ? ` This table lists the newest ${shown.length.toLocaleString("en-US")}.` : ""}
+        </caption>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>NHTSA ID</th>
+            <th>Component</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          {shown.map((item) => (
+            <tr>
+              <td>{formatDate(item.date) || "—"}</td>
+              <td class="mono">{item.id}</td>
+              <td>{plain(item.component, 120) || "—"}</td>
+              <td>{plain(item.summary, 180) || "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {extra ? (
+        <p class="small muted">
+          {extra.toLocaleString("en-US")} more communications are in the file and are not listed in this table.
+        </p>
+      ) : null}
+      <p class="small muted">
+        A TSB is repair guidance sent to dealers, not a recall. <a href="/guides/what-is-a-tsb/">What a TSB is</a>.
+      </p>
+    </div>
+  ) : (
+    <p>
+      No manufacturer communications are matched to this name. A TSB is repair guidance sent to dealers, not a recall.{" "}
+      <a href="/guides/what-is-a-tsb/">What a TSB is</a>.
+    </p>
+  )
+}

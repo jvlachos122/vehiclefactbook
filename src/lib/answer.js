@@ -56,6 +56,14 @@ function epaSentence(row, epaDate) {
   return `EPA rates it ${parts.join(" and ")}${varying ? " depending on configuration" : ""} (fuel economy file dated ${epaDate}).`;
 }
 
+function communicationClause(count, dates) {
+  const n = Number(count) || 0;
+  if (n <= 0) return "";
+  const dated = formatDate(dates?.communications);
+  const when = dated ? ` in the file dated ${dated}` : "";
+  return `, and ${plural(n, "manufacturer communication")}${when} (repair guidance to dealers, not a recall)`;
+}
+
 function nameList(items) {
   const names = items.map((item) => item.name).filter(Boolean);
   if (names.length <= 2) return names.join(" and ");
@@ -73,9 +81,9 @@ export function mmyAnswer({ make, model, year, row, detail, dates }) {
   } else if (detail?.splitNames && nameList(detail.also || [])) {
     const names = nameList(detail.also || []);
     const nameWord = (detail.also || []).length === 1 ? "name" : "names";
-    nhtsa = `NHTSA does not list the EPA model name ${model} for ${year}; under the matched ${nameWord} ${names}, NHTSA lists ${plural(row.recalls, "recall campaign")} and ${plural(row.complaints, "complaint")} received so far (recall file dated ${recallDate}; complaint file dated ${complaintDate}); ${caveat}.`;
+    nhtsa = `NHTSA does not list the EPA model name ${model} for ${year}; under the matched ${nameWord} ${names}, NHTSA lists ${plural(row.recalls, "recall campaign")} and ${plural(row.complaints, "complaint")} received so far (recall file dated ${recallDate}; complaint file dated ${complaintDate})${communicationClause(row.communications, dates)}; ${caveat}.`;
   } else {
-    nhtsa = `NHTSA lists ${plural(row.recalls, "recall campaign")} and ${plural(row.complaints, "complaint")} received so far for the ${year} ${make} ${model} (recall file dated ${recallDate}; complaint file dated ${complaintDate}); ${caveat}.`;
+    nhtsa = `NHTSA lists ${plural(row.recalls, "recall campaign")} and ${plural(row.complaints, "complaint")} received so far for the ${year} ${make} ${model} (recall file dated ${recallDate}; complaint file dated ${complaintDate})${communicationClause(row.communications, dates)}; ${caveat}.`;
   }
   const sentences = [nhtsa, starSentence(year, detail?.ncap, make, model)];
   const epa = epaSentence(row, epaDate);
@@ -162,8 +170,14 @@ export function modelAnswer(make, model, years, dates) {
   const complaintDate = formatDate(dates.complaints);
   const epaDate = formatDate(dates.epa);
   const withNhtsa = years.filter((year) => year.hasNhtsa);
+  const communicationTotal = years.reduce((sum, year) => sum + (Number(year.communications) || 0), 0);
+  const communicationDate = formatDate(dates.communications);
+  const communicationWhen = communicationDate ? ` in the file dated ${communicationDate}` : "";
+  const communicationClauseText = communicationTotal
+    ? `, plus ${plural(communicationTotal, "manufacturer communication")} across those model years${communicationWhen} (a communication can be listed in more than one year, and each one is repair guidance to dealers, not a recall)`
+    : "";
   const sentences = [
-    `For the ${make} ${model}, model years ${totals.minY}–${totals.maxY} on this site have ${plural(totals.recalls, "matched recall")} and ${plural(totals.complaints, "matched complaint")} (recall file dated ${recallDate}; complaint file dated ${complaintDate}).`,
+    `For the ${make} ${model}, model years ${totals.minY}–${totals.maxY} on this site have ${plural(totals.recalls, "matched recall")} and ${plural(totals.complaints, "matched complaint")} (recall file dated ${recallDate}; complaint file dated ${complaintDate})${communicationClauseText}.`,
   ];
   if (withNhtsa.length >= 2) {
     const ranked = [...withNhtsa].sort((a, b) => b.complaints - a.complaints || b.y - a.y);
@@ -173,7 +187,7 @@ export function modelAnswer(make, model, years, dates) {
       `Matched complaint counts run from ${low.complaints.toLocaleString("en-US")} in ${low.y} to ${high.complaints.toLocaleString("en-US")} in ${high.y}, and these are raw counts, not rates.`,
     );
   } else if (!withNhtsa.length) {
-    sentences.push("No model year in this list has a matched NHTSA recall, complaint, or investigation record.");
+    sentences.push("No model year in this list has a matched NHTSA recall, complaint, investigation, or manufacturer communication.");
   }
   if (totals.mpgMin != null) {
     sentences.push(`EPA rates non-electric configurations ${span(totals.mpgMin, totals.mpgMax, "mpg combined")} (file dated ${epaDate}).`);

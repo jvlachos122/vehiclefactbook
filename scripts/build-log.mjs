@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { removedComparePaths } from "../src/lib/compare-pairs.js";
 import { evRangeRowCount, loadEvRangePages } from "../src/lib/ev-range.js";
 import { fuelCostRowCount, loadFuelCostPages } from "../src/lib/fuel-classes.js";
+import { loadSafetyCatalog, safetyPaths } from "../src/lib/safety-ratings.js";
 
 const root = join(import.meta.dirname, "..");
 const dist = join(root, "dist");
@@ -41,6 +42,9 @@ function kind(rel) {
     return "compare-pair";
   }
   if (parts[0] === "fuel-cost" && parts.length === 3) return "fuel-cost";
+  if (parts[0] === "safety-ratings" && parts.length === 2) return "safety-ratings-index";
+  if (parts[0] === "safety-ratings" && parts.length === 3) return "safety-ratings";
+  if (parts[0] === "safety-ratings" && parts.length === 4) return "safety-ratings-year";
   if (parts.length === 2) return "make";
   if (parts.length === 3) return "model";
   if (parts.length === 4 && parts[2] === "years") return "years";
@@ -71,6 +75,10 @@ const evPages = loadEvRangePages();
 console.log(`EV range pages: ${evPages.length}; all-electric configuration rows: ${evRangeRowCount(evPages)}`);
 const fuelPages = loadFuelCostPages();
 console.log(`Fuel cost class pages: ${fuelPages.length}; table rows: ${fuelCostRowCount(fuelPages)}`);
+const safety = loadSafetyCatalog();
+console.log(
+  `Safety rating pages: ${safetyPaths().length}; class pages: ${safety.pages.length}; placed variants: ${safety.placed}; not placed: ${safety.unplaced}`,
+);
 console.log(`HTML files: ${html}`);
 console.log(`All dist files: ${files.length}`);
 console.log(`Build size: ${du}`);

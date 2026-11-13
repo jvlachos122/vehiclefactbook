@@ -81,6 +81,9 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/fuel-cost/small-suv/index.html"), "fuel-cost");
   assert.equal(classifyPage("/fuel-cost/midsize-car/index.html"), "fuel-cost");
   assert.equal(classifyPage("/fuel-cost/standard-pickup/index.html"), "fuel-cost");
+  assert.equal(classifyPage("/safety-ratings/index.html"), "safety-ratings-index");
+  assert.equal(classifyPage("/safety-ratings/small-suv/index.html"), "safety-ratings");
+  assert.equal(classifyPage("/safety-ratings/small-suv/2026/index.html"), "safety-ratings");
 });
 
 test("representative pages pass the JSON-LD rules", () => {
@@ -247,6 +250,34 @@ test("representative pages pass the JSON-LD rules", () => {
       ],
     ],
     [
+      "/safety-ratings/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "NHTSA 5-star ratings by EPA class",
+          description: "NHTSA star ratings by EPA class.",
+          url: "https://vehiclefactbook.com/safety-ratings/",
+          dateModified: "2026-11-09",
+          creators: [nhtsaOrg, epaOrg],
+          temporalCoverage: "2025/2027",
+        }),
+      ],
+    ],
+    [
+      "/safety-ratings/small-suv/2026/index.html",
+      [
+        crumb(),
+        dataset({
+          name: "NHTSA 5-star rated small SUVs in 2026",
+          description: "NHTSA star ratings for small SUVs in 2026.",
+          url: "https://vehiclefactbook.com/safety-ratings/small-suv/2026/",
+          dateModified: "2026-11-09",
+          creators: [nhtsaOrg, epaOrg],
+          temporalCoverage: "2026",
+        }),
+      ],
+    ],
+    [
       "/tesla/model-3/range/index.html",
       [
         crumb(),
@@ -334,6 +365,20 @@ test("a component dataset lists NHTSA and leaves EPA off", () => {
     "/fuel-cost/small-suv/index.html",
   );
   assert.ok(fuelCost.errors.includes("fuel cost Dataset must not list NHTSA as creator"));
+  const safety = auditHtml(
+    page(answer, [
+      crumb(),
+      dataset({
+        name: "NHTSA 5-star rated small SUVs",
+        description: "NHTSA star ratings for small SUVs.",
+        url: "https://vehiclefactbook.com/safety-ratings/small-suv/",
+        dateModified: "2026-11-09",
+        creators: [nhtsaOrg],
+      }),
+    ]),
+    "/safety-ratings/small-suv/index.html",
+  );
+  assert.ok(safety.errors.includes("safety rating Dataset creator must list NHTSA and EPA"));
 });
 
 test("guide FAQ text must be visible", () => {

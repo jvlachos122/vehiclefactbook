@@ -5,6 +5,7 @@ import DataNote from "../components/DataNote.astro";
 import { loadMeta, loadSummary } from "../lib/catalog.js";
 import { loadEvRangePages } from "../lib/ev-range.js";
 import { loadFuelCostPages } from "../lib/fuel-classes.js";
+import { loadSafetyPages } from "../lib/safety-ratings.js";
 import { loadInvestigationPages } from "../lib/investigations.js";
 import { homeAnswer } from "../lib/answer.js";
 import { formatNumber, metaDescription } from "../lib/format.js";
@@ -16,6 +17,7 @@ const text = homeAnswer(meta.counts, meta.dates);
 const makes = [...summary.makes].sort((a, b) => a.name.localeCompare(b.name));
 const evRangePages = loadEvRangePages();
 const fuelCostPages = loadFuelCostPages();
+const safetyPages = loadSafetyPages();
 ---
 
 <Base
@@ -35,6 +37,7 @@ const fuelCostPages = loadFuelCostPages();
     <ul class="make-list">
       <li><a href="/tools/fuel-cost-calculator/">Fuel cost calculator <span class="num">EPA mpg</span></a></li>
       <li><a href="/fuel-cost/">Annual fuel cost by class <span class="num">{formatNumber(fuelCostPages.length)}</span></a></li>
+      <li><a href="/safety-ratings/">NHTSA 5-star ratings by class <span class="num">{formatNumber(safetyPages.length)}</span></a></li>
       <li><a href="/tools/fuel-cost-calculator/#trip">Trip fuel cost <span class="num">miles × price</span></a></li>
       <li><a href="/tools/mpg-calculator/">MPG calculator <span class="num">miles ÷ gallons</span></a></li>
       <li><a href="/recalls/lookup/">Recall and complaint lookup <span class="num">{formatNumber(meta.counts.publishedMmy)}</span></a></li>

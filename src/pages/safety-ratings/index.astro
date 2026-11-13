@@ -1,0 +1,190 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatNumber, metaDescription } from "../../lib/format.js";
+import { dataset, epaOrg, faqPage, nhtsaOrg } from "../../lib/schema.js";
+import {
+  SAFETY_INDEX,
+  ambiguousCaption,
+  loadSafetyCatalog,
+  noMatchCaption,
+  outsideClassNote,
+  safetyIndexAnswer,
+  safetyIndexCaption,
+  safetyIndexFaqs,
+  safetyIndexSourceParts,
+  safetyYearTableCaption,
+  temporalCoverage,
+  unplacedLead,
+} from "../../lib/safety-ratings.js";
+import { site } from "../../lib/site.js";
+
+const meta = loadMeta();
+const catalog = loadSafetyCatalog();
+const text = safetyIndexAnswer(catalog);
+const faqs = safetyIndexFaqs(catalog.years);
+const source = safetyIndexSourceParts(catalog, meta.dates.epa);
+const outside = outsideClassNote(catalog);
+const path = SAFETY_INDEX;
+---
+
+<Base
+  title="NHTSA 5-star ratings by EPA class"
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Safety ratings", href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: "NHTSA 5-star ratings by EPA class",
+      description: text,
+      url: new URL(path, site.url).href,
+      dateModified: catalog.years.map((year) => catalog.fetchedByYear[year]).sort().at(-1),
+      creators: [nhtsaOrg, epaOrg],
+      temporalCoverage: temporalCoverage(catalog.years),
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">NHTSA Safety Ratings</p>
+    <h1>NHTSA 5-star ratings by EPA class</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      {source.before}<a href={source.apiHref}>{source.apiLabel}</a>{source.middle}<a href={source.epaHref}>{source.epaLabel}</a>{source.after}
+    </p>
+    <h2>Model years</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{safetyYearTableCaption(catalog.years)}</caption>
+        <thead>
+          <tr>
+            <th>Model year</th>
+            <th class="num">Variants</th>
+            <th class="num">Rated</th>
+            <th class="num">5-star overall</th>
+            <th class="num">Not rated</th>
+            <th class="num">Placed on a class page</th>
+            <th class="num">Not placed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            catalog.byYear.map((year) => (
+              <tr>
+                <td>{year.year}</td>
+                <td class="num">{formatNumber(year.variants)}</td>
+                <td class="num">{formatNumber(year.rated)}</td>
+                <td class="num">{formatNumber(year.five)}</td>
+                <td class="num">{formatNumber(year.notRated)}</td>
+                <td class="num">{formatNumber(year.placed)}</td>
+                <td class="num">{formatNumber(year.notPlaced)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <h2>Classes</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{safetyIndexCaption(catalog.years)}</caption>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th class="num">Variants</th>
+            <th class="num">Rated</th>
+            <th class="num">5-star overall</th>
+            <th class="num">Not rated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            catalog.pages.map((page) => (
+              <tr>
+                <td><a href={page.path}>{page.label}</a></td>
+                <td class="num">{formatNumber(page.rows.length)}</td>
+                <td class="num">{formatNumber(page.ratedCount)}</td>
+                <td class="num">{formatNumber(page.fiveCount)}</td>
+                <td class="num">{formatNumber(page.notRatedCount)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <h2>Not placed</h2>
+    <p>{unplacedLead(catalog)}</p>
+    {outside ? <p>{outside}</p> : null}
+    {
+      catalog.ambiguousModels.length ? (
+        <div class="table-wrap">
+          <table>
+            <caption>{ambiguousCaption(catalog.ambiguousModels.length, catalog.ambiguousVariants)}</caption>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Vehicle</th>
+                <th>EPA classes</th>
+                <th class="num">Variants</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                catalog.ambiguousModels.map((row) => (
+                  <tr>
+                    <td>{row.year}</td>
+                    <td><a href={row.href}>{row.make} {row.model}</a></td>
+                    <td>{row.classes.join(", ")}</td>
+                    <td class="num">{formatNumber(row.count)}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      ) : null
+    }
+    {
+      catalog.noMatchByMake.length ? (
+        <div class="table-wrap">
+          <table>
+            <caption>{noMatchCaption(catalog.noMatch)}</caption>
+            <thead>
+              <tr>
+                <th>Model year</th>
+                <th>NHTSA make</th>
+                <th class="num">Variants</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                catalog.noMatchByMake.map((row) => (
+                  <tr>
+                    <td>{row.year}</td>
+                    <td>{row.make}</td>
+                    <td class="num">{formatNumber(row.count)}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      ) : null
+    }
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HtmlValidate } from "html-validate";
 import { auditHtml, classifyPage, visibleText } from "../src/lib/jsonld-audit.js";
+import { SAFETY_BANNED } from "../src/lib/safety-ratings.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -76,6 +77,17 @@ for (const file of files) {
     if (!html.includes('href="/tools/fuel-cost-calculator/"')) errors.push(`${rel}: missing fuel cost calculator link`);
     if (!html.includes("<h2>Questions</h2>")) errors.push(`${rel}: missing visible questions`);
     if (/>\$0</.test(html)) errors.push(`${rel}: a fuel cost is shown as $0`);
+  }
+  if (classifyPage(rel) === "safety-ratings" || classifyPage(rel) === "safety-ratings-index") {
+    const visible = mainText(html);
+    if (SAFETY_BANNED.test(visible)) errors.push(`${rel}: banned wording on a safety rating page`);
+    for (const phrase of ["Not rated", "similar size", "2011", "variant"]) {
+      if (!visible.includes(phrase)) errors.push(`${rel}: missing ${phrase}`);
+    }
+    if (!html.includes("<h2>Questions</h2>")) errors.push(`${rel}: missing visible questions`);
+    if (!html.includes("<h2>5 stars overall</h2>") && classifyPage(rel) !== "safety-ratings-index") {
+      errors.push(`${rel}: missing 5-star section`);
+    }
   }
   if (classifyPage(rel) === "years") {
     const visible = mainText(html);

@@ -1,0 +1,151 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import SafetyRatingTable from "../../components/SafetyRatingTable.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatNumber, metaDescription } from "../../lib/format.js";
+import { dataset, epaOrg, faqPage, nhtsaOrg } from "../../lib/schema.js";
+import {
+  SAFETY_INDEX,
+  emptyFiveSentence,
+  findSafetyPage,
+  fuelCostLink,
+  safetyClassAnswer,
+  safetyClassPaths,
+  safetyFaqs,
+  safetySourceParts,
+  splitFiveSentence,
+  temporalCoverage,
+} from "../../lib/safety-ratings.js";
+import { site } from "../../lib/site.js";
+
+export function getStaticPaths() {
+  return safetyClassPaths();
+}
+
+const { slug } = Astro.props;
+const page = findSafetyPage(slug);
+if (!page) throw new Error(`Missing safety rating class ${slug}`);
+const meta = loadMeta();
+const text = safetyClassAnswer(page);
+const faqs = safetyFaqs(page);
+const source = safetySourceParts(page, meta.dates.epa);
+const fuel = fuelCostLink(page);
+const path = page.path;
+const fetched = page.years.map((item) => page.fetchedByYear[item]).sort().at(-1);
+---
+
+<Base
+  title={`NHTSA 5-star rated ${page.plural}`}
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Safety ratings", href: SAFETY_INDEX },
+    { label: page.label, href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: `NHTSA 5-star rated ${page.plural}`,
+      description: text,
+      url: new URL(path, site.url).href,
+      dateModified: fetched,
+      creators: [nhtsaOrg, epaOrg],
+      temporalCoverage: temporalCoverage(page.years),
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">NHTSA Safety Ratings</p>
+    <h1>NHTSA 5-star rated {page.plural}</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      {source.before}<a href={source.apiHref}>{source.apiLabel}</a>{source.middle}<a href={source.epaHref}>{source.epaLabel}</a>{source.after}
+    </p>
+    <p>
+      <a href={fuel.href}>{fuel.label}</a>{fuel.after}
+    </p>
+    <h2>5 stars overall</h2>
+    {
+      page.split ? (
+        page.showFiveList ? (
+          <SafetyRatingTable caption={page.fiveListCaption} rows={page.fiveRows} compact />
+        ) : (
+          <p>{page.fiveCount ? splitFiveSentence(page.fiveCount) : emptyFiveSentence()}</p>
+        )
+      ) : page.fiveRows.length ? (
+        <SafetyRatingTable caption={page.fiveCaption} rows={page.fiveRows} />
+      ) : (
+        <p>{emptyFiveSentence()}</p>
+      )
+    }
+    {
+      page.split || !page.rows.length ? (
+        <>
+          <h2>Model years</h2>
+          <div class="table-wrap">
+            <table>
+              <caption>{page.yearCaption}</caption>
+              <thead>
+                <tr>
+                  <th>Model year</th>
+                  <th class="num">Variants</th>
+                  <th class="num">Rated</th>
+                  <th class="num">5-star overall</th>
+                  <th class="num">Not rated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  page.byYear.map((year) => (
+                    <tr>
+                      <td>{year.path ? <a href={year.path}>{year.year}</a> : year.year}</td>
+                      <td class="num">{formatNumber(year.rows.length)}</td>
+                      <td class="num">{formatNumber(year.ratedCount)}</td>
+                      <td class="num">{formatNumber(year.fiveCount)}</td>
+                      <td class="num">{formatNumber(year.notRatedCount)}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : null
+    }
+    {
+      page.split ? null : (
+        <>
+          {
+            page.otherRows.length ? (
+              <>
+                <h2>Other overall stars</h2>
+                <SafetyRatingTable caption={page.otherCaption} rows={page.otherRows} />
+              </>
+            ) : null
+          }
+          {
+            page.notRatedRows.length ? (
+              <>
+                <h2>Not rated</h2>
+                <SafetyRatingTable caption={page.notRatedCaption} rows={page.notRatedRows} />
+              </>
+            ) : null
+          }
+        </>
+      )
+    }
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

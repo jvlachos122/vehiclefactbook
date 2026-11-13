@@ -1,0 +1,47 @@
+---
+const { caption, rows, compact = false } = Astro.props;
+---
+
+<div class="table-wrap">
+  <table>
+    <caption>{caption}</caption>
+    <thead>
+      <tr>
+        <th>Vehicle</th>
+        <th>Variant</th>
+        {
+          compact ? null : (
+            <>
+              <th class="num">Overall</th>
+              <th class="num">Front</th>
+              <th class="num">Side</th>
+              <th class="num">Rollover</th>
+              <th class="num">Rollover possibility</th>
+            </>
+          )
+        }
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <td><a href={row.href}>{row.vehicle}</a></td>
+            <td>{row.variant}</td>
+            {
+              compact ? null : (
+                <>
+                  <td class="num">{row.overallLabel}</td>
+                  <td class="num">{row.frontLabel}</td>
+                  <td class="num">{row.sideLabel}</td>
+                  <td class="num">{row.rolloverLabel}</td>
+                  <td class="num">{row.possibilityLabel}</td>
+                </>
+              )
+            }
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

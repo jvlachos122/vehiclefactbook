@@ -7,6 +7,7 @@ import { EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE, loadPriceSnap
 import { COMPONENT_MIN } from "../lib/components.js";
 import { evRangeRowCount, loadEvRangePages } from "../lib/ev-range.js";
 import { FUEL_COST_MIN_MODELS, FUEL_COST_YEAR_COUNT, fuelCostRowCount, loadFuelCostPages, loadFuelCostYears, yearPhrase } from "../lib/fuel-classes.js";
+import { SAFETY_YEAR_COUNT, loadSafetyCatalog, yearPhrase as safetyYearPhrase } from "../lib/safety-ratings.js";
 import { loadInvestigationPages } from "../lib/investigations.js";
 import { HYBRID_MIN_YEAR, HYBRID_PAIR_LIMIT } from "../lib/hybrid-pairs.js";
 import { formatPeriod } from "../lib/fuel-cost.js";
@@ -24,6 +25,8 @@ const investigationPages = loadInvestigationPages();
 const evRangePages = loadEvRangePages();
 const fuelCostPages = loadFuelCostPages();
 const fuelCostYears = yearPhrase(loadFuelCostYears());
+const safetyCatalog = loadSafetyCatalog();
+const safetyYears = safetyYearPhrase(safetyCatalog.years);
 const sources = JSON.parse(readFileSync(new URL("../../data/sources.json", import.meta.url), "utf8"));
 const communicationFiles = Object.values(sources)
   .filter((item) => String(item.textFile || "").startsWith("TSBS_RECEIVED_"))
@@ -183,6 +186,15 @@ const path = "/methodology/";
     <h2>Star ratings</h2>
     <p>
       Stars come from NHTSA's Safety Ratings API for model years 2011 and newer. Older stars are a pre-2011 rating, not comparable, and are not shown. "Not rated" stays as text. Rollover possibility is printed as the API sends it, including values between 0 and 1, and is not turned into a percent. Crash-test photos link to static.nhtsa.gov and are not embedded. If a model year in the API could not be fetched, the page says no rating was matched rather than filling a number.
+    </p>
+    <p>
+      <a href="/safety-ratings/">NHTSA 5-star ratings by EPA class</a> lists variants for {safetyYears}, the newest {SAFETY_YEAR_COUNT} model years in the Safety Ratings cache, on the same size-class pages as <a href="/fuel-cost/">annual fuel cost</a>.
+      A variant is placed only when the crosswalk matches one model year and that model year has a single EPA class.
+      This copy places {formatNumber(safetyCatalog.placed)} variants on {formatNumber(safetyCatalog.pages.length)} class pages.
+      {formatNumber(safetyCatalog.unplaced)} variants are not placed.
+      Not rated stays as text and is not shown as zero.
+      A pre-2011 rating is a different method and is not on these pages.
+      A rating is for one variant, body and drive, and NHTSA compares vehicles of similar size and weight only.
     </p>
     {
       Object.keys(meta.ncap || {}).length ? (

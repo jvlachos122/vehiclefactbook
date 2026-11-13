@@ -17,6 +17,7 @@ import {
 } from "../../lib/fuel-classes.js";
 import { formatNumber, metaDescription } from "../../lib/format.js";
 import { dataset, epaOrg, faqPage } from "../../lib/schema.js";
+import { safetyIndexLink } from "../../lib/safety-ratings.js";
 import { site } from "../../lib/site.js";
 
 const meta = loadMeta();
@@ -28,6 +29,7 @@ const caveat = fuelCostCaveatParts();
 const omitted = omittedClassNote(catalog.omitted);
 const blank = blankClassNote(catalog.blankClass);
 const path = FUEL_COST_INDEX;
+const safety = safetyIndexLink();
 ---
 
 <Base
@@ -60,6 +62,9 @@ const path = FUEL_COST_INDEX;
     </p>
     <p>
       {source.before}<a href={source.href}>{source.linkLabel}</a>{source.after}
+    </p>
+    <p>
+      <a href={safety.href}>{safety.label}</a>{safety.after}
     </p>
     <h2>Classes</h2>
     <div class="table-wrap">

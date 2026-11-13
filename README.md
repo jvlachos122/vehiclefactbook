@@ -89,6 +89,10 @@ A recall campaign page is published at `/recalls/<campaign>/` when the campaign 
 
 A class family is the EPA `VClass` with a trailing `2WD` or `4WD` label removed, the same rule as the example comparisons. Each model is listed at its lowest annual fuel cost and again when another configuration costs more. Electric and plug-in hybrid rows are a separate table so MPGe is not labeled as mpg. A configuration with no positive `fuelCost08` is left out and is not shown as $0. EPA's figure uses 15,000 miles and 55 percent city driving. The committed file does not list the fuel prices EPA used, so the pages do not state a price. The sort is that EPA figure. The pages do not say best, worst, or avoid.
 
+## NHTSA 5-star ratings by class
+
+`/safety-ratings/` lists the same EPA size classes as `/fuel-cost/`, for the newest three model years in `data/ncap`. Each class page is `/safety-ratings/{class}/`. A variant is placed only when the model crosswalk already matches it to one model year and that model year has a single EPA class. Not rated stays as text. Stars are per variant, and NHTSA compares vehicles of similar size and weight. A pre-2011 rating is not listed. A class whose variant tables do not fit the HTML size limit links to one page per model year.
+
 ## EPA range by year
 
 `/ev-range/` lists every model with at least one all-electric EPA configuration (`atvType` EV). Each model has a page at `/{make}/{model}/range/` with the model years, the highest and lowest EPA-rated range, and a configuration table of range, kWh/100 mi, combined MPGe, and annual fuel cost (`fuelCost08`). A missing or non-positive figure is "not listed by EPA". Plug-in hybrid rows are not given their own page, and their stored range is not mixed into the all-electric figures. The model hub and each model year that has an all-electric configuration link to the model page.

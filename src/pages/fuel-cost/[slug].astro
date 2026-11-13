@@ -17,6 +17,7 @@ import {
 } from "../../lib/fuel-classes.js";
 import { metaDescription } from "../../lib/format.js";
 import { dataset, epaOrg, faqPage } from "../../lib/schema.js";
+import { findSafetyPage, safetyLinkForFuel } from "../../lib/safety-ratings.js";
 import { site } from "../../lib/site.js";
 
 export function getStaticPaths() {
@@ -33,6 +34,9 @@ const sections = orderedSections(page, meta.dates.epa);
 const source = fuelCostSourceParts(page, meta.dates.epa);
 const caveat = fuelCostCaveatParts();
 const path = page.path;
+const safetyPage = findSafetyPage(slug);
+if (!safetyPage) throw new Error(`Missing safety ratings page for fuel class ${slug}`);
+const safety = safetyLinkForFuel(safetyPage);
 ---
 
 <Base
@@ -66,6 +70,9 @@ const path = page.path;
     </p>
     <p>
       {source.before}<a href={source.href}>{source.linkLabel}</a>{source.after}
+    </p>
+    <p>
+      <a href={safety.href}>{safety.label}</a>{safety.after}
     </p>
     {
       sections.map((section) => (

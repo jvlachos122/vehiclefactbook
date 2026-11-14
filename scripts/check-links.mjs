@@ -3,6 +3,7 @@ import { removedComparePaths } from "../src/lib/compare-pairs.js";
 import { EV_RANGE_INDEX, loadEvRangePages } from "../src/lib/ev-range.js";
 import { FUEL_COST_INDEX, loadFuelCostPages } from "../src/lib/fuel-classes.js";
 import { safetyPaths } from "../src/lib/safety-ratings.js";
+import { scorePaths } from "../src/lib/scores.js";
 import { INVESTIGATIONS_INDEX, loadInvestigationPages } from "../src/lib/investigations.js";
 import { dirname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -163,6 +164,9 @@ for (const path of [FUEL_COST_INDEX, ...loadFuelCostPages().map((page) => page.p
 }
 for (const path of safetyPaths()) {
   if (!sitemapPaths.has(path)) errors.push(`sitemap missing safety rating ${path}`);
+}
+for (const path of scorePaths()) {
+  if (!sitemapPaths.has(path)) errors.push(`sitemap missing greenhouse gas score ${path}`);
 }
 
 if (errors.length) {

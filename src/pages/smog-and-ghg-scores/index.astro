@@ -1,0 +1,165 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { EV_RANGE_INDEX } from "../../lib/ev-range.js";
+import { FUEL_COST_INDEX } from "../../lib/fuel-classes.js";
+import { formatNumber, metaDescription } from "../../lib/format.js";
+import { dataset, epaOrg, faqPage } from "../../lib/schema.js";
+import {
+  EPA_GHG_URL,
+  EPA_LABEL_URL,
+  EPA_SMOG_URL,
+  EPA_VEHICLES_URL,
+  FE_DATA_URL,
+  SCORE_INDEX,
+  SCORE_KEYS,
+  classIndexCaption,
+  distributionCaption,
+  fieldMeaningText,
+  ghgMeaningText,
+  labelMeaningText,
+  loadScoreCatalog,
+  outsideClassNote,
+  scoreIndexAnswer,
+  scoreIndexFaqs,
+  smogMeaningText,
+  temporalCoverage,
+  vehiclesFileText,
+} from "../../lib/scores.js";
+import { site } from "../../lib/site.js";
+
+const meta = loadMeta();
+const catalog = loadScoreCatalog();
+const text = scoreIndexAnswer(catalog, meta.dates.epa);
+const faqs = scoreIndexFaqs();
+const outside = outsideClassNote(catalog.outside);
+const path = SCORE_INDEX;
+const scores = [...SCORE_KEYS].sort((a, b) => b - a);
+---
+
+<Base
+  title="Smog and greenhouse gas scores"
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Smog and GHG scores", href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: "EPA greenhouse gas scores by size class",
+      description: text,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.epa,
+      creators: [epaOrg],
+      temporalCoverage: temporalCoverage(catalog.years),
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">EPA ghgScore</p>
+    <h1>Smog and greenhouse gas scores</h1>
+    <Answer text={text} />
+    <DataNote />
+    <h2>Greenhouse gas score</h2>
+    <p>
+      {ghgMeaningText()}
+      {" "}
+      <a href={EPA_GHG_URL}>Greenhouse gas rating</a>.
+    </p>
+    <p>
+      {labelMeaningText()}
+      {" "}
+      <a href={EPA_LABEL_URL}>Gasoline vehicle label</a>.
+    </p>
+    <p>
+      {fieldMeaningText()}
+      {" "}
+      <a href={FE_DATA_URL}>FuelEconomy.gov data description</a>.
+    </p>
+    <h2>Smog rating</h2>
+    <p>
+      {smogMeaningText()}
+      {" "}
+      <a href={EPA_SMOG_URL}>Smog rating</a>.
+    </p>
+    <p>
+      {vehiclesFileText(meta.dates.epa)}
+      {" "}
+      <a href={EPA_VEHICLES_URL}>fueleconomy.gov vehicles file</a>.
+      <a href={FUEL_COST_INDEX}>Annual fuel cost</a> uses these same size classes.
+      <a href={EV_RANGE_INDEX}>EV range</a> lists all-electric range and does not repeat these scores.
+    </p>
+    <h2>Scores by model year</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{distributionCaption(meta.dates.epa)}</caption>
+        <thead>
+          <tr>
+            <th>ghgScore</th>
+            {catalog.distribution.map((year) => <th class="num">{year.year}</th>)}
+            <th class="num">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            scores.map((score) => (
+              <tr>
+                <td>{score}</td>
+                {catalog.distribution.map((year) => <td class="num">{formatNumber(year.scores[score])}</td>)}
+                <td class="num">{formatNumber(catalog.totals.scores[score])}</td>
+              </tr>
+            ))
+          }
+          <tr>
+            <td>Not available</td>
+            {catalog.distribution.map((year) => <td class="num">{formatNumber(year.notAvailable)}</td>)}
+            <td class="num">{formatNumber(catalog.totals.notAvailable)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <h2>Classes</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{classIndexCaption(meta.dates.epa)}</caption>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th class="num">Configurations</th>
+            <th class="num">Score 10</th>
+            <th class="num">Score 9</th>
+            <th class="num">Not available</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            catalog.pages.map((page) => (
+              <tr>
+                <td><a href={page.path}>{page.label}</a></td>
+                <td class="num">{formatNumber(page.configs)}</td>
+                <td class="num">{formatNumber(page.score10)}</td>
+                <td class="num">{formatNumber(page.score9)}</td>
+                <td class="num">{formatNumber(page.notAvailable)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    {outside ? <p>{outside}</p> : null}
+    {catalog.blankClass ? <p>{formatNumber(catalog.blankClass)} configurations with a blank VClass in these years are not placed in a class.</p> : null}
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

@@ -1,0 +1,106 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Answer from "../../../components/Answer.astro";
+import DataNote from "../../../components/DataNote.astro";
+import ScoreTable from "../../../components/ScoreTable.astro";
+import { loadMeta } from "../../../lib/catalog.js";
+import { metaDescription } from "../../../lib/format.js";
+import { dataset, epaOrg, faqPage } from "../../../lib/schema.js";
+import {
+  EPA_GHG_URL,
+  EPA_VEHICLES_URL,
+  FE_DATA_URL,
+  SCORE_INDEX,
+  emptyScoreNote,
+  findScorePage,
+  fuelCostLink,
+  scoreClassFaqs,
+  scoreSections,
+  scoreYearAnswer,
+  scoreYearPaths,
+  sectionGapNote,
+  vehiclesFileText,
+} from "../../../lib/scores.js";
+import { site } from "../../../lib/site.js";
+
+export function getStaticPaths() {
+  return scoreYearPaths();
+}
+
+const { slug } = Astro.props;
+const year = Number(Astro.props.year);
+const page = findScorePage(slug);
+const yearRow = page?.byYear.find((item) => item.year === year);
+if (!page || !yearRow?.path) throw new Error(`Missing greenhouse gas score year ${slug} ${year}`);
+const meta = loadMeta();
+const text = scoreYearAnswer(page, yearRow, meta.dates.epa);
+const faqs = scoreClassFaqs(page);
+const sections = scoreSections(yearRow.listed, [year], meta.dates.epa);
+const fuel = fuelCostLink(page);
+const empty = emptyScoreNote(yearRow.listed, page.listNines);
+const plugGap = sectionGapNote(yearRow.listed, "plug", page.listNines);
+const combustionGap = sectionGapNote(yearRow.listed, "combustion", page.listNines);
+const path = yearRow.path;
+---
+
+<Base
+  title={`${page.label} greenhouse gas scores in ${year}`}
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Smog and GHG scores", href: SCORE_INDEX },
+    { label: page.label, href: page.path },
+    { label: String(year), href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: `${page.label} greenhouse gas scores in ${year}`,
+      description: text,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.epa,
+      creators: [epaOrg],
+      temporalCoverage: String(year),
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">EPA ghgScore</p>
+    <h1>{page.label} greenhouse gas scores in {year}</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      {vehiclesFileText(meta.dates.epa)}
+      {" "}
+      <a href={EPA_VEHICLES_URL}>fueleconomy.gov vehicles file</a>.
+      Field definitions: <a href={FE_DATA_URL}>FuelEconomy.gov data description</a>.
+      Rating description: <a href={EPA_GHG_URL}>Greenhouse gas rating</a>.
+    </p>
+    <p>
+      <a href={page.path}>All model years for this class</a>.
+      <a href={SCORE_INDEX}>All classes</a>.
+      <a href={fuel.href}>{fuel.label}</a>{fuel.after}
+    </p>
+    {empty ? <p>{empty}</p> : null}
+    {
+      sections.map((section) => (
+        <>
+          <h2>{section.heading}</h2>
+          {section.tables.map((table) => <ScoreTable caption={table.caption} rows={table.rows} />)}
+        </>
+      ))
+    }
+    {yearRow.listed.length && plugGap ? <p>{plugGap}</p> : null}
+    {yearRow.listed.length && combustionGap ? <p>{combustionGap}</p> : null}
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

@@ -1,0 +1,29 @@
+---
+const { caption, rows } = Astro.props;
+---
+
+<div class="table-wrap">
+  <table>
+    <caption>{caption}</caption>
+    <thead>
+      <tr>
+        <th>Vehicle</th>
+        <th>Configuration</th>
+        <th>Fuel</th>
+        <th class="num">GHG score</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <td><a href={row.href}>{row.vehicle}</a></td>
+            <td>{row.trim}</td>
+            <td>{row.fuel || "not listed"}</td>
+            <td class="num">{row.scoreLabel}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { HtmlValidate } from "html-validate";
 import { auditHtml, classifyPage, visibleText } from "../src/lib/jsonld-audit.js";
 import { SAFETY_BANNED } from "../src/lib/safety-ratings.js";
+import { EPA_GHG_URL, EPA_LABEL_URL, EPA_SMOG_URL, FE_DATA_URL, SCORE_BANNED } from "../src/lib/scores.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -88,6 +89,21 @@ for (const file of files) {
     if (!html.includes("<h2>5 stars overall</h2>") && classifyPage(rel) !== "safety-ratings-index") {
       errors.push(`${rel}: missing 5-star section`);
     }
+  }
+  if (classifyPage(rel) === "scores" || classifyPage(rel) === "scores-index") {
+    const visible = mainText(html);
+    if (SCORE_BANNED.test(visible)) errors.push(`${rel}: banned wording on a greenhouse gas score page`);
+    if (!visible.includes("not available")) errors.push(`${rel}: missing not available`);
+    if (!visible.includes("ghgScore")) errors.push(`${rel}: missing ghgScore`);
+    if (!html.includes(`href="${EPA_GHG_URL}"`)) errors.push(`${rel}: missing greenhouse gas rating source`);
+    if (!html.includes(`href="${FE_DATA_URL}"`)) errors.push(`${rel}: missing fueleconomy data description`);
+    if (classifyPage(rel) === "scores-index") {
+      if (!html.includes(`href="${EPA_SMOG_URL}"`)) errors.push(`${rel}: missing smog rating source`);
+      if (!html.includes(`href="${EPA_LABEL_URL}"`)) errors.push(`${rel}: missing label source`);
+      if (!visible.includes("Retrieved")) errors.push(`${rel}: missing retrieval date`);
+    }
+    if (!html.includes("<h2>Questions</h2>")) errors.push(`${rel}: missing visible questions`);
+    if (/<td[^>]*>\s*(?:-|−)1\s*<\/td>/.test(html)) errors.push(`${rel}: a score cell is −1`);
   }
   if (classifyPage(rel) === "years") {
     const visible = mainText(html);

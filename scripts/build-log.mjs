@@ -5,6 +5,7 @@ import { removedComparePaths } from "../src/lib/compare-pairs.js";
 import { evRangeRowCount, loadEvRangePages } from "../src/lib/ev-range.js";
 import { fuelCostRowCount, loadFuelCostPages } from "../src/lib/fuel-classes.js";
 import { loadSafetyCatalog, safetyPaths } from "../src/lib/safety-ratings.js";
+import { loadScoreCatalog, scorePaths } from "../src/lib/scores.js";
 
 const root = join(import.meta.dirname, "..");
 const dist = join(root, "dist");
@@ -42,6 +43,9 @@ function kind(rel) {
     return "compare-pair";
   }
   if (parts[0] === "fuel-cost" && parts.length === 3) return "fuel-cost";
+  if (parts[0] === "smog-and-ghg-scores" && parts.length === 2) return "scores-index";
+  if (parts[0] === "smog-and-ghg-scores" && parts.length === 3) return "scores";
+  if (parts[0] === "smog-and-ghg-scores" && parts.length === 4) return "scores-year";
   if (parts[0] === "safety-ratings" && parts.length === 2) return "safety-ratings-index";
   if (parts[0] === "safety-ratings" && parts.length === 3) return "safety-ratings";
   if (parts[0] === "safety-ratings" && parts.length === 4) return "safety-ratings-year";
@@ -78,6 +82,10 @@ console.log(`Fuel cost class pages: ${fuelPages.length}; table rows: ${fuelCostR
 const safety = loadSafetyCatalog();
 console.log(
   `Safety rating pages: ${safetyPaths().length}; class pages: ${safety.pages.length}; placed variants: ${safety.placed}; not placed: ${safety.unplaced}`,
+);
+const scores = loadScoreCatalog();
+console.log(
+  `Greenhouse gas score pages: ${scorePaths().length}; class pages: ${scores.pages.length}; listed configurations: ${scores.pages.reduce((sum, page) => sum + page.listed.length, 0)}; scored configurations: ${scores.scored}; not available: ${scores.notAvailable}`,
 );
 console.log(`HTML files: ${html}`);
 console.log(`All dist files: ${files.length}`);

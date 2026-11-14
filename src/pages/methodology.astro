@@ -8,6 +8,7 @@ import { COMPONENT_MIN } from "../lib/components.js";
 import { evRangeRowCount, loadEvRangePages } from "../lib/ev-range.js";
 import { FUEL_COST_MIN_MODELS, FUEL_COST_YEAR_COUNT, fuelCostRowCount, loadFuelCostPages, loadFuelCostYears, yearPhrase } from "../lib/fuel-classes.js";
 import { SAFETY_YEAR_COUNT, loadSafetyCatalog, yearPhrase as safetyYearPhrase } from "../lib/safety-ratings.js";
+import { SCORE_TEN_TINY, SCORE_YEARS, loadScoreCatalog, scoreListedCount, yearPhrase as scoreYearPhrase } from "../lib/scores.js";
 import { loadInvestigationPages } from "../lib/investigations.js";
 import { HYBRID_MIN_YEAR, HYBRID_PAIR_LIMIT } from "../lib/hybrid-pairs.js";
 import { formatPeriod } from "../lib/fuel-cost.js";
@@ -27,6 +28,8 @@ const fuelCostPages = loadFuelCostPages();
 const fuelCostYears = yearPhrase(loadFuelCostYears());
 const safetyCatalog = loadSafetyCatalog();
 const safetyYears = safetyYearPhrase(safetyCatalog.years);
+const scoreCatalog = loadScoreCatalog();
+const scoreYears = scoreYearPhrase(SCORE_YEARS);
 const sources = JSON.parse(readFileSync(new URL("../../data/sources.json", import.meta.url), "utf8"));
 const communicationFiles = Object.values(sources)
   .filter((item) => String(item.textFile || "").startsWith("TSBS_RECEIVED_"))
@@ -152,10 +155,20 @@ const path = "/methodology/";
 
     <h2>Fuel economy</h2>
     <p>
-      Each EPA row is one configuration. Combined city and highway figures of zero are left blank. feScore and ghgScore values of −1 are left blank and are not shown as a score. fuelCost08 is EPA's annual fuel cost for that configuration. EPA's documentation says the figure uses 15,000 miles and 55 percent city driving. The calculator still shows that published figure and does not replace it. Electric vehicles report MPGe in the combined field and kWh per 100 miles separately. A combined figure for an electric configuration is not labeled mpg.
+      Each EPA row is one configuration. Combined city and highway figures of zero are left blank. feScore is not shown on the model year table. A ghgScore of −1, or any value outside 1 to 10, is shown as not available and is not shown as a score. fuelCost08 is EPA's annual fuel cost for that configuration. EPA's documentation says the figure uses 15,000 miles and 55 percent city driving. The calculator still shows that published figure and does not replace it. Electric vehicles report MPGe in the combined field and kWh per 100 miles separately. A combined figure for an electric configuration is not labeled mpg.
     </p>
     <p>
       The fuel-cost calculator also multiplies the miles you enter by the EPA rate and by a price. For regular gasoline and diesel, the price box can start from the weekly retail average, including taxes, in EIA's <a href={EIA_GASOLINE_SOURCE}>Gasoline and Diesel Fuel Update</a>. For electricity, it can start from the residential price in <a href={EIA_ELECTRICITY_SOURCE}>Electric Power Monthly Table 5.6.A</a>. The committed snapshot is data/eia-fuel-prices.csv, retrieved {formatDate(eiaGas.retrieved)}. Gasoline and diesel use the week of {formatDate(eiaGas.period)}. Electricity uses {formatPeriod(eiaElectric.period)}, and EIA marks those 2026 values preliminary. Premium gasoline, midgrade gasoline, and other fuels have no default. Clearing the price leaves the calculated cost blank and leaves fuelCost08 as published. <a href={EIA_LICENSE}>EIA's copyright and reuse note</a> places U.S. government publications on its site in the public domain.
+    </p>
+
+    <h2>Greenhouse gas score</h2>
+    <p>
+      <a href="/smog-and-ghg-scores/">Smog and greenhouse gas scores</a> lists ghgScore for {scoreYears} on the same size classes as <a href="/fuel-cost/">annual fuel cost</a>.
+      This copy has {formatNumber(scoreCatalog.pages.length)} class pages and {formatNumber(scoreListedCount(scoreCatalog.pages))} listed configurations.
+      A class page lists configurations with a score of 10, and also a score of 9 when fewer than {SCORE_TEN_TINY} configurations score 10.
+      Electric and plug-in hybrid rows are in their own table.
+      The committed configuration records do not include the smog rating, so the page does not list smog scores.
+      The model year fuel table shows ghgScore in the GHG score column.
     </p>
 
     <h2>Annual fuel cost by class</h2>

@@ -1,5 +1,6 @@
 ---
 import { formatNumber, money } from "../lib/format.js";
+import { scoreLabel } from "../lib/scores.js";
 
 const { configs = [], cap = 12, calculator = "" } = Astro.props;
 const shown = configs.slice(0, cap);
@@ -17,7 +18,7 @@ function num(value, digits = 0) {
   shown.length ? (
     <div class="table-wrap">
       <table>
-        <caption>EPA configurations. Electric rows show MPGe in the combined column and kWh/100 mi separately. Annual fuel cost is EPA's published fuelCost08 figure.</caption>
+        <caption>EPA configurations. Electric rows show MPGe in the combined column and kWh/100 mi separately. Annual fuel cost is EPA's published fuelCost08 figure. GHG score is ghgScore. Not available includes a file value of −1 and is not a score.</caption>
         <thead>
           <tr>
             <th>Configuration</th>
@@ -28,6 +29,7 @@ function num(value, digits = 0) {
             <th class="num">kWh/100 mi</th>
             <th class="num">Range</th>
             <th class="num">Annual fuel cost</th>
+            <th class="num">GHG score</th>
           </tr>
         </thead>
         <tbody>
@@ -55,6 +57,7 @@ function num(value, digits = 0) {
               <td class="num">{num(config.kwh, 1)}</td>
               <td class="num">{num(config.range)}</td>
               <td class="num">{config.cost ? money(config.cost) : "—"}</td>
+              <td class="num">{scoreLabel(config.ghg)}</td>
             </tr>
           ))}
         </tbody>

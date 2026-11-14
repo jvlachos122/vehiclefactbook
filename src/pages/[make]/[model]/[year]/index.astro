@@ -210,6 +210,9 @@ const path = `/${make.slug}/${model.slug}/${year}/`;
 
     <h2 id="fuel">Fuel economy</h2>
     <ConfigTable configs={yearDetail.configs} calculator={calculator} />
+    <p>
+      The <a href="/smog-and-ghg-scores/">greenhouse gas scores</a> page lists ghgScore for model years 2025–2027. A score of −1 is not available. The committed configuration records do not include the smog rating.
+    </p>
     {
       hasAllElectric(yearDetail.configs) ? (
         <p>

@@ -1,0 +1,141 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import ScoreTable from "../../components/ScoreTable.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatNumber, metaDescription } from "../../lib/format.js";
+import { dataset, epaOrg, faqPage } from "../../lib/schema.js";
+import {
+  EPA_GHG_URL,
+  EPA_VEHICLES_URL,
+  FE_DATA_URL,
+  SCORE_INDEX,
+  emptyScoreNote,
+  findScorePage,
+  fuelCostLink,
+  scoreClassAnswer,
+  scoreClassFaqs,
+  scoreClassPaths,
+  scoreSections,
+  sectionGapNote,
+  temporalCoverage,
+  vehiclesFileText,
+  yearCountCaption,
+} from "../../lib/scores.js";
+import { site } from "../../lib/site.js";
+
+export function getStaticPaths() {
+  return scoreClassPaths();
+}
+
+const { slug } = Astro.props;
+const page = findScorePage(slug);
+if (!page) throw new Error(`Missing greenhouse gas score class ${slug}`);
+const meta = loadMeta();
+const text = scoreClassAnswer(page, meta.dates.epa);
+const faqs = scoreClassFaqs(page);
+const sections = page.split ? [] : scoreSections(page.listed, page.years, meta.dates.epa);
+const fuel = fuelCostLink(page);
+const empty = emptyScoreNote(page.listed, page.listNines);
+const plugGap = sectionGapNote(page.listed, "plug", page.listNines);
+const combustionGap = sectionGapNote(page.listed, "combustion", page.listNines);
+const path = page.path;
+---
+
+<Base
+  title={`${page.label} greenhouse gas scores`}
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Smog and GHG scores", href: SCORE_INDEX },
+    { label: page.label, href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: `${page.label} greenhouse gas scores`,
+      description: text,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.epa,
+      creators: [epaOrg],
+      temporalCoverage: temporalCoverage(page.years),
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">EPA ghgScore</p>
+    <h1>{page.label} greenhouse gas scores</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>
+      {vehiclesFileText(meta.dates.epa)}
+      {" "}
+      <a href={EPA_VEHICLES_URL}>fueleconomy.gov vehicles file</a>.
+      Field definitions: <a href={FE_DATA_URL}>FuelEconomy.gov data description</a>.
+      Rating description: <a href={EPA_GHG_URL}>Greenhouse gas rating</a>.
+    </p>
+    <p>
+      <a href={SCORE_INDEX}>All classes</a>.
+      <a href={fuel.href}>{fuel.label}</a>{fuel.after}
+    </p>
+    {
+      page.split ? (
+        <>
+          <h2>Model years</h2>
+          <div class="table-wrap">
+            <table>
+              <caption>{yearCountCaption(page, meta.dates.epa)}</caption>
+              <thead>
+                <tr>
+                  <th>Model year</th>
+                  <th class="num">Configurations</th>
+                  <th class="num">Score 10</th>
+                  <th class="num">Score 9</th>
+                  <th class="num">Not available</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  page.byYear.map((year) => (
+                    <tr>
+                      <td>{year.path ? <a href={year.path}>{year.year}</a> : year.year}</td>
+                      <td class="num">{formatNumber(year.configs)}</td>
+                      <td class="num">{formatNumber(year.score10)}</td>
+                      <td class="num">{formatNumber(year.score9)}</td>
+                      <td class="num">{formatNumber(year.notAvailable)}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : (
+        <>
+          {empty ? <p>{empty}</p> : null}
+          {
+            sections.map((section) => (
+              <>
+                <h2>{section.heading}</h2>
+                {section.tables.map((table) => <ScoreTable caption={table.caption} rows={table.rows} />)}
+              </>
+            ))
+          }
+          {page.listed.length && plugGap ? <p>{plugGap}</p> : null}
+          {page.listed.length && combustionGap ? <p>{combustionGap}</p> : null}
+        </>
+      )
+    }
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

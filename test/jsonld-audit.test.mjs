@@ -84,6 +84,9 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/safety-ratings/index.html"), "safety-ratings-index");
   assert.equal(classifyPage("/safety-ratings/small-suv/index.html"), "safety-ratings");
   assert.equal(classifyPage("/safety-ratings/small-suv/2026/index.html"), "safety-ratings");
+  assert.equal(classifyPage("/smog-and-ghg-scores/index.html"), "scores-index");
+  assert.equal(classifyPage("/smog-and-ghg-scores/small-suv/index.html"), "scores");
+  assert.equal(classifyPage("/smog-and-ghg-scores/small-suv/2026/index.html"), "scores");
 });
 
 test("representative pages pass the JSON-LD rules", () => {
@@ -365,6 +368,19 @@ test("a component dataset lists NHTSA and leaves EPA off", () => {
     "/fuel-cost/small-suv/index.html",
   );
   assert.ok(fuelCost.errors.includes("fuel cost Dataset must not list NHTSA as creator"));
+  const scores = auditHtml(
+    page(answer, [
+      crumb(),
+      dataset({
+        name: "Small SUV greenhouse gas scores",
+        description: "Greenhouse gas scores for small SUVs.",
+        url: "https://vehiclefactbook.com/smog-and-ghg-scores/small-suv/",
+        dateModified: "2026-11-04",
+      }),
+    ]),
+    "/smog-and-ghg-scores/small-suv/index.html",
+  );
+  assert.ok(scores.errors.includes("greenhouse gas score Dataset must not list NHTSA as creator"));
   const safety = auditHtml(
     page(answer, [
       crumb(),

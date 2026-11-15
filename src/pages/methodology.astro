@@ -12,6 +12,7 @@ import { SCORE_TEN_TINY, SCORE_YEARS, loadScoreCatalog, scoreListedCount, yearPh
 import { loadInvestigationPages } from "../lib/investigations.js";
 import { HYBRID_MIN_YEAR, HYBRID_PAIR_LIMIT } from "../lib/hybrid-pairs.js";
 import { formatPeriod } from "../lib/fuel-cost.js";
+import { RECEIVED_YEAR_MIN } from "../lib/received-years.js";
 import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
 import { dataset } from "../lib/schema.js";
 import { site } from "../lib/site.js";
@@ -94,6 +95,9 @@ const path = "/methodology/";
     </p>
     <p>
       Names, partial VINs, cities, dealers, phone numbers, and the narrative text are not stored and are not published. Newer model years have had less time to accumulate complaints. The file's own documentation describes a format change in 2021. A low count on a new model year is "complaints received so far," dated with the file.
+    </p>
+    <p>
+      A model page with at least {RECEIVED_YEAR_MIN} distinct complaints also lists those complaints by the calendar year NHTSA received them. The year is LDATE, field 17 of the complaint flat file, which NHTSA defines as the date the complaint was received. DATEA, field 16, is the date the row was added to the file and is not used. Each bar and table row is a count of distinct ODINO values. The page adds the model years together with the same headline name as the model-year table: the EPA name when that name is in the NHTSA file, otherwise the sum of the matched names. The year of the complaint file date is marked partial when the file does not end on December 31. These are raw counts, not rates. More complaints can mean more cars on the road. Complaints have a reporting lag. Complaints are unverified owner reports.
     </p>
 
     <h2>Recalls</h2>

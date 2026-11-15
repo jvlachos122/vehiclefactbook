@@ -536,6 +536,9 @@ def aggregate(raw_dir: Path, zip_dir: Path, makes, target, details, raw_names):
             if bucket is None:
                 bucket = [{}, defaultdict(set)]
                 complaints[key] = bucket
+            # Field 17 (index 16) is LDATE, the date NHTSA received the complaint.
+            # Field 16 (index 15) is DATEA, the date the row was added to the file.
+            # byYear keeps the LDATE calendar year. CMPL.txt defines both fields.
             received = parts[16][:4] if len(parts[16]) >= 4 and parts[16][:4].isdigit() else ""
             crash = 1 if parts[6] == "Y" else 0
             fire = 1 if parts[8] == "Y" else 0

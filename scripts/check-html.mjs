@@ -2,7 +2,14 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HtmlValidate } from "html-validate";
+import { loadMeta, loadModel, loadSummary } from "../src/lib/catalog.js";
+import { formatDate, formatNumber } from "../src/lib/format.js";
 import { auditHtml, classifyPage, visibleText } from "../src/lib/jsonld-audit.js";
+import {
+  RECEIVED_YEAR_BANNED,
+  RECEIVED_YEAR_PHRASES,
+  receivedYearSeries,
+} from "../src/lib/received-years.js";
 import { SAFETY_BANNED } from "../src/lib/safety-ratings.js";
 import { EPA_GHG_URL, EPA_LABEL_URL, EPA_SMOG_URL, FE_DATA_URL, SCORE_BANNED } from "../src/lib/scores.js";
 
@@ -61,6 +68,17 @@ const YEARS_PHRASES = [
 function mainText(html) {
   const match = String(html).match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
   return visibleText(match ? match[1] : "");
+}
+
+const receivedByPath = new Map();
+const complaintDate = loadMeta().dates.complaints;
+for (const make of loadSummary().makes) {
+  for (const model of make.models) {
+    receivedByPath.set(
+      `/${make.slug}/${model.slug}/index.html`,
+      receivedYearSeries(loadModel(make.slug, model.slug), complaintDate),
+    );
+  }
 }
 
 const files = walk(dist);
@@ -123,6 +141,43 @@ for (const file of files) {
     }
     if (!/<title>[^<]*complaints by year/i.test(html)) errors.push(`${rel}: title missing complaints by year`);
     if (!/<h1>[^<]*by model year/i.test(html)) errors.push(`${rel}: h1 missing by model year`);
+  }
+  if (classifyPage(rel) === "model") {
+    const series = receivedByPath.get(rel);
+    const sectionMatch = html.match(/<section id="complaints-by-received-year"[^>]*>[\s\S]*?<\/section>/i);
+    if (!series) {
+      if (sectionMatch) errors.push(`${rel}: received-year section below the complaint minimum`);
+    } else if (!sectionMatch) {
+      errors.push(`${rel}: missing received-year section`);
+    } else {
+      const section = sectionMatch[0];
+      const visible = visibleText(section);
+      if (RECEIVED_YEAR_BANNED.test(visible)) errors.push(`${rel}: banned wording in the received-year section`);
+      for (const phrase of RECEIVED_YEAR_PHRASES) {
+        if (!visible.includes(phrase)) errors.push(`${rel}: received-year section missing ${phrase}`);
+      }
+      if (!section.includes("<svg")) errors.push(`${rel}: missing received-year chart`);
+      if (!section.includes("<rect")) errors.push(`${rel}: received-year chart has no bars`);
+      if (!section.includes("<table")) errors.push(`${rel}: missing received-year table`);
+      if (!section.includes("Complaints received by NHTSA per calendar year")) {
+        errors.push(`${rel}: missing received-year caption`);
+      }
+      if (series.partialYear && !visible.includes(`${series.partialYear} (partial)`)) {
+        errors.push(`${rel}: partial received year is not labelled`);
+      }
+      const dated = formatDate(series.cutoff);
+      if (dated && !visible.includes(dated)) errors.push(`${rel}: missing complaint file date`);
+      if (!visible.includes(formatNumber(series.rows.reduce((sum, row) => sum + row.n, 0)))) {
+        errors.push(`${rel}: missing received-year total`);
+      }
+      if (/\b(vins?|dealer|narrative|cdescr|odino)\b/i.test(visible)) {
+        errors.push(`${rel}: received-year section names a complaint detail field`);
+      }
+      const hrefs = [...section.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
+      if (hrefs.length !== 1 || hrefs[0] !== "/methodology/") {
+        errors.push(`${rel}: received-year section links to ${hrefs.join(", ") || "nothing"}`);
+      }
+    }
   }
   jsonLdBlocks += audit.blocks;
   for (const problem of audit.errors) errors.push(`${rel}: ${problem}`);

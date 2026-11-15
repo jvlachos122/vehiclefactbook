@@ -168,10 +168,16 @@ for (const path of safetyPaths()) {
 for (const path of scorePaths()) {
   if (!sitemapPaths.has(path)) errors.push(`sitemap missing greenhouse gas score ${path}`);
 }
+for (const path of sitemapPaths) {
+  const parts = path.split("/").filter(Boolean);
+  if (parts.includes("received-year") || parts.includes("complaints-by-received-year")) {
+    errors.push(`sitemap includes a received-year URL ${path}`);
+  }
+}
 
 if (errors.length) {
   console.error(errors.slice(0, 40).join("\n"));
   console.error(`${errors.length} link errors`);
   process.exit(1);
 }
-console.log(`Links OK across ${files.length} HTML files.`);
+console.log(`Links OK across ${files.length} HTML files. Sitemap URLs: ${sitemapPaths.size}.`);

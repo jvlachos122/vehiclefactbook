@@ -1,0 +1,108 @@
+---
+import { formatNumber } from "../lib/format.js";
+import {
+  receivedYearCaption,
+  receivedYearCaveat,
+  receivedYearChart,
+  receivedYearIntro,
+  receivedYearLabel,
+  receivedYearLegend,
+} from "../lib/received-years.js";
+
+const { make, model, series } = Astro.props;
+const chart = receivedYearChart(series);
+const intro = receivedYearIntro(make, model, series);
+const caption = receivedYearCaption(series);
+const legend = receivedYearLegend(series);
+const caveat = receivedYearCaveat();
+const desc = series.partialYear
+  ? `${caption} The lighter bar is the partial year.`
+  : caption;
+---
+
+<section id="complaints-by-received-year">
+  <h2>Complaints received by NHTSA per calendar year</h2>
+  <p>{intro}</p>
+  <div class="received-chart">
+    <svg
+      viewBox={`0 0 ${chart.width} ${chart.height}`}
+      role="img"
+      aria-labelledby="received-year-title received-year-desc"
+    >
+      <title id="received-year-title">Complaints received by NHTSA per calendar year</title>
+      <desc id="received-year-desc">{desc}</desc>
+      <line
+        x1={chart.padL}
+        y1={chart.baseline}
+        x2={chart.width - chart.padR}
+        y2={chart.baseline}
+        stroke="currentColor"
+        stroke-opacity="0.35"
+      ></line>
+      <line
+        x1={chart.padL}
+        y1={chart.maxY}
+        x2={chart.width - chart.padR}
+        y2={chart.maxY}
+        stroke="currentColor"
+        stroke-opacity="0.15"
+      ></line>
+      <text x={chart.padL - 8} y={chart.baseline} text-anchor="end" dominant-baseline="middle" fill="currentColor">0</text>
+      <text x={chart.padL - 8} y={chart.maxY} text-anchor="end" dominant-baseline="middle" fill="currentColor">{formatNumber(chart.max)}</text>
+      {
+        chart.bars.map((bar) => (
+          <rect
+            x={bar.x}
+            y={bar.y}
+            width={bar.width}
+            height={bar.height}
+            fill="var(--steel, #4A6FA5)"
+            opacity={bar.partial ? "0.45" : undefined}
+            data-year={bar.year}
+            data-n={bar.n}
+            data-partial={bar.partial ? "1" : "0"}
+          ></rect>
+        ))
+      }
+      {
+        chart.bars.map((bar) => (
+          <text
+            x={bar.labelX}
+            y={chart.baseline + 10}
+            fill="currentColor"
+            text-anchor="end"
+            transform={`rotate(-90 ${bar.labelX} ${chart.baseline + 10})`}
+          >
+            {bar.label}
+          </text>
+        ))
+      }
+    </svg>
+  </div>
+  <p class="received-legend">{legend}</p>
+  <div class="table-wrap">
+    <table>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          <th scope="col">Year received</th>
+          <th class="num" scope="col">Complaints</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          series.rows.map((row) => (
+            <tr>
+              <td>{receivedYearLabel(row)}</td>
+              <td class="num">{formatNumber(row.n)}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="years-caveat">{caveat}</p>
+  <p>
+    The counting rule is on the <a href="/methodology/">methodology</a> page.
+  </p>
+</section>

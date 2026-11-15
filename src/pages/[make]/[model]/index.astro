@@ -2,8 +2,9 @@
 import Base from "../../../layouts/Base.astro";
 import Answer from "../../../components/Answer.astro";
 import DataNote from "../../../components/DataNote.astro";
+import ReceivedYears from "../../../components/ReceivedYears.astro";
 import YearTable from "../../../components/YearTable.astro";
-import { findModel, loadMeta, modelPaths } from "../../../lib/catalog.js";
+import { findModel, loadMeta, loadModel, modelPaths } from "../../../lib/catalog.js";
 import { COMPONENT_MIN, modelHasComponentPage } from "../../../lib/components.js";
 import { findEvRangePage } from "../../../lib/ev-range.js";
 import { loadFuelCostYears, modelFuelCostLinks, yearPhrase } from "../../../lib/fuel-classes.js";
@@ -11,6 +12,7 @@ import { modelInvestigationCount } from "../../../lib/investigations.js";
 import { modelAnswer } from "../../../lib/answer.js";
 import { formatNumber, metaDescription, money, span } from "../../../lib/format.js";
 import { dataset } from "../../../lib/schema.js";
+import { receivedYearSeries } from "../../../lib/received-years.js";
 import { site } from "../../../lib/site.js";
 
 export function getStaticPaths() {
@@ -20,6 +22,7 @@ export function getStaticPaths() {
 const { makeSlug, modelSlug } = Astro.props;
 const meta = loadMeta();
 const { make, model } = findModel(makeSlug, modelSlug);
+const received = receivedYearSeries(loadModel(makeSlug, modelSlug), meta.dates.complaints);
 const years = [...model.years].sort((a, b) => a.y - b.y);
 const text = modelAnswer(make.name, model.name, years, meta.dates);
 const path = `/${make.slug}/${model.slug}/`;
@@ -42,7 +45,9 @@ const crumbs = [
   jsonLd={[
     dataset({
       name: `${make.name} ${model.name}`,
-      description: `Recall counts, complaint counts, and EPA fuel economy by model year for the ${make.name} ${model.name}.`,
+      description: received
+        ? `Recall counts, complaint counts by model year, complaint counts by the year NHTSA received them, and EPA fuel economy for the ${make.name} ${model.name}. Received-year counts are raw counts, not rates.`
+        : `Recall counts, complaint counts, and EPA fuel economy by model year for the ${make.name} ${model.name}.`,
       url: new URL(path, site.url).href,
       dateModified: meta.dates.complaints,
     }),
@@ -77,6 +82,7 @@ const crumbs = [
         </p>
       ) : null
     }
+    {received ? <ReceivedYears make={make.name} model={model.name} series={received} /> : null}
     <h2>Model years</h2>
     <YearTable rows={years} makeSlug={make.slug} modelSlug={model.slug} />
     <h2>Fuel economy by model year</h2>

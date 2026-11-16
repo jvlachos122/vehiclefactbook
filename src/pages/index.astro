@@ -7,6 +7,7 @@ import { loadEvRangePages } from "../lib/ev-range.js";
 import { loadFuelCostPages } from "../lib/fuel-classes.js";
 import { loadSafetyPages } from "../lib/safety-ratings.js";
 import { loadScorePages } from "../lib/scores.js";
+import { loadComplaintPages } from "../lib/make-complaints.js";
 import { loadInvestigationPages } from "../lib/investigations.js";
 import { homeAnswer } from "../lib/answer.js";
 import { formatNumber, metaDescription } from "../lib/format.js";
@@ -47,6 +48,7 @@ const scorePages = loadScorePages();
       <li><a href="/compare/">Compare two model years</a></li>
       <li><a href="/compare/hybrid/">Hybrid vs gasoline <span class="num">same model</span></a></li>
       <li><a href="/investigations/">Investigations <span class="num">{formatNumber(loadInvestigationPages().length)}</span></a></li>
+      <li><a href="/complaints/">Complaints by make <span class="num">{formatNumber(loadComplaintPages().length)}</span></a></li>
       <li><a href="/ev-range/">EV range by year <span class="num">{formatNumber(evRangePages.length)}</span></a></li>
     </ul>
     <h2>Recall lists</h2>

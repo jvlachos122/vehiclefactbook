@@ -87,6 +87,8 @@ test("page kinds cover every template", () => {
   assert.equal(classifyPage("/smog-and-ghg-scores/index.html"), "scores-index");
   assert.equal(classifyPage("/smog-and-ghg-scores/small-suv/index.html"), "scores");
   assert.equal(classifyPage("/smog-and-ghg-scores/small-suv/2026/index.html"), "scores");
+  assert.equal(classifyPage("/complaints/index.html"), "complaints-index");
+  assert.equal(classifyPage("/honda/complaints/index.html"), "make-complaints");
 });
 
 test("representative pages pass the JSON-LD rules", () => {
@@ -311,6 +313,45 @@ test("representative pages pass the JSON-LD rules", () => {
   for (const [rel, graph] of cases) {
     const result = auditHtml(page(answer, graph), rel);
     assert.deepEqual(result.errors, [], rel);
+  }
+});
+
+test("complaint pages list NHTSA, leave EPA off, and keep FAQ text visible", () => {
+  const faqs = [{ q: "Are these complaint counts rates?", a: "No. These are raw counts, not rates." }];
+  const main = `${answer}<h2>Questions</h2><h3>${faqs[0].q}</h3><p>${faqs[0].a}</p>`;
+  const graph = [
+    crumb(),
+    dataset({
+      name: "Honda complaints",
+      description: "Honda complaint counts are raw counts, not rates.",
+      url: "https://vehiclefactbook.com/honda/complaints/",
+      dateModified: "2026-11-09",
+      creators: [nhtsaOrg],
+      temporalCoverage: "2000/2026",
+    }),
+    faqPage(faqs),
+  ];
+  assert.deepEqual(auditHtml(page(main, graph), "/honda/complaints/index.html").errors, []);
+  assert.deepEqual(auditHtml(page(main, graph), "/complaints/index.html").errors, []);
+  const withEpa = auditHtml(
+    page(main, [
+      crumb(),
+      dataset({
+        name: "Honda complaints",
+        description: "Honda complaint counts.",
+        url: "https://vehiclefactbook.com/honda/complaints/",
+        dateModified: "2026-11-09",
+      }),
+      faqPage(faqs),
+    ]),
+    "/honda/complaints/index.html",
+  );
+  assert.ok(withEpa.errors.includes("complaint Dataset must not list EPA as creator"));
+  const hidden = auditHtml(page(answer, graph), "/honda/complaints/index.html");
+  assert.ok(hidden.errors.includes("FAQPage question is not visible on the page"));
+  for (const type of ["Product", "Review", "AggregateRating"]) {
+    const forbidden = auditHtml(page(main, [...graph, { "@type": type, name: "Civic" }]), "/honda/complaints/index.html");
+    assert.ok(forbidden.errors.includes(`forbidden type ${type}`));
   }
 });
 

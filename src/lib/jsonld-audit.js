@@ -63,6 +63,8 @@ export function classifyPage(rel) {
     if (parts.length === 2) return "safety-ratings-index";
     if (parts.length === 3 || parts.length === 4) return "safety-ratings";
   }
+  if (parts[0] === "complaints" && parts.length === 2 && parts[1] === "index.html") return "complaints-index";
+  if (parts.length === 3 && parts[1] === "complaints" && parts[2] === "index.html") return "make-complaints";
   if (parts.length === 2 && parts[1] === "index.html") return "make";
   if (parts.length === 3 && parts[2] === "index.html") return "model";
   if (parts.length === 4 && parts[2] === "years" && parts[3] === "index.html") return "years";
@@ -205,6 +207,10 @@ export function auditHtml(html, rel = "/index.html") {
         if (!names.includes(NHTSA_NAME)) errors.push("component Dataset creator must be NHTSA");
         if (names.includes(EPA_NAME)) errors.push("component Dataset must not list EPA as creator");
       }
+      if (kind === "make-complaints" || kind === "complaints-index") {
+        if (!names.includes(NHTSA_NAME)) errors.push("complaint Dataset creator must be NHTSA");
+        if (names.includes(EPA_NAME)) errors.push("complaint Dataset must not list EPA as creator");
+      }
       if (kind === "ev-range" || kind === "ev-range-index") {
         if (!names.includes(EPA_NAME)) errors.push("EV range Dataset creator must be EPA");
         if (names.includes(NHTSA_NAME)) errors.push("EV range Dataset must not list NHTSA as creator");
@@ -258,7 +264,7 @@ export function auditHtml(html, rel = "/index.html") {
   if (!typeSet.has("BreadcrumbList")) errors.push("missing BreadcrumbList");
   if (kind === "tool" && !typeSet.has("WebApplication")) errors.push("tool page missing WebApplication");
   if (kind === "guide" && !typeSet.has("Article")) errors.push("guide page missing Article");
-  if (["make", "model", "years", "mmy", "methodology", "advisory", "compare-pair", "compare-hybrid", "campaign", "component", "investigation", "investigation-index", "ev-range", "ev-range-index", "fuel-cost", "fuel-cost-index", "safety-ratings", "safety-ratings-index", "scores", "scores-index"].includes(kind) && datasetCount < 1) {
+  if (["make", "model", "years", "mmy", "methodology", "advisory", "compare-pair", "compare-hybrid", "campaign", "component", "investigation", "investigation-index", "ev-range", "ev-range-index", "fuel-cost", "fuel-cost-index", "safety-ratings", "safety-ratings-index", "scores", "scores-index", "make-complaints", "complaints-index"].includes(kind) && datasetCount < 1) {
     errors.push("page missing Dataset");
   }
 

@@ -9,9 +9,9 @@ import {
   receivedYearLegend,
 } from "../lib/received-years.js";
 
-const { make, model, series } = Astro.props;
+const { make, model, series, intro: introProp = "" } = Astro.props;
 const chart = receivedYearChart(series);
-const intro = receivedYearIntro(make, model, series);
+const intro = introProp || receivedYearIntro(make, model, series);
 const caption = receivedYearCaption(series);
 const legend = receivedYearLegend(series);
 const caveat = receivedYearCaveat();

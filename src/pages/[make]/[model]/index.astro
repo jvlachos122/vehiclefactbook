@@ -9,6 +9,7 @@ import { COMPONENT_MIN, modelHasComponentPage } from "../../../lib/components.js
 import { findEvRangePage } from "../../../lib/ev-range.js";
 import { loadFuelCostYears, modelFuelCostLinks, yearPhrase } from "../../../lib/fuel-classes.js";
 import { modelInvestigationCount } from "../../../lib/investigations.js";
+import { makeComplaintPath } from "../../../lib/make-complaints.js";
 import { modelAnswer } from "../../../lib/answer.js";
 import { formatNumber, metaDescription, money, span } from "../../../lib/format.js";
 import { dataset } from "../../../lib/schema.js";
@@ -26,6 +27,7 @@ const received = receivedYearSeries(loadModel(makeSlug, modelSlug), meta.dates.c
 const years = [...model.years].sort((a, b) => a.y - b.y);
 const text = modelAnswer(make.name, model.name, years, meta.dates);
 const path = `/${make.slug}/${model.slug}/`;
+const complaintPath = makeComplaintPath(make.slug);
 const latest = years[years.length - 1];
 const evRange = findEvRangePage(make.slug, model.slug);
 const fuelLinks = modelFuelCostLinks(make.slug, model.slug);
@@ -83,6 +85,13 @@ const crumbs = [
       ) : null
     }
     {received ? <ReceivedYears make={make.name} model={model.name} series={received} /> : null}
+    {
+      complaintPath ? (
+        <p>
+          <a href={complaintPath}>All {make.name} complaints</a> adds the complaint counts on the {make.name} model pages.
+        </p>
+      ) : null
+    }
     <h2>Model years</h2>
     <YearTable rows={years} makeSlug={make.slug} modelSlug={model.slug} />
     <h2>Fuel economy by model year</h2>

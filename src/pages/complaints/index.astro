@@ -1,0 +1,93 @@
+---
+import Base from "../../layouts/Base.astro";
+import Answer from "../../components/Answer.astro";
+import DataNote from "../../components/DataNote.astro";
+import { loadMeta } from "../../lib/catalog.js";
+import { formatNumber, metaDescription } from "../../lib/format.js";
+import {
+  COMPLAINTS_INDEX,
+  belowMinimumNote,
+  complaintIndexAnswer,
+  complaintIndexCaption,
+  complaintIndexFaqs,
+  complaintSource,
+  loadComplaintPages,
+  makeComplaintCaveat,
+  makeComplaintComponentNote,
+} from "../../lib/make-complaints.js";
+import { dataset, faqPage, nhtsaOrg } from "../../lib/schema.js";
+import { site } from "../../lib/site.js";
+
+const meta = loadMeta();
+const pages = loadComplaintPages();
+const text = complaintIndexAnswer(pages.length, meta.dates.complaints);
+const faqs = complaintIndexFaqs(pages.length, meta.dates.complaints);
+const years = pages.flatMap((page) => page.modelYears.map((row) => row.year));
+const path = COMPLAINTS_INDEX;
+const temporal = years.length ? `${Math.min(...years)}/${Math.max(...years)}` : meta.dates.complaints;
+---
+
+<Base
+  title="Complaints by make"
+  description={metaDescription(text)}
+  canonicalPath={path}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Complaints", href: path },
+  ]}
+  jsonLd={[
+    dataset({
+      name: "NHTSA complaints by make",
+      description: `${text} Component categories are not listed.`,
+      url: new URL(path, site.url).href,
+      dateModified: meta.dates.complaints,
+      creators: [nhtsaOrg],
+      temporalCoverage: temporal,
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">Complaints</p>
+    <h1>Complaints by make</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>{complaintSource(meta.dates.complaints)}</p>
+    <p class="years-caveat">{makeComplaintCaveat()}</p>
+    <p>{belowMinimumNote()}</p>
+    <p>{makeComplaintComponentNote()}</p>
+    <h2>Makes</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{complaintIndexCaption(pages.length, meta.dates.complaints)}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Make</th>
+            <th class="num" scope="col">Complaints</th>
+            <th class="num" scope="col">Models</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            pages.map((page) => (
+              <tr>
+                <td><a href={page.path}>{page.name}</a></td>
+                <td class="num">{formatNumber(page.total)}</td>
+                <td class="num">{formatNumber(page.models.length)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

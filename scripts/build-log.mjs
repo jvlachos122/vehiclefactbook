@@ -49,6 +49,8 @@ function kind(rel) {
   if (parts[0] === "safety-ratings" && parts.length === 2) return "safety-ratings-index";
   if (parts[0] === "safety-ratings" && parts.length === 3) return "safety-ratings";
   if (parts[0] === "safety-ratings" && parts.length === 4) return "safety-ratings-year";
+  if (parts[0] === "complaints" && parts.length === 2) return "complaints-index";
+  if (parts.length === 3 && parts[1] === "complaints") return "make-complaints";
   if (parts.length === 2) return "make";
   if (parts.length === 3) return "model";
   if (parts.length === 4 && parts[2] === "years") return "years";

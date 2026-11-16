@@ -1,0 +1,136 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Answer from "../../../components/Answer.astro";
+import DataNote from "../../../components/DataNote.astro";
+import ReceivedYears from "../../../components/ReceivedYears.astro";
+import { loadMeta } from "../../../lib/catalog.js";
+import { formatNumber, metaDescription } from "../../../lib/format.js";
+import {
+  COMPLAINTS_INDEX,
+  complaintSource,
+  findMakeComplaints,
+  loadComplaintPages,
+  makeComplaintAnswer,
+  makeComplaintCaveat,
+  makeComplaintComponentNote,
+  makeComplaintFaqs,
+  makeComplaintOverlap,
+  makeReceivedIntro,
+  modelComplaintCaption,
+  modelYearComplaintCaption,
+} from "../../../lib/make-complaints.js";
+import { dataset, faqPage, nhtsaOrg } from "../../../lib/schema.js";
+import { site } from "../../../lib/site.js";
+
+export function getStaticPaths() {
+  return loadComplaintPages().map((page) => ({
+    params: { make: page.slug },
+    props: { makeSlug: page.slug },
+  }));
+}
+
+const meta = loadMeta();
+const page = findMakeComplaints(Astro.params.make);
+if (!page) throw new Error(`Missing complaints page for ${Astro.params.make}`);
+const text = makeComplaintAnswer(page.name, page.total, meta.dates.complaints);
+const faqs = makeComplaintFaqs(page.name, page.total, meta.dates.complaints);
+const temporal = page.minYear != null && page.maxYear != null ? `${page.minYear}/${page.maxYear}` : meta.dates.complaints;
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: "Complaints", href: COMPLAINTS_INDEX },
+  { label: page.name, href: page.path },
+];
+---
+
+<Base
+  title={`${page.name} complaints`}
+  description={metaDescription(text)}
+  canonicalPath={page.path}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    dataset({
+      name: `${page.name} complaints`,
+      description: `${text} Counts are raw counts, not rates.`,
+      url: new URL(page.path, site.url).href,
+      dateModified: meta.dates.complaints,
+      creators: [nhtsaOrg],
+      temporalCoverage: temporal,
+    }),
+    faqPage(faqs),
+  ]}
+>
+  <article class="wrap">
+    <p class="eyebrow">Complaints</p>
+    <h1>{page.name} complaints</h1>
+    <Answer text={text} />
+    <DataNote />
+    <p>{complaintSource(meta.dates.complaints)}</p>
+    <p class="years-caveat">{makeComplaintCaveat()}</p>
+    <p>{makeComplaintOverlap(page.name)}</p>
+    <p>{makeComplaintComponentNote()}</p>
+    <p>
+      <a href={`/${page.slug}/`}>{page.name} models and recalls</a> are on the make page.
+      The make list is <a href={COMPLAINTS_INDEX}>complaints by make</a>.
+    </p>
+    <h2>Complaints by model</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{modelComplaintCaption(page.name, page.total, meta.dates.complaints)}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th class="num" scope="col">Complaints</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            page.models.map((model) => (
+              <tr>
+                <td><a href={model.path}>{model.name}</a></td>
+                <td class="num">{formatNumber(model.n)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <h2>Complaints by model year</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>{modelYearComplaintCaption(page.name, page.total, meta.dates.complaints)}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Model year</th>
+            <th class="num" scope="col">Complaints</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            page.modelYears.map((row) => (
+              <tr>
+                <td>{row.year}</td>
+                <td class="num">{formatNumber(row.n)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    {
+      page.series ? (
+        <ReceivedYears make={page.name} model="" series={page.series} intro={makeReceivedIntro(page.name, page.series)} />
+      ) : (
+        <p>No received year is stored for these complaints.</p>
+      )
+    }
+    <h2>Questions</h2>
+    {
+      faqs.map((faq) => (
+        <section>
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </section>
+      ))
+    }
+  </article>
+</Base>

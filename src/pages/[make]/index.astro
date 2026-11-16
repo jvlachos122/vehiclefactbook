@@ -5,6 +5,7 @@ import DataNote from "../../components/DataNote.astro";
 import MakeRecalls from "../../components/MakeRecalls.astro";
 import { findMake, loadMeta, makePaths } from "../../lib/catalog.js";
 import { makeAnswer, rollup } from "../../lib/answer.js";
+import { makeComplaintPath } from "../../lib/make-complaints.js";
 import { campaignFacts, loadMakeCampaigns } from "../../lib/make-recalls.js";
 import { formatNumber, metaDescription } from "../../lib/format.js";
 import { makeInvestigationCount } from "../../lib/investigations.js";
@@ -23,6 +24,7 @@ const facts = campaignFacts(campaigns);
 const text = makeAnswer(make.name, models, meta.dates, facts);
 const totals = rollup(models);
 const path = `/${make.slug}/`;
+const complaintPath = makeComplaintPath(make.slug);
 const crumbs = [
   { label: "Home", href: "/" },
   { label: make.name, href: path },
@@ -57,11 +59,25 @@ const crumbs = [
       <li class="stat"><b>{formatNumber(facts.dnd)}</b><span>Do-not-drive campaigns</span></li>
       <li class="stat"><b>{formatNumber(facts.park)}</b><span>Park-outside campaigns</span></li>
     </ul>
+    {
+      complaintPath ? (
+        <p>
+          <a href={complaintPath}>All {make.name} complaints</a> lists those complaint counts by model, by model year, and by the year NHTSA received them.
+        </p>
+      ) : null
+    }
     <MakeRecalls makeName={make.name} makeSlug={make.slug} campaigns={campaigns} recallDate={meta.dates.recalls} />
     {
       makeInvestigationCount(make.slug) ? (
         <p>
           <a href="/investigations/">Investigation pages</a> list actions with no close date in the NHTSA file that include a {make.name} model year. The action number on the model year page links to that investigation.
+        </p>
+      ) : null
+    }
+    {
+      complaintPath ? (
+        <p>
+          <a href={complaintPath}>All {make.name} complaints</a> uses the same model-page counts as the table below.
         </p>
       ) : null
     }

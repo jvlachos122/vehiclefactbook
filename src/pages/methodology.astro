@@ -5,6 +5,7 @@ import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
 import { EIA_ELECTRICITY_SOURCE, EIA_GASOLINE_SOURCE, EIA_LICENSE, loadPriceSnapshot } from "../lib/eia-prices.js";
 import { COMPONENT_MIN } from "../lib/components.js";
+import { MAKE_COMPLAINT_MIN } from "../lib/make-complaints.js";
 import { evRangeRowCount, loadEvRangePages } from "../lib/ev-range.js";
 import { FUEL_COST_MIN_MODELS, FUEL_COST_YEAR_COUNT, fuelCostRowCount, loadFuelCostPages, loadFuelCostYears, yearPhrase } from "../lib/fuel-classes.js";
 import { SAFETY_YEAR_COUNT, loadSafetyCatalog, yearPhrase as safetyYearPhrase } from "../lib/safety-ratings.js";
@@ -98,6 +99,9 @@ const path = "/methodology/";
     </p>
     <p>
       A model page with at least {RECEIVED_YEAR_MIN} distinct complaints also lists those complaints by the calendar year NHTSA received them. The year is LDATE, field 17 of the complaint flat file, which NHTSA defines as the date the complaint was received. DATEA, field 16, is the date the row was added to the file and is not used. Each bar and table row is a count of distinct ODINO values. The page adds the model years together with the same headline name as the model-year table: the EPA name when that name is in the NHTSA file, otherwise the sum of the matched names. The year of the complaint file date is marked partial when the file does not end on December 31. These are raw counts, not rates. More complaints can mean more cars on the road. Complaints have a reporting lag. Complaints are unverified owner reports.
+    </p>
+    <p>
+      A make page is published at <a href="/complaints/">/complaints/</a> and at <span class="mono">/make/complaints/</span> when the model-page complaint counts for that make add to at least {MAKE_COMPLAINT_MIN}. The make total adds those published counts. It is not a second pass over the complaint flat file. The committed file does not keep the complaint identifier, so a complaint counted on more than one model stays in each count. The page lists the counts by model and by model year, and it uses the same received-year chart as the model page. Component categories are not listed: each model year stores at most ten components, and a component outside that list has no count in the committed file. Makes with more vehicles on the road get more complaints. The counts are raw counts, not rates. Complaints have a reporting lag. Complaints are unverified owner reports.
     </p>
 
     <h2>Recalls</h2>

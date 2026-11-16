@@ -5,6 +5,7 @@ import { FUEL_COST_INDEX, loadFuelCostPages } from "../src/lib/fuel-classes.js";
 import { safetyPaths } from "../src/lib/safety-ratings.js";
 import { scorePaths } from "../src/lib/scores.js";
 import { INVESTIGATIONS_INDEX, loadInvestigationPages } from "../src/lib/investigations.js";
+import { complaintSitemapPaths } from "../src/lib/make-complaints.js";
 import { dirname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -167,6 +168,15 @@ for (const path of safetyPaths()) {
 }
 for (const path of scorePaths()) {
   if (!sitemapPaths.has(path)) errors.push(`sitemap missing greenhouse gas score ${path}`);
+}
+const complaintPaths = new Set(complaintSitemapPaths());
+for (const path of complaintPaths) {
+  if (!sitemapPaths.has(path)) errors.push(`sitemap missing complaints ${path}`);
+}
+for (const path of sitemapPaths) {
+  if (path === "/complaints/" || path.endsWith("/complaints/")) {
+    if (!complaintPaths.has(path)) errors.push(`sitemap includes a complaints URL outside the published set ${path}`);
+  }
 }
 for (const path of sitemapPaths) {
   const parts = path.split("/").filter(Boolean);

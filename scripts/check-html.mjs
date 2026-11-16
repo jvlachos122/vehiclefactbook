@@ -2,8 +2,15 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HtmlValidate } from "html-validate";
-import { loadMeta, loadModel, loadSummary } from "../src/lib/catalog.js";
+import { findMake, loadMeta, loadModel, loadSummary } from "../src/lib/catalog.js";
 import { formatDate, formatNumber } from "../src/lib/format.js";
+import {
+  MAKE_COMPLAINT_BANNED,
+  MAKE_COMPLAINT_PHRASES,
+  findMakeComplaints,
+  loadComplaintPages,
+  makeComplaintPath,
+} from "../src/lib/make-complaints.js";
 import { auditHtml, classifyPage, visibleText } from "../src/lib/jsonld-audit.js";
 import {
   RECEIVED_YEAR_BANNED,
@@ -177,6 +184,63 @@ for (const file of files) {
       if (hrefs.length !== 1 || hrefs[0] !== "/methodology/") {
         errors.push(`${rel}: received-year section links to ${hrefs.join(", ") || "nothing"}`);
       }
+    }
+  }
+  if (classifyPage(rel) === "make" || classifyPage(rel) === "model") {
+    const slug = rel.split("/").filter(Boolean)[0];
+    const make = findMake(slug);
+    const href = makeComplaintPath(slug);
+    if (href) {
+      const links = html.match(new RegExp(`href="${href.replaceAll("/", "\\/")}"`, "g")) || [];
+      const minimum = classifyPage(rel) === "make" ? 2 : 1;
+      if (links.length < minimum) errors.push(`${rel}: missing link to ${href}`);
+      if (!html.includes(`All ${make.name} complaints`)) errors.push(`${rel}: missing All ${make.name} complaints`);
+    } else if (html.includes(`href="/${slug}/complaints/"`)) {
+      errors.push(`${rel}: links to a complaints page below the minimum`);
+    }
+  }
+  if (classifyPage(rel) === "make-complaints" || classifyPage(rel) === "complaints-index") {
+    const visible = mainText(html);
+    if (MAKE_COMPLAINT_BANNED.test(visible)) errors.push(`${rel}: banned wording on a complaints page`);
+    for (const phrase of MAKE_COMPLAINT_PHRASES) {
+      if (!visible.includes(phrase)) errors.push(`${rel}: missing ${phrase}`);
+    }
+    if (/\b[A-HJ-NPR-Z0-9]{17}\b/.test(visible)) errors.push(`${rel}: complaints page contains a VIN`);
+    if (!html.includes("<table")) errors.push(`${rel}: missing complaints table`);
+    if (!html.includes("<h2>Questions</h2>")) errors.push(`${rel}: missing visible questions`);
+  }
+  if (classifyPage(rel) === "make-complaints") {
+    const slug = rel.split("/").filter(Boolean)[0];
+    const record = findMakeComplaints(slug);
+    const visible = mainText(html);
+    if (!record) errors.push(`${rel}: complaints page is not in the published set`);
+    else {
+      if (!html.includes(`<h1>${record.name} complaints</h1>`)) errors.push(`${rel}: missing complaints heading`);
+      if (!visible.includes(formatNumber(record.total))) errors.push(`${rel}: missing complaint total`);
+      for (const model of record.models) {
+        if (!html.includes(`href="${model.path}"`)) errors.push(`${rel}: missing model link ${model.path}`);
+      }
+      if (record.series) {
+        const sectionMatch = html.match(/<section id="complaints-by-received-year"[^>]*>[\s\S]*?<\/section>/i);
+        if (!sectionMatch) errors.push(`${rel}: missing received-year section`);
+        else {
+          const section = visibleText(sectionMatch[0]);
+          if (!sectionMatch[0].includes("<svg")) errors.push(`${rel}: missing received-year chart`);
+          for (const phrase of RECEIVED_YEAR_PHRASES) {
+            if (!section.includes(phrase)) errors.push(`${rel}: received-year section missing ${phrase}`);
+          }
+          if (record.series.partialYear && !section.includes(`${record.series.partialYear} (partial)`)) {
+            errors.push(`${rel}: partial received year is not labelled`);
+          }
+        }
+      } else if (!visible.includes("No received year is stored")) {
+        errors.push(`${rel}: missing received-year explanation`);
+      }
+    }
+  }
+  if (classifyPage(rel) === "complaints-index") {
+    for (const record of loadComplaintPages()) {
+      if (!html.includes(`href="${record.path}"`)) errors.push(`${rel}: index missing ${record.path}`);
     }
   }
   jsonLdBlocks += audit.blocks;

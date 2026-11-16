@@ -43,27 +43,13 @@ function fileYearOf(complaintDate) {
   return { year: Number(match[1]), complete: match[2] === "12" && match[3] === "31" };
 }
 
-function headlineGroups(yearRow) {
+export function complaintHeadlineGroups(yearRow) {
   if (!yearRow || typeof yearRow !== "object") return [];
   if (yearRow.splitNames) return Array.isArray(yearRow.also) ? yearRow.also : [];
   return [yearRow];
 }
 
-export function receivedYearSeries(modelDoc, complaintDate) {
-  const counts = new Map();
-  let total = 0;
-  for (const yearRow of Object.values(modelDoc?.years || {})) {
-    for (const group of headlineGroups(yearRow)) {
-      const complaints = group?.complaints || {};
-      total += Number(complaints.n) || 0;
-      for (const item of complaints.byYear || []) {
-        const year = Number(item?.year);
-        const n = Number(item?.n) || 0;
-        if (!Number.isInteger(year) || n <= 0) continue;
-        counts.set(year, (counts.get(year) || 0) + n);
-      }
-    }
-  }
+export function receivedYearSeriesFromCounts(total, counts, complaintDate) {
   const dated = [...counts.values()].reduce((sum, n) => sum + n, 0);
   if (total < RECEIVED_YEAR_MIN || dated <= 0) return null;
   const file = fileYearOf(complaintDate);
@@ -87,6 +73,24 @@ export function receivedYearSeries(modelDoc, complaintDate) {
     partialYear,
     cutoff: String(complaintDate || ""),
   };
+}
+
+export function receivedYearSeries(modelDoc, complaintDate) {
+  const counts = new Map();
+  let total = 0;
+  for (const yearRow of Object.values(modelDoc?.years || {})) {
+    for (const group of complaintHeadlineGroups(yearRow)) {
+      const complaints = group?.complaints || {};
+      total += Number(complaints.n) || 0;
+      for (const item of complaints.byYear || []) {
+        const year = Number(item?.year);
+        const n = Number(item?.n) || 0;
+        if (!Number.isInteger(year) || n <= 0) continue;
+        counts.set(year, (counts.get(year) || 0) + n);
+      }
+    }
+  }
+  return receivedYearSeriesFromCounts(total, counts, complaintDate);
 }
 
 export function receivedYearLabel(row) {

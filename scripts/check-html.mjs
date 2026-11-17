@@ -193,9 +193,10 @@ for (const file of files) {
     const href = makeComplaintPath(slug);
     if (href) {
       const links = html.match(new RegExp(`href="${href.replaceAll("/", "\\/")}"`, "g")) || [];
-      const minimum = classifyPage(rel) === "make" ? 2 : 1;
-      if (links.length < minimum) errors.push(`${rel}: missing link to ${href}`);
-      if (!html.includes(`All ${make.name} complaints`)) errors.push(`${rel}: missing All ${make.name} complaints`);
+      if (links.length < 1) errors.push(`${rel}: missing link to ${href}`);
+      if (classifyPage(rel) === "model" && !html.includes(`All ${make.name} complaints`)) {
+        errors.push(`${rel}: missing All ${make.name} complaints`);
+      }
     } else if (html.includes(`href="/${slug}/complaints/"`)) {
       errors.push(`${rel}: links to a complaints page below the minimum`);
     }

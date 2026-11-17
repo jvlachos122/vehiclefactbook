@@ -1,34 +1,34 @@
 {
   "recalls_post_2010": {
     "url": "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip",
-    "sha256": "5a9b259508ed33610529d2669bf25b501c69d990a82853e949c2c305792e2e68",
-    "bytes": 14995295,
-    "lastModified": "Mon, 09 Nov 2026 08:03:40 GMT",
-    "fileDate": "2026-11-09",
+    "sha256": "e2c8969cae09447222217986f99fc394a5c42a6bf22a88a4dc39dc9b2bd15a6f",
+    "bytes": 14948791,
+    "lastModified": "Tue, 17 Nov 2026 08:04:06 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "FLAT_RCL_POST_2010.txt"
   },
   "recalls_pre_2010": {
     "url": "https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip",
-    "sha256": "2e0683afb5b9d140c33fcbdc0d7cb03955b80701fd7bbc59d2b84786c4816066",
-    "bytes": 7455553,
-    "lastModified": "Mon, 09 Nov 2026 08:03:40 GMT",
-    "fileDate": "2026-11-09",
+    "sha256": "c402791fa0073b0008f937e3cbdaad087f3e10458aa3cfb32a03afc1345509d1",
+    "bytes": 7454140,
+    "lastModified": "Tue, 17 Nov 2026 08:04:06 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "FLAT_RCL_PRE_2010.txt"
   },
   "complaints": {
     "url": "https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip",
-    "sha256": "acc7a3e15eb8ae7fb00caa7eac1215721bc5547c00380bce88e8a3b0c5b254b9",
-    "bytes": 376117293,
-    "lastModified": "Mon, 09 Nov 2026 10:06:21 GMT",
-    "fileDate": "2026-11-09",
+    "sha256": "ed52aec96d5549d11aad55fa441dd30dbfe017af742b1bfa27df59d7b5608a35",
+    "bytes": 376849368,
+    "lastModified": "Tue, 17 Nov 2026 10:13:16 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "FLAT_CMPL.txt"
   },
   "investigations": {
     "url": "https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip",
-    "sha256": "1b82b60566e4607e2287f93a02bcb983e5876510a8ad7039116ed51956e54332",
-    "bytes": 4303154,
-    "lastModified": "Mon, 09 Nov 2026 09:03:46 GMT",
-    "fileDate": "2026-11-09",
+    "sha256": "e1cfdff6d3a7bebf9f613f8c393a9c09cf7479d16b2d452a52473f9b55c429a3",
+    "bytes": 4305412,
+    "lastModified": "Tue, 17 Nov 2026 09:09:46 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "FLAT_INV.txt"
   },
   "epa": {
@@ -41,58 +41,58 @@
   },
   "mfr_comms_1995_1999": {
     "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_1995-1999.zip",
-    "sha256": "31fa5486898df62648f1894bb0a0629c01fa37c577e9f6b4db6639cd68f31146",
-    "bytes": 1103500,
-    "lastModified": "Wed, 11 Nov 2026 11:04:23 GMT",
-    "fileDate": "2026-11-11",
+    "sha256": "ed01606fdab2d72be33e6af3453abfaed332754d8fcc1bdf9379ea36044cdb94",
+    "bytes": 1103178,
+    "lastModified": "Tue, 17 Nov 2026 11:05:04 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "TSBS_RECEIVED_1995-1999.txt"
   },
   "mfr_comms_2000_2004": {
     "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2000-2004.zip",
-    "sha256": "b11a9ea4c3d18113d2d9189ca6f4e8d7540d46348f9073b66654b0e17f265f5e",
-    "bytes": 2730091,
-    "lastModified": "Wed, 11 Nov 2026 11:04:26 GMT",
-    "fileDate": "2026-11-11",
+    "sha256": "317c78ba1895ef460dc8d55a5e619fa762d08a546d8f478891580896a79cc311",
+    "bytes": 2730112,
+    "lastModified": "Tue, 17 Nov 2026 11:05:06 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "TSBS_RECEIVED_2000-2004.txt"
   },
   "mfr_comms_2005_2009": {
     "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2005-2009.zip",
-    "sha256": "558be05ffe238ddd545545fe7e32a478b8385c8459a696f4892e3b195523f57a",
-    "bytes": 1632464,
-    "lastModified": "Wed, 11 Nov 2026 11:04:20 GMT",
-    "fileDate": "2026-11-11",
+    "sha256": "04b615cf3f62050482a4e057c26827b19adb37bd488428e4b9c4cdd140b0d516",
+    "bytes": 1632598,
+    "lastModified": "Tue, 17 Nov 2026 11:05:06 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "TSBS_RECEIVED_2005-2009.txt"
   },
   "mfr_comms_2010_2014": {
     "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2010-2014.zip",
-    "sha256": "ef27c8b6287dae5be20e438e91fd4909a65f7cfaaff54be190fb01ce1504a2fa",
-    "bytes": 4458637,
-    "lastModified": "Wed, 11 Nov 2026 11:04:38 GMT",
-    "fileDate": "2026-11-11",
+    "sha256": "7ca58caad6377128470e13a69fd1f339df2a57eedce620820b4e066d1c07b587",
+    "bytes": 4459475,
+    "lastModified": "Tue, 17 Nov 2026 11:05:28 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "TSBS_RECEIVED_2010-2014.txt"
   },
   "mfr_comms_2015_2019": {
     "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2015-2019.zip",
-    "sha256": "32ac67df984f108c8dd1da5ecc4e12d377045203274724db5231c3236aa235ba",
-    "bytes": 32923167,
-    "lastModified": "Wed, 11 Nov 2026 11:10:07 GMT",
-    "fileDate": "2026-11-11",
+    "sha256": "35071da0dd262d0a01e39ccc0fcfbff108b3fbf1b601cddbb7d03f0feb1ebe74",
+    "bytes": 32906757,
+    "lastModified": "Tue, 17 Nov 2026 11:11:30 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "TSBS_RECEIVED_2015-2019.txt"
   },
   "mfr_comms_2020_2024": {
     "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2020-2024.zip",
-    "sha256": "02b4f3459e84abca97c64e8af1dafe69d6300cc554304ac0ebc2ad590d22ad94",
-    "bytes": 31779798,
-    "lastModified": "Wed, 11 Nov 2026 11:10:54 GMT",
-    "fileDate": "2026-11-11",
+    "sha256": "21f379f83408bcf7bfa572ab23ea4fc0d5b7d9e5f72bcf4de27ad5d2949b1a40",
+    "bytes": 31776077,
+    "lastModified": "Tue, 17 Nov 2026 11:11:38 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "TSBS_RECEIVED_2020-2024.txt"
   },
   "mfr_comms_2025_2026": {
     "url": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS_RECEIVED_2025-2026.zip",
-    "sha256": "281681b0a24275c8e65d0fde071407f3dda4631c25024ccb587ecc88018b9243",
-    "bytes": 13028667,
-    "lastModified": "Wed, 11 Nov 2026 11:06:01 GMT",
-    "fileDate": "2026-11-11",
+    "sha256": "9f3ef1d5e32064fb8664e3548b0ff11ae8bf5e0a27d41bf3bf8e4f5756788e48",
+    "bytes": 13063179,
+    "lastModified": "Tue, 17 Nov 2026 11:06:47 GMT",
+    "fileDate": "2026-11-17",
     "textFile": "TSBS_RECEIVED_2025-2026.txt"
   }
 }

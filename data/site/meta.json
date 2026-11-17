@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-11T00:00:00Z",
+  "generatedAt": "2026-11-17T00:00:00Z",
   "dates": {
-    "recalls": "2026-11-09",
-    "complaints": "2026-11-09",
-    "investigations": "2026-11-09",
-    "epa": "2026-11-04",
-    "communications": "2026-11-11"
+    "recalls": "2026-11-17",
+    "complaints": "2026-11-17",
+    "investigations": "2026-11-17",
+    "communications": "2026-11-17",
+    "epa": "2026-11-04"
   },
   "counts": {
     "epaRowsMy2000": 32670,
@@ -15,40 +15,40 @@
     "publishedModels": 1024,
     "mmySpine": 8218,
     "publishedMmy": 8218,
-    "matchedMmy": 7122,
-    "unmatchedMmy": 1096,
+    "matchedMmy": 7131,
+    "unmatchedMmy": 1087,
     "matchMethods": {
-      "exact": 6210,
+      "exact": 6215,
       "series": 79,
-      "prefix": 106,
+      "prefix": 108,
       "slash": 101,
       "epa-suffix": 58,
       "manual": 199,
       "trim": 14,
-      "suffix": 69,
+      "suffix": 70,
       "class": 256,
-      "code": 30
+      "code": 31
     },
-    "yearsPages": 672,
-    "recallRowsPost": 247176,
+    "yearsPages": 673,
+    "recallRowsPost": 248241,
     "recallRowsPre": 81715,
-    "vehicleCampaignsPost2010": 13743,
+    "vehicleCampaignsPost2010": 13764,
     "vehicleCampaignsPre2010": 12721,
-    "complaintRows": 2264318,
-    "complaintVehicleRows": 2191792,
-    "complaintVehicleOdino": 1611630,
-    "investigationRows": 154460,
-    "investigationActions": 5357,
-    "investigationActionsNoCloseDate": 225,
-    "doNotDrive": 205,
-    "parkOutside": 103,
-    "takata": 31,
-    "thisWeek": 7,
-    "communicationRows": 5915659,
-    "communicationIds": 261513,
-    "communicationMatched": 2736085,
+    "complaintRows": 2267457,
+    "complaintVehicleRows": 2194867,
+    "complaintVehicleOdino": 1613658,
+    "investigationRows": 154502,
+    "investigationActions": 5359,
+    "investigationActionsNoCloseDate": 226,
+    "communicationRows": 5916692,
+    "communicationIds": 261572,
+    "communicationMatched": 2736533,
     "communicationAddedMin": "1995-01-05",
-    "communicationAddedMax": "2026-11-11"
+    "communicationAddedMax": "2026-11-16",
+    "doNotDrive": 205,
+    "parkOutside": 104,
+    "takata": 31,
+    "thisWeek": 6
   },
   "ncap": {
     "2011": {
@@ -157,18 +157,18 @@
       "fetchedAt": "2026-11-03T20:45:22Z"
     },
     "2026": {
-      "variants": 667,
+      "variants": 669,
       "makes": 38,
-      "models": 447,
+      "models": 448,
       "failures": 0,
-      "fetchedAt": "2026-11-09T21:33:50Z"
+      "fetchedAt": "2026-11-17T15:53:50Z"
     },
     "2027": {
-      "variants": 470,
-      "makes": 29,
-      "models": 334,
+      "variants": 474,
+      "makes": 30,
+      "models": 339,
       "failures": 0,
-      "fetchedAt": "2026-11-09T21:35:58Z"
+      "fetchedAt": "2026-11-17T15:55:57Z"
     }
   }
 }

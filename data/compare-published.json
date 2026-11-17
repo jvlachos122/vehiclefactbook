@@ -3,7 +3,8 @@
     "034f475 class-only selector on the data published with the first compare pages. git log -S does not find these slugs because the pages were generated, not committed as text.",
     "51744f4 is the 2026-11-03 data refresh. Its class-only set is the legacy set at e117648, which still used that data. Those URLs were indexed until e117648, then kept as pages or noindex refreshes.",
     "e117648 tightened selection. A tight-rule pair the class-only cap excluded was indexed there for the first time. Every class-only pair on that data stayed built.",
-    "92fe42a is the 2026-11-09 data refresh, which is the data on main now. Live pairs and class-only pairs from the current selector are included so a later refresh cannot drop a slug that main has already built."
+    "92fe42a is the 2026-11-09 data refresh, which is the data on main now. Live pairs and class-only pairs from the current selector are included so a later refresh cannot drop a slug that main has already built.",
+    "A refresh appends pairs the current selector publishes and does not remove a slug. A listed slug that the selector does not publish is a noindex refresh."
   ],
   "pairs": [
     {
@@ -1216,6 +1217,25 @@
         "modelSlug": "jetta",
         "modelName": "Jetta",
         "configCount": 221
+      }
+    },
+    {
+      "slug": "ford-ranger-vs-toyota-tundra",
+      "year": 2026,
+      "classFamily": "Standard Pickup Trucks",
+      "left": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "ranger",
+        "modelName": "Ranger",
+        "configCount": 148
+      },
+      "right": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "tundra",
+        "modelName": "Tundra",
+        "configCount": 161
       }
     }
   ]

@@ -90,6 +90,7 @@ for (const make of loadSummary().makes) {
 
 const files = walk(dist);
 let jsonLdBlocks = 0;
+const titlesByText = new Map();
 for (const file of files) {
   const html = readFileSync(file, "utf8");
   const rel = file.slice(dist.length).replaceAll("\\", "/");
@@ -251,6 +252,16 @@ for (const file of files) {
   if (!/<html[^>]*\slang="en"/.test(html)) errors.push(`${rel}: missing lang`);
   const titles = [...html.matchAll(/<title>([^<]*)<\/title>/g)];
   if (titles.length !== 1 || !titles[0][1].trim()) errors.push(`${rel}: title`);
+  else {
+    const title = titles[0][1].trim();
+    const prior = titlesByText.get(title);
+    if (prior) errors.push(`${rel}: duplicate title "${title}" also on ${prior}`);
+    else titlesByText.set(title, rel);
+  }
+  if (classifyPage(rel) === "make") {
+    if (!html.includes('href="#recalls"')) errors.push(`${rel}: missing link to the recalls section`);
+    if (!html.includes("Distinct complaints")) errors.push(`${rel}: missing model facts table`);
+  }
   const descriptions = [...html.matchAll(/<meta name="description" content="([^"]*)"\s*\/?>/g)];
   if (descriptions.length !== 1 || descriptions[0][1].trim().length < 40) errors.push(`${rel}: description`);
   const canonicals = [...html.matchAll(/<link rel="canonical" href="([^"]+)"\s*\/?>/g)];

@@ -99,6 +99,9 @@ test("published component pages match the stored complaint lists", () => {
 
           const title = componentDocumentTitle(page);
           assert.ok(title.length > 0 && title.length <= COMPONENT_TITLE_LIMIT, title);
+          const tail = page.component.split(":").map((part) => part.trim()).filter(Boolean).at(-1) || page.component;
+          assert.ok(title.includes(tail) || title.includes(tail.slice(0, 8)), title);
+          assert.doesNotMatch(title, / component complaints$/);
           assert.doesNotMatch(title, BANNED);
 
           const description = componentMetaDescription(page, complaintDate);

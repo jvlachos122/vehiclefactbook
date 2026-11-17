@@ -113,6 +113,9 @@ export function mmyMetaDescription({ year, make, model, row, dates }) {
       joinSentences([compact, epaFull, starShort]),
       joinSentences([compact, epaShort, starShort]),
       joinSentences([compact, epaTiny, starShort]),
+      // Two file dates can fill the limit and drop EPA fuel. Keep fuel and stars with one date first.
+      joinSentences([compactBrief, epaTiny, starShort]),
+      joinSentences([compactBrief, epaTiny]),
       joinSentences([voiced, starShort]),
       joinSentences([compact, starShort]),
       joinSentences([compact, epaFull]),
@@ -131,10 +134,13 @@ export function mmyMetaDescription({ year, make, model, row, dates }) {
       joinSentences([short, epaShort, starShort]),
       joinSentences([short, epaTiny, starShort]),
       joinSentences([short, starShort, epaTiny]),
-      joinSentences([short, epaTiny]),
-      joinSentences([briefNote, epaTiny]),
-      briefNote,
     );
+    // A long name plus both file dates can fill the limit and drop the star
+    // sentence. Keep the star and one file date before any candidate that omits the star.
+    if (starShort) {
+      candidates.push(joinSentences([briefNote, starShort, epaTiny]), joinSentences([briefNote, starShort]));
+    }
+    candidates.push(joinSentences([short, epaTiny]), joinSentences([briefNote, epaTiny]), briefNote);
   }
 
   return pick(candidates, MMY_DESCRIPTION_LIMIT);

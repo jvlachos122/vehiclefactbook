@@ -20,7 +20,7 @@ Manufacturer communications (TSBs) are not imported. The file-name list for thos
 - / tools and lookup: /tools/fuel-cost-calculator/ (trip mode at #trip) /tools/trip-fuel-cost/ /tools/mpg-calculator/ /compare/ /compare/hybrid/ /recalls/lookup/
 - /compare/{make}-{model}-vs-{make}-{model}/ example comparison of two models that share an EPA class, a make tier, and a fuel type in the newest matched model year. The data build records each published pair. An older address that is no longer selected stays at that URL as a noindex refresh and is omitted from the sitemap.
 - /compare/hybrid/{make}-{model}-hybrid-vs-gasoline/ and /compare/hybrid/{make}-{model}-plug-in-hybrid-vs-gasoline/ EPA mpg and annual fuel cost for gasoline and hybrid configurations of the same model
-- /{make}/ make hub
+- /{make}/ make hub: models, model-year coverage, distinct recall campaigns, distinct complaints, NCAP overall stars where rated, and EPA all-electric range where listed. Links to /{make}/complaints/ when that page exists and to the recalls section on the same page.
 - /complaints/ and /{make}/complaints/ complaint counts for a make whose model-page counts add to at least 50. The make total adds those published counts. It is not a sales-adjusted rate. Names, VINs, cities, dealers, and narratives are not published. Component categories are not listed, because each model year stores at most ten components.
 - /{make}/{model}/ model hub
 - /{make}/{model}/years/ complaint and recall counts by model year, only when at least three model years have matched NHTSA records

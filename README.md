@@ -73,6 +73,10 @@ The set is chosen only from the committed files in `data/site/`:
 
 Each page shows EPA city, highway, and combined mpg (kWh/100 mi and range on electric rows), EPA annual fuel cost, NCAP overall stars for model year 2011 and newer, recall campaign counts, and distinct complaint counts received so far.
 
+## Make hubs
+
+`/{make}/` states how many models the make covers, the model-year range, the distinct recall campaigns matched to those model years, the distinct complaints on the model year pages, and the newest model year with an NHTSA overall star. The model table lists model-year coverage, distinct campaigns, distinct complaints, NCAP overall stars for model year 2011 and newer where rated, and EPA all-electric range where a configuration lists one. Plug-in hybrid range is not included. The page links to `/{make}/complaints/` when that page exists, and to the recalls section on the same page.
+
 ## Component pages
 
 `/{make}/{model}/{year}/{component}/` is published when the component list on that model year has at least 50 distinct complaints. The list is the top ten components stored for the headline NHTSA name. When the EPA name is not an NHTSA name, the list is the top ten for the matched name with the most complaints, the same list the model year page shows. A component outside that stored top ten is not given a page. The page states the count and the complaint file date. It does not state a rate. Crash, fire, injury, and death figures stay on the model year page.

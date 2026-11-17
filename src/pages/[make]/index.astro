@@ -4,10 +4,10 @@ import Answer from "../../components/Answer.astro";
 import DataNote from "../../components/DataNote.astro";
 import MakeRecalls from "../../components/MakeRecalls.astro";
 import { findMake, loadMeta, makePaths } from "../../lib/catalog.js";
-import { makeAnswer, rollup } from "../../lib/answer.js";
+import { rollup } from "../../lib/answer.js";
 import { makeComplaintPath } from "../../lib/make-complaints.js";
-import { campaignFacts, loadMakeCampaigns } from "../../lib/make-recalls.js";
 import { formatNumber, metaDescription } from "../../lib/format.js";
+import { makeHubAnswer, makeHubCaption, makeHubFacts, rangeCell, starCell, yearSpan } from "../../lib/make-hub.js";
 import { makeInvestigationCount } from "../../lib/investigations.js";
 import { dataset } from "../../lib/schema.js";
 import { site } from "../../lib/site.js";
@@ -19,9 +19,12 @@ export function getStaticPaths() {
 const meta = loadMeta();
 const make = findMake(Astro.params.make);
 const models = [...make.models].sort((a, b) => a.name.localeCompare(b.name));
-const campaigns = loadMakeCampaigns(make);
-const facts = campaignFacts(campaigns);
-const text = makeAnswer(make.name, models, meta.dates, facts);
+const hub = makeHubFacts(make);
+const campaigns = hub.campaigns;
+const facts = hub.facts;
+const rows = hub.rows;
+const text = makeHubAnswer(make.name, rows, facts, meta.dates);
+const caption = makeHubCaption(make.name, meta.dates);
 const totals = rollup(models);
 const path = `/${make.slug}/`;
 const complaintPath = makeComplaintPath(make.slug);
@@ -39,7 +42,7 @@ const crumbs = [
   jsonLd={[
     dataset({
       name: `${make.name} recalls, complaints, and fuel economy`,
-      description: `NHTSA recall and complaint counts and EPA fuel economy for ${make.name} models from model year 2000 on.`,
+      description: text,
       url: new URL(path, site.url).href,
       dateModified: meta.dates.complaints,
     }),
@@ -50,22 +53,25 @@ const crumbs = [
     <h1>{make.name} recalls, complaints, and safety ratings</h1>
     <Answer text={text} />
     <DataNote />
+    <p>
+      {
+        complaintPath ? (
+          <>
+            <a href={complaintPath}>{make.name} complaints</a> lists those complaint counts by model, by model year, and by the year NHTSA received them.{" "}
+          </>
+        ) : null
+      }
+      <a href="#recalls">{make.name} recalls</a> lists the matched campaigns on this page.
+    </p>
     <ul class="stats">
       <li class="stat"><b>{formatNumber(totals.models)}</b><span>Models</span></li>
       <li class="stat"><b>{formatNumber(totals.mmy)}</b><span>Model years</span></li>
       <li class="stat"><b>{formatNumber(facts.total)}</b><span>Campaigns</span></li>
       <li class="stat"><b>{formatNumber(totals.recalls)}</b><span>Recall rows, summed</span></li>
-      <li class="stat"><b>{formatNumber(totals.complaints)}</b><span>Complaints, summed</span></li>
+      <li class="stat"><b>{formatNumber(rows.reduce((sum, row) => sum + row.complaints, 0))}</b><span>Distinct complaints</span></li>
       <li class="stat"><b>{formatNumber(facts.dnd)}</b><span>Do-not-drive campaigns</span></li>
       <li class="stat"><b>{formatNumber(facts.park)}</b><span>Park-outside campaigns</span></li>
     </ul>
-    {
-      complaintPath ? (
-        <p>
-          <a href={complaintPath}>All {make.name} complaints</a> lists those complaint counts by model, by model year, and by the year NHTSA received them.
-        </p>
-      ) : null
-    }
     <MakeRecalls makeName={make.name} makeSlug={make.slug} campaigns={campaigns} recallDate={meta.dates.recalls} />
     {
       makeInvestigationCount(make.slug) ? (
@@ -74,38 +80,32 @@ const crumbs = [
         </p>
       ) : null
     }
-    {
-      complaintPath ? (
-        <p>
-          <a href={complaintPath}>All {make.name} complaints</a> uses the same model-page counts as the table below.
-        </p>
-      ) : null
-    }
     <h2>Models</h2>
     <div class="table-wrap">
       <table>
-        <caption>{make.name} models in the EPA file for model year 2000 and newer</caption>
+        <caption>{caption}</caption>
         <thead>
           <tr>
             <th>Model</th>
-            <th class="num">Years</th>
-            <th class="num">Recall rows</th>
-            <th class="num">Complaints</th>
+            <th>Model years</th>
+            <th class="num">Recall campaigns</th>
+            <th class="num">Distinct complaints</th>
+            <th class="num">NCAP overall</th>
+            <th class="num">EV range (miles)</th>
           </tr>
         </thead>
         <tbody>
           {
-            models.map((model) => {
-              const modelTotals = rollup([model]);
-              return (
-                <tr>
-                  <td><a href={`/${make.slug}/${model.slug}/`}>{model.name}</a></td>
-                  <td class="num">{modelTotals.minY}–{modelTotals.maxY}</td>
-                  <td class="num">{formatNumber(modelTotals.recalls)}</td>
-                  <td class="num">{formatNumber(modelTotals.complaints)}</td>
-                </tr>
-              );
-            })
+            rows.map((row) => (
+              <tr>
+                <td><a href={row.path}>{row.name}</a></td>
+                <td>{yearSpan(row)}</td>
+                <td class="num">{formatNumber(row.campaigns)}</td>
+                <td class="num">{formatNumber(row.complaints)}</td>
+                <td class="num">{starCell(row)}</td>
+                <td class="num">{rangeCell(row)}</td>
+              </tr>
+            ))
           }
         </tbody>
       </table>

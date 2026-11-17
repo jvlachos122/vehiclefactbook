@@ -18,7 +18,7 @@ import { clip, formatDate, metaDescription, plural } from "./format.js";
  * for one component, and these pages do not copy them.
  */
 export const COMPONENT_MIN = 50;
-export const COMPONENT_TITLE_LIMIT = 65;
+export const COMPONENT_TITLE_LIMIT = 80;
 
 const PII_KEYS = new Set(["vin", "city", "operator", "dealer", "vehicle_operator", "narrative", "cdescr"]);
 
@@ -179,12 +179,28 @@ export function componentPaths() {
   }));
 }
 
+function componentFragment(name, room) {
+  const parts = String(name || "")
+    .split(":")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const tail = parts.at(-1) || String(name || "").trim();
+  const parent = parts.length > 1 ? parts.at(-2) : "";
+  const preferred = parent ? `${parent}: ${tail}` : tail;
+  if (preferred.length <= room) return preferred;
+  if (tail.length <= room) return tail;
+  const cut = tail.slice(0, Math.max(1, room - 1)).trimEnd();
+  return `${cut}…`;
+}
+
 export function componentDocumentTitle(page) {
-  const full = `${page.year} ${page.makeName} ${page.modelName}: ${page.component} complaints`;
+  const prefix = `${page.year} ${page.makeName} ${page.modelName}: `;
+  const suffix = " complaints";
+  const full = `${prefix}${page.component}${suffix}`;
   if (full.length <= COMPONENT_TITLE_LIMIT) return full;
-  const shorter = `${page.year} ${page.makeName} ${page.modelName} component complaints`;
-  if (shorter.length <= COMPONENT_TITLE_LIMIT) return shorter;
-  return clip(shorter, COMPONENT_TITLE_LIMIT);
+  const room = COMPONENT_TITLE_LIMIT - prefix.length - suffix.length;
+  if (room < 4) return clip(full, COMPONENT_TITLE_LIMIT);
+  return `${prefix}${componentFragment(page.component, room)}${suffix}`;
 }
 
 export function componentAnswer(page, complaintDate) {

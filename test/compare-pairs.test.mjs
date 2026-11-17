@@ -19,10 +19,12 @@ import {
   loadPublishedComparePairs,
   loadRemovedPairRedirects,
   makeTier,
+  mergePublishedPairs,
   modalClass,
   pairDocument,
   pairSlug,
   redirectAnswer,
+  redirectSources,
   removedComparePaths,
   selectExamplePairs,
 } from "../src/lib/compare-pairs.js";
@@ -271,6 +273,80 @@ test("published pairs follow the rule and two samples match the source files", (
       assert.equal(shown, side.complaints.toLocaleString("en-US"));
     }
   }
+});
+
+test("a refresh records a new live pair and still stubs a listed pair the selector drops", () => {
+  const listed = {
+    slug: "old-left-vs-old-right",
+    year: 2020,
+    classFamily: "Car",
+    seen: ["kept"],
+    left: { makeSlug: "old", makeName: "Old", modelSlug: "left", modelName: "Left", configCount: 4 },
+    right: { makeSlug: "older", makeName: "Older", modelSlug: "right", modelName: "Right", configCount: 9 },
+  };
+  const stillLive = {
+    slug: "still-live-vs-still-right",
+    year: 2026,
+    classFamily: "Pickup",
+    left: { makeSlug: "ford", makeName: "Ford", modelSlug: "ranger", modelName: "Ranger", configCount: 3 },
+    right: { makeSlug: "ram", makeName: "Ram", modelSlug: "1500", modelName: "1500", configCount: 8 },
+  };
+  const addedLive = {
+    slug: "ford-ranger-vs-toyota-tundra",
+    year: 2026,
+    classFamily: "Standard Pickup Trucks",
+    left: {
+      makeSlug: "ford",
+      makeName: "Ford",
+      modelSlug: "ranger",
+      modelName: "Ranger",
+      configCount: 40,
+      mpgMin: 20,
+    },
+    right: {
+      makeSlug: "toyota",
+      makeName: "Toyota",
+      modelSlug: "tundra",
+      modelName: "Tundra",
+      configCount: 55,
+    },
+  };
+  const neverPublished = {
+    slug: "never-left-vs-never-right",
+    year: 2024,
+    classFamily: "Car",
+    left: { makeSlug: "aa", makeName: "Aa", modelSlug: "left", modelName: "Left", configCount: 2 },
+    right: { makeSlug: "bb", makeName: "Bb", modelSlug: "right", modelName: "Right", configCount: 2 },
+  };
+  const merged = mergePublishedPairs([listed, stillLive], [stillLive, addedLive]);
+  assert.equal(merged.pairs[0], listed);
+  assert.equal(merged.pairs[1], stillLive);
+  assert.deepEqual(merged.added.map((pair) => pair.slug), ["ford-ranger-vs-toyota-tundra"]);
+  assert.deepEqual(Object.keys(merged.added[0].left).sort(), ["configCount", "makeName", "makeSlug", "modelName", "modelSlug"]);
+  assert.equal(merged.added[0].left.mpgMin, undefined);
+  const again = mergePublishedPairs(merged.pairs, [stillLive, addedLive]);
+  assert.equal(again.added.length, 0);
+  assert.equal(again.pairs.length, 3);
+
+  const sources = redirectSources(merged.pairs, [listed, neverPublished]);
+  assert.deepEqual(
+    sources.map((pair) => pair.slug),
+    ["old-left-vs-old-right", "still-live-vs-still-right", "ford-ranger-vs-toyota-tundra"],
+  );
+  assert.equal(sources[0].reason, "rule");
+  assert.equal(sources[1].reason, "refresh");
+  const redirects = buildPairRedirects(sources, [addedLive]);
+  assert.deepEqual(
+    redirects.map((redirect) => redirect.slug),
+    ["old-left-vs-old-right", "still-live-vs-still-right"],
+  );
+  assert.equal(redirects.some((redirect) => redirect.slug === neverPublished.slug), false);
+  assert.equal(redirects.some((redirect) => redirect.slug === addedLive.slug), false);
+  assert.equal(redirects[0].reason, "rule");
+  assert.equal(redirects[0].replacementPath, "/compare/");
+  assert.equal(redirects[1].replacementPath, "/compare/ford-ranger-vs-toyota-tundra/");
+  const committed = mergePublishedPairs(loadPublishedComparePairs(), loadExamplePairs());
+  assert.equal(committed.added.length, 0);
 });
 
 function sharesModel(side, pair) {

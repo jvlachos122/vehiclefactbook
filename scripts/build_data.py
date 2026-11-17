@@ -12,6 +12,7 @@ import csv
 import hashlib
 import json
 import re
+import subprocess
 import sys
 import time
 import urllib.request
@@ -1241,6 +1242,19 @@ def publish_communications(raw_dir: Path, zip_dir: Path) -> None:
     )
 
 
+def sync_compare_published() -> None:
+    """Append newly selected compare pairs. Never delete a published slug.
+
+    The weekly test refuses a live compare URL that is missing from
+    data/compare-published.json, and a listed slug that the selector drops
+    stays up as a noindex refresh. Recording the new slug here, before the
+    tests, is what lets a later refresh stub it instead of 404ing.
+    """
+    script = ROOT / "scripts" / "sync-compare-published.mjs"
+    log("sync compare-published.json")
+    subprocess.run(["node", str(script)], check=True, cwd=ROOT)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--match-only", action="store_true")
@@ -1293,6 +1307,7 @@ def main() -> None:
         per_year,
         scanned,
     )
+    sync_compare_published()
     log(f"data build finished in {time.time() - started:.0f}s")
 
 

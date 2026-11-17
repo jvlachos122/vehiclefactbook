@@ -33,10 +33,13 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
  * `rule: "class"` repeats the older class-only selection. It exists so a dropped
  * example URL can stay up as a noindex refresh to the replacement page. Those
  * refresh URLs are not part of the published set and are left out of the sitemap.
+ * A class-only pair that was never listed in data/compare-published.json is not
+ * given a URL.
  *
  * data/compare-published.json lists every compare slug built on main. The slugs
- * were generated at build time, so they are not in git history as text. A slug
- * in that file that the current files no longer select also stays up as a refresh.
+ * were generated at build time, so they are not in git history as text. The data
+ * build appends a pair the current selector publishes and does not remove a slug.
+ * A slug in that file that the current files no longer select stays up as a refresh.
  * The target is the current comparison that shares one of the two models, preferring
  * the model with more EPA configuration rows. If neither model is in a current
  * comparison, the target is that model's page, and the higher configuration count
@@ -667,14 +670,52 @@ export function loadPublishedComparePairs() {
   return publishedCache;
 }
 
+export function redirectSources(published, legacy) {
+  const legacyBySlug = new Map((legacy || []).map((pair) => [pair.slug, pair]));
+  return (published || []).map((pair) => {
+    const match = legacyBySlug.get(pair.slug);
+    const reason = match ? "rule" : "refresh";
+    return match ? { ...match, reason } : { ...pair, reason };
+  });
+}
+
+export function publishedRecordFromPair(pair) {
+  const side = (item) => ({
+    makeSlug: item.makeSlug,
+    makeName: item.makeName,
+    modelSlug: item.modelSlug,
+    modelName: item.modelName,
+    configCount: item.configCount,
+  });
+  return {
+    slug: pair.slug,
+    year: pair.year,
+    classFamily: pair.classFamily,
+    left: side(pair.left),
+    right: side(pair.right),
+  };
+}
+
+export function mergePublishedPairs(existing, livePairs) {
+  const pairs = [...(existing || [])];
+  const known = new Set(pairs.map((pair) => pair.slug));
+  const added = [];
+  for (const pair of livePairs || []) {
+    if (!pair?.slug || known.has(pair.slug)) continue;
+    const record = publishedRecordFromPair(pair);
+    known.add(record.slug);
+    pairs.push(record);
+    added.push(record);
+  }
+  return { pairs, added };
+}
+
 export function loadRemovedPairRedirects() {
   if (redirectCache) return redirectCache;
   const current = loadExamplePairs();
   const legacy = selectExamplePairs(loadRecords(), { rule: "class" });
-  const bySlug = new Map();
-  for (const pair of loadPublishedComparePairs()) bySlug.set(pair.slug, { ...pair, reason: "refresh" });
-  for (const pair of legacy) bySlug.set(pair.slug, { ...pair, reason: "rule" });
-  redirectCache = buildPairRedirects([...bySlug.values()], current);
+  const sources = redirectSources(loadPublishedComparePairs(), legacy);
+  redirectCache = buildPairRedirects(sources, current);
   return redirectCache;
 }
 

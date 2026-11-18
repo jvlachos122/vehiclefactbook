@@ -414,6 +414,24 @@ export function loadHybridPairs() {
   return pairCache;
 }
 
+export function hybridModelKeys(pair) {
+  const keys = new Set();
+  const add = (makeSlug, modelSlug) => {
+    if (makeSlug && modelSlug) keys.add(`${makeSlug}/${modelSlug}`);
+  };
+  add(pair?.makeSlug, pair?.modelSlug);
+  add(pair?.gas?.makeSlug, pair?.gas?.modelSlug);
+  add(pair?.hybrid?.makeSlug, pair?.hybrid?.modelSlug);
+  for (const source of pair?.gas?.sources || []) add(source.makeSlug, source.modelSlug);
+  for (const source of pair?.hybrid?.sources || []) add(source.makeSlug, source.modelSlug);
+  return [...keys];
+}
+
+export function hybridPairsForModel(makeSlug, modelSlug) {
+  const key = `${makeSlug}/${modelSlug}`;
+  return loadHybridPairs().filter((pair) => hybridModelKeys(pair).includes(key));
+}
+
 export function readEiaRetail(csvText) {
   const rows = loadPriceSnapshot(csvText);
   const found = {};

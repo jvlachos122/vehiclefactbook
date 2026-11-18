@@ -10,6 +10,7 @@ import { findEvRangePage } from "../../../lib/ev-range.js";
 import { loadFuelCostYears, modelFuelCostLinks, yearPhrase } from "../../../lib/fuel-classes.js";
 import { modelInvestigationCount } from "../../../lib/investigations.js";
 import { makeComplaintPath } from "../../../lib/make-complaints.js";
+import { hybridPairsForModel } from "../../../lib/hybrid-pairs.js";
 import { modelAnswer } from "../../../lib/answer.js";
 import { formatNumber, metaDescription, money, span } from "../../../lib/format.js";
 import { dataset } from "../../../lib/schema.js";
@@ -32,6 +33,7 @@ const latest = years[years.length - 1];
 const evRange = findEvRangePage(make.slug, model.slug);
 const fuelLinks = modelFuelCostLinks(make.slug, model.slug);
 const fuelYears = yearPhrase(loadFuelCostYears());
+const hybridLinks = hybridPairsForModel(make.slug, model.slug);
 const crumbs = [
   { label: "Home", href: "/" },
   { label: make.name, href: `/${make.slug}/` },
@@ -90,6 +92,24 @@ const crumbs = [
         <p>
           <a href={complaintPath}>All {make.name} complaints</a> adds the complaint counts on the {make.name} model pages.
         </p>
+      ) : null
+    }
+    {
+      hybridLinks.length ? (
+        <>
+          <h2>Hybrid vs gasoline</h2>
+          <ul>
+            {
+              hybridLinks.map((pair) => (
+                <li>
+                  <a href={`/compare/hybrid/${pair.slug}/`}>
+                    {pair.year} {pair.makeName} {pair.modelName} {pair.kindLabel} vs gasoline
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </>
       ) : null
     }
     <h2>Model years</h2>

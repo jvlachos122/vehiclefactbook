@@ -1,5 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { removedComparePaths } from "../src/lib/compare-pairs.js";
+import { loadHybridPairs } from "../src/lib/hybrid-pairs.js";
+import { enumerateSitemapUrls, inspectSitemaps, lastmodInstant } from "../src/lib/lastmod.js";
 import { EV_RANGE_INDEX, loadEvRangePages } from "../src/lib/ev-range.js";
 import { FUEL_COST_INDEX, loadFuelCostPages } from "../src/lib/fuel-classes.js";
 import { safetyPaths } from "../src/lib/safety-ratings.js";
@@ -63,6 +65,7 @@ function idsIn(html) {
 }
 
 const removedCompares = removedComparePaths();
+const inlinks = new Map();
 const files = walk(dist);
 const htmlByFile = new Map();
 for (const file of files) htmlByFile.set(resolve(file), readFileSync(file, "utf8"));
@@ -91,6 +94,14 @@ for (const [file, html] of htmlByFile) {
     if (url.origin !== site) continue;
     const from = slashPath(pageUrl(file));
     const to = slashPath(url.pathname);
+    if (from !== to) {
+      let sources = inlinks.get(to);
+      if (!sources) {
+        sources = new Set();
+        inlinks.set(to, sources);
+      }
+      sources.add(from);
+    }
     if (removedCompares.has(to) && from !== to) {
       errors.push(`${file.slice(dist.length)}: links to retired compare ${to}`);
       continue;
@@ -183,6 +194,42 @@ for (const path of sitemapPaths) {
   if (parts.includes("received-year") || parts.includes("complaints-by-received-year")) {
     errors.push(`sitemap includes a received-year URL ${path}`);
   }
+}
+
+const inspected = inspectSitemaps(dist);
+const builtPages = new Set(inspected.pages.map((page) => page.path));
+const expectedPages = new Set(enumerateSitemapUrls());
+for (const path of builtPages) {
+  if (!expectedPages.has(path)) errors.push(`sitemap has a URL outside the route set: ${path}`);
+}
+for (const path of expectedPages) {
+  if (!builtPages.has(path)) errors.push(`sitemap is missing a route URL: ${path}`);
+}
+const now = Date.now();
+let newestPage = "";
+for (const page of inspected.pages) {
+  if (!page.lastmod) {
+    errors.push(`sitemap omits lastmod for ${page.path}`);
+    continue;
+  }
+  if (lastmodInstant(page.lastmod) > now) errors.push(`sitemap lastmod is in the future for ${page.path}: ${page.lastmod}`);
+  if (!newestPage || lastmodInstant(page.lastmod) > lastmodInstant(newestPage)) newestPage = page.lastmod;
+}
+let newestIndex = "";
+for (const entry of inspected.index) {
+  const childMax = inspected.childMax.get(entry.name) || "";
+  if ((entry.lastmod || "") !== childMax) {
+    errors.push(`sitemap index lastmod for ${entry.name} is ${entry.lastmod || "omitted"}; child max is ${childMax || "omitted"}`);
+  }
+  if (entry.lastmod && (!newestIndex || lastmodInstant(entry.lastmod) > lastmodInstant(newestIndex))) newestIndex = entry.lastmod;
+}
+if (newestPage && newestIndex && lastmodInstant(newestIndex) !== lastmodInstant(newestPage)) {
+  errors.push(`sitemap index lastmod ${newestIndex} is not the newest URL lastmod ${newestPage}`);
+}
+for (const pair of loadHybridPairs()) {
+  const path = `/compare/hybrid/${pair.slug}/`;
+  const count = inlinks.get(path)?.size || 0;
+  if (count < 3) errors.push(`${path} has ${count} internal linking pages`);
 }
 
 if (errors.length) {

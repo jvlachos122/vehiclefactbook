@@ -1,13 +1,9 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
-import { existsSync, readFileSync } from "node:fs";
 import { removedComparePaths } from "./src/lib/compare-pairs.js";
+import { lastmodForPath, readLedger } from "./src/lib/lastmod.js";
 
-let lastmod = "";
-if (existsSync("./data/site/meta.json")) {
-  const meta = JSON.parse(readFileSync("./data/site/meta.json", "utf8"));
-  lastmod = String(meta.dates?.complaints || "").slice(0, 10);
-}
+const ledger = readLedger();
 const removedCompares = removedComparePaths();
 
 export default defineConfig({
@@ -28,7 +24,15 @@ export default defineConfig({
         }
       },
       serialize(item) {
-        if (lastmod) item.lastmod = lastmod;
+        let pathname = "";
+        try {
+          pathname = new URL(item.url).pathname;
+        } catch {
+          pathname = "";
+        }
+        const date = pathname ? lastmodForPath(pathname, ledger) : "";
+        if (date) item.lastmod = date;
+        else delete item.lastmod;
         return item;
       },
     }),

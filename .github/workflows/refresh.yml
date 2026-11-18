@@ -53,6 +53,7 @@ jobs:
             echo "::warning::NCAP refresh failed. Keeping the last committed NCAP files and continuing the refresh."
           fi
           python3 scripts/build_data.py
+          node scripts/update-lastmod.mjs
           rm -f \
             /tmp/vf-raw/extracted/FLAT_CMPL.txt \
             /tmp/vf-raw/extracted/FLAT_RCL_POST_2010.txt \

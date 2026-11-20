@@ -2,6 +2,7 @@
 import Base from "../../../layouts/Base.astro";
 import Answer from "../../../components/Answer.astro";
 import DataNote from "../../../components/DataNote.astro";
+import ModelFacts from "../../../components/ModelFacts.astro";
 import ReceivedYears from "../../../components/ReceivedYears.astro";
 import YearTable from "../../../components/YearTable.astro";
 import { findModel, loadMeta, loadModel, modelPaths } from "../../../lib/catalog.js";
@@ -12,6 +13,7 @@ import { modelInvestigationCount } from "../../../lib/investigations.js";
 import { makeComplaintPath } from "../../../lib/make-complaints.js";
 import { hybridPairsForModel } from "../../../lib/hybrid-pairs.js";
 import { modelAnswer } from "../../../lib/answer.js";
+import { modelFacts } from "../../../lib/model-facts.js";
 import { formatNumber, metaDescription, money, span } from "../../../lib/format.js";
 import { dataset } from "../../../lib/schema.js";
 import { receivedYearSeries } from "../../../lib/received-years.js";
@@ -27,6 +29,7 @@ const { make, model } = findModel(makeSlug, modelSlug);
 const received = receivedYearSeries(loadModel(makeSlug, modelSlug), meta.dates.complaints);
 const years = [...model.years].sort((a, b) => a.y - b.y);
 const text = modelAnswer(make.name, model.name, years, meta.dates);
+const facts = modelFacts(make.name, model.name, years, meta.dates, { makeSlug: make.slug, modelSlug: model.slug });
 const path = `/${make.slug}/${model.slug}/`;
 const complaintPath = makeComplaintPath(make.slug);
 const latest = years[years.length - 1];
@@ -62,6 +65,7 @@ const crumbs = [
     <h1>{make.name} {model.name}</h1>
     <Answer text={text} />
     <DataNote />
+    <ModelFacts answer={facts.answer} caveat={facts.caveat} caption={facts.caption} rows={facts.rows} />
     {
       model.yearsPage ? (
         <p>

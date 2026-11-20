@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HtmlValidate } from "html-validate";
-import { findMake, loadMeta, loadModel, loadSummary } from "../src/lib/catalog.js";
+import { findMake, findModel, loadMeta, loadModel, loadSummary } from "../src/lib/catalog.js";
 import { formatDate, formatNumber } from "../src/lib/format.js";
 import {
   MAKE_COMPLAINT_BANNED,
@@ -12,6 +12,7 @@ import {
   makeComplaintPath,
 } from "../src/lib/make-complaints.js";
 import { auditHtml, classifyPage, visibleText } from "../src/lib/jsonld-audit.js";
+import { MODEL_FACTS_BANNED, MODEL_FACTS_CAVEAT, NOT_LISTED } from "../src/lib/model-facts.js";
 import {
   RECEIVED_YEAR_BANNED,
   RECEIVED_YEAR_PHRASES,
@@ -151,6 +152,32 @@ for (const file of files) {
     if (!/<h1>[^<]*by model year/i.test(html)) errors.push(`${rel}: h1 missing by model year`);
   }
   if (classifyPage(rel) === "model") {
+    const factsMatch = html.match(/<section id="year-by-year"[^>]*>[\s\S]*?<\/section>/i);
+    if (!factsMatch) errors.push(`${rel}: missing year-by-year facts`);
+    else {
+      const facts = factsMatch[0];
+      const factsText = visibleText(facts);
+      if (MODEL_FACTS_BANNED.test(factsText)) errors.push(`${rel}: banned wording in the year-by-year facts`);
+      if (!factsText.includes(MODEL_FACTS_CAVEAT)) errors.push(`${rel}: missing raw-count caveat`);
+      if (!factsText.includes(NOT_LISTED)) errors.push(`${rel}: facts caption does not say not listed`);
+      if (!facts.includes('href="/methodology/"')) errors.push(`${rel}: facts caveat does not link to the methodology`);
+      if (!facts.includes("<caption>")) errors.push(`${rel}: facts table has no caption`);
+      if (facts.includes("—")) errors.push(`${rel}: facts table uses an em dash blank`);
+      if (/\b[A-HJ-NPR-Z0-9]{17}\b/.test(factsText)) errors.push(`${rel}: year-by-year facts contain a VIN`);
+      if (/\b(vins?|dealers?|narrative|cdescr|odino)\b/i.test(factsText)) {
+        errors.push(`${rel}: year-by-year facts name a complaint detail`);
+      }
+      const parts = rel.split("/").filter(Boolean);
+      const found = findModel(parts[0], parts[1]);
+      const allowed = new Set(["/methodology/", ...(found.model?.years || []).map((year) => `/${parts[0]}/${parts[1]}/${year.y}/`)]);
+      for (const href of facts.matchAll(/href="([^"]+)"/g)) {
+        if (!allowed.has(href[1])) errors.push(`${rel}: year-by-year facts link to ${href[1]}`);
+      }
+      for (const year of found.model?.years || []) {
+        const href = `/${parts[0]}/${parts[1]}/${year.y}/`;
+        if (!facts.includes(`href="${href}"`)) errors.push(`${rel}: year-by-year facts omit ${href}`);
+      }
+    }
     const series = receivedByPath.get(rel);
     const sectionMatch = html.match(/<section id="complaints-by-received-year"[^>]*>[\s\S]*?<\/section>/i);
     if (!series) {

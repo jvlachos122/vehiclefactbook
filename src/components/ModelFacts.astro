@@ -1,0 +1,42 @@
+---
+import Answer from "./Answer.astro";
+import { MODEL_FACTS_METHOD } from "../lib/model-facts.js";
+
+const { answer, caveat, caption, rows = [] } = Astro.props;
+---
+
+<section id="year-by-year">
+  <h2>Figures by model year</h2>
+  <Answer text={answer} />
+  <p class="years-caveat">
+    {caveat}{" "}
+    <a href={MODEL_FACTS_METHOD}>How complaints are counted</a>.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          <th scope="col">Model year</th>
+          <th scope="col">EPA combined</th>
+          <th class="num" scope="col">Recall campaigns</th>
+          <th class="num" scope="col">Complaints</th>
+          <th scope="col">NCAP overall</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => (
+            <tr>
+              <td><a href={row.href}>{row.y}</a></td>
+              <td>{row.economy}</td>
+              <td class="num">{row.recalls}</td>
+              <td class="num">{row.complaints}</td>
+              <td>{row.overall}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

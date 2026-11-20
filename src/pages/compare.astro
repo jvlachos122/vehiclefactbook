@@ -3,12 +3,13 @@ import Base from "../layouts/Base.astro";
 import Answer from "../components/Answer.astro";
 import { loadMeta } from "../lib/catalog.js";
 import { exampleIndexCaption, exampleIndexIntro, loadExamplePairs } from "../lib/compare-pairs.js";
-import { hybridIndexTeaser } from "../lib/hybrid-pairs.js";
+import { hybridIndexTeaser, loadHybridPairs } from "../lib/hybrid-pairs.js";
 import { formatDate, formatNumber, metaDescription } from "../lib/format.js";
 import { webApp } from "../lib/schema.js";
 
 const meta = loadMeta();
 const pairs = loadExamplePairs();
+const hybridPairs = loadHybridPairs();
 const intro = exampleIndexIntro(pairs.length);
 const text = `Compare two of the ${formatNumber(meta.counts.publishedMmy)} published model years. Recall and complaint counts are from NHTSA files dated ${formatDate(meta.dates.recalls)} and ${formatDate(meta.dates.complaints)}, and fuel figures are from the EPA file dated ${formatDate(meta.dates.epa)}. The counts are not sales-adjusted, and this page does not pick a winner.`;
 ---
@@ -43,8 +44,19 @@ const text = `Compare two of the ${formatNumber(meta.counts.publishedMmy)} publi
     <p>There is one indexed address for this tool. A query string that preselects vehicles is not a separate page. The example comparisons below are separate pages.</p>
     <h2 id="hybrid">Hybrid vs gasoline</h2>
     <p>{hybridIndexTeaser()}</p>
+    <ul>
+      {
+        hybridPairs.map((pair) => (
+          <li>
+            <a href={`/compare/hybrid/${pair.slug}/`}>
+              {pair.year} {pair.makeName} {pair.modelName} {pair.kindLabel} vs gasoline
+            </a>
+          </li>
+        ))
+      }
+    </ul>
     <p>
-      <a href="/compare/hybrid/">Hybrid vs gasoline comparisons</a>
+      <a href="/compare/hybrid/">All hybrid vs gasoline comparisons</a>
     </p>
     <h2 id="examples">Example comparisons</h2>
     <p>{intro}</p>

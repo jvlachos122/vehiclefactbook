@@ -9,7 +9,7 @@
   "scripts": {
     "fetch": "bash scripts/fetch.sh",
     "dev": "node scripts/prepare-public-data.mjs && astro dev",
-    "prebuild": "node scripts/prepare-public-data.mjs",
+    "prebuild": "node scripts/prepare-public-data.mjs && node scripts/update-lastmod.mjs",
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/build-log.mjs",
     "preview": "astro preview",
     "validate:data": "node scripts/validate-data.mjs && python3 scripts/qa.py",

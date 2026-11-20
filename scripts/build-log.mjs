@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { alignSitemapIndex } from "../src/lib/lastmod.js";
 import { removedComparePaths } from "../src/lib/compare-pairs.js";
 import { evRangeRowCount, loadEvRangePages } from "../src/lib/ev-range.js";
 import { fuelCostRowCount, loadFuelCostPages } from "../src/lib/fuel-classes.js";
@@ -9,6 +10,7 @@ import { loadScoreCatalog, scorePaths } from "../src/lib/scores.js";
 
 const root = join(import.meta.dirname, "..");
 const dist = join(root, "dist");
+alignSitemapIndex(dist);
 
 function walk(dir, files = []) {
   for (const entry of readdirSync(dir)) {

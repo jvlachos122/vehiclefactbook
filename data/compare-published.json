@@ -1237,6 +1237,63 @@
         "modelName": "Tundra",
         "configCount": 161
       }
+    },
+    {
+      "slug": "ford-f150-vs-ram-1500",
+      "year": 2027,
+      "classFamily": "Standard Pickup Trucks",
+      "left": {
+        "makeSlug": "ford",
+        "makeName": "Ford",
+        "modelSlug": "f150",
+        "modelName": "F150",
+        "configCount": 421
+      },
+      "right": {
+        "makeSlug": "ram",
+        "makeName": "Ram",
+        "modelSlug": "1500",
+        "modelName": "1500",
+        "configCount": 167
+      }
+    },
+    {
+      "slug": "chevrolet-colorado-vs-gmc-canyon",
+      "year": 2026,
+      "classFamily": "Standard Pickup Trucks",
+      "left": {
+        "makeSlug": "chevrolet",
+        "makeName": "Chevrolet",
+        "modelSlug": "colorado",
+        "modelName": "Colorado",
+        "configCount": 227
+      },
+      "right": {
+        "makeSlug": "gmc",
+        "makeName": "GMC",
+        "modelSlug": "canyon",
+        "modelName": "Canyon",
+        "configCount": 210
+      }
+    },
+    {
+      "slug": "nissan-frontier-vs-toyota-tundra",
+      "year": 2026,
+      "classFamily": "Standard Pickup Trucks",
+      "left": {
+        "makeSlug": "nissan",
+        "makeName": "Nissan",
+        "modelSlug": "frontier",
+        "modelName": "Frontier",
+        "configCount": 167
+      },
+      "right": {
+        "makeSlug": "toyota",
+        "makeName": "Toyota",
+        "modelSlug": "tundra",
+        "modelName": "Tundra",
+        "configCount": 171
+      }
     }
   ]
 }

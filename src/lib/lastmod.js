@@ -23,6 +23,7 @@ import { displayedComplaints, modelHasComponentPage, qualifyingComponents } from
 import { loadExamplePairs } from "./compare-pairs.js";
 import { loadPriceSnapshot } from "./eia-prices.js";
 import { loadEvRangePages } from "./ev-range.js";
+import { fuelExampleFingerprint } from "./fuel-calculator-examples.js";
 import { loadFuelCostCatalog } from "./fuel-classes.js";
 import { loadHybridPairs } from "./hybrid-pairs.js";
 import { loadInvestigationPages, makeInvestigationCount, modelInvestigationCount } from "./investigations.js";
@@ -561,6 +562,9 @@ function buildContent(env) {
     const path = staticPath(rel);
     if (path) assign(path, rel, []);
   }
+
+  partHashes.set("fuel-examples", sha(canon(fuelExampleFingerprint())));
+  addParts("/tools/fuel-cost-calculator/", ["fuel-examples"]);
 
   addParts("/", ["home-makes", "section-sizes"]);
   partHashes.set(

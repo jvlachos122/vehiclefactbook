@@ -11,6 +11,7 @@ import {
   loadComplaintPages,
   makeComplaintPath,
 } from "../src/lib/make-complaints.js";
+import { selectFuelExamples, wordCount } from "../src/lib/fuel-calculator-examples.js";
 import { auditHtml, classifyPage, visibleText } from "../src/lib/jsonld-audit.js";
 import { MODEL_FACTS_BANNED, MODEL_FACTS_CAVEAT, NOT_LISTED } from "../src/lib/model-facts.js";
 import {
@@ -270,6 +271,55 @@ for (const file of files) {
   if (classifyPage(rel) === "complaints-index") {
     for (const record of loadComplaintPages()) {
       if (!html.includes(`href="${record.path}"`)) errors.push(`${rel}: index missing ${record.path}`);
+    }
+  }
+  if (rel === "/tools/fuel-cost-calculator/index.html") {
+    const mainMatch = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
+    const main = mainMatch ? mainMatch[1] : "";
+    const formAt = main.search(/<form\b[^>]*\bdata-fuel\b/i);
+    const methodAt = main.indexOf('id="calculator-method"');
+    if (formAt < 0 || methodAt < 0 || formAt > methodAt) errors.push(`${rel}: tool is not before the method text`);
+    const answerMatch = main.match(/<div class="answer"[\s\S]*?<\/div>/i);
+    const answerStart = answerMatch ? answerMatch.index : -1;
+    const answerEnd = answerMatch ? answerStart + answerMatch[0].length : -1;
+    const paraRe = /<p\b[^>]*>([\s\S]*?)<\/p>/gi;
+    let para;
+    while ((para = paraRe.exec(main))) {
+      if (formAt >= 0 && para.index >= formAt) break;
+      if (answerStart >= 0 && para.index >= answerStart && para.index < answerEnd) continue;
+      const count = wordCount(visibleText(para[1]));
+      if (count >= 40) errors.push(`${rel}: ${count}-word paragraph before the tool`);
+    }
+    const section = main.match(/<section id="calculator-method"[\s\S]*?<\/section>/i);
+    if (!section) errors.push(`${rel}: missing method section`);
+    else if (wordCount(visibleText(section[0])) < 300) {
+      errors.push(`${rel}: method copy is ${wordCount(visibleText(section[0]))} words`);
+    }
+    if (!html.includes("data/eia-fuel-prices.csv")) errors.push(`${rel}: missing EIA snapshot name`);
+    if (!html.includes('href="/fuel-cost/"')) errors.push(`${rel}: missing class index link`);
+    const blocks = [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
+    if (!blocks.length) errors.push(`${rel}: JSON-LD missing`);
+    for (const block of blocks) {
+      let parsed;
+      try {
+        parsed = JSON.parse(block[1]);
+      } catch {
+        errors.push(`${rel}: JSON-LD did not parse`);
+        continue;
+      }
+      const raw = JSON.stringify(parsed);
+      if (!raw.includes('"WebApplication"')) errors.push(`${rel}: JSON-LD missing WebApplication`);
+      if (!raw.includes('"BreadcrumbList"')) errors.push(`${rel}: JSON-LD missing BreadcrumbList`);
+      if (/"@type":"(?:Product|Review|AggregateRating)"/.test(raw)) errors.push(`${rel}: JSON-LD uses Product or Review`);
+    }
+    for (const example of selectFuelExamples()) {
+      const vehicle = `${example.year} ${example.makeName} ${example.modelName}`;
+      if (!html.includes(example.gas.calculatedLabel)) errors.push(`${rel}: missing calculated cost ${example.gas.calculatedLabel}`);
+      if (!html.includes(example.hybrid.calculatedLabel)) errors.push(`${rel}: missing calculated cost ${example.hybrid.calculatedLabel}`);
+      if (!html.includes(`href="${example.yearHref}"`)) errors.push(`${rel}: missing ${example.yearHref}`);
+      if (!html.includes(`href="${example.modelHref}"`)) errors.push(`${rel}: missing ${example.modelHref}`);
+      if (!html.includes(`href="${example.classHref}"`)) errors.push(`${rel}: missing ${example.classHref}`);
+      if (!main.includes(`>${vehicle}<`)) errors.push(`${rel}: missing vehicle ${vehicle}`);
     }
   }
   jsonLdBlocks += audit.blocks;

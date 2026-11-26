@@ -9,6 +9,7 @@ import serif700 from "@fontsource/source-serif-4/files/source-serif-4-latin-700-
 import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import { noindexFollowPath } from "../lib/noindex.js";
 import { site } from "../lib/site.js";
 
 const {
@@ -24,6 +25,7 @@ const {
 } = Astro.props;
 
 const fullTitle = documentTitle || (home ? title : `${title} · ${site.name}`);
+const robotsFollow = !noindex && noindexFollowPath(Astro.url.pathname);
 const canonical = new URL(canonicalPath || Astro.url.pathname, site.url).href;
 const ogImage = new URL("/og-image.png", site.url).href;
 const graph = [];
@@ -54,6 +56,7 @@ const structured = graph.length
     <link rel="canonical" href={canonical} />
     {refreshPath ? <meta http-equiv="refresh" content={`0;url=${refreshPath}`} /> : null}
     {noindex ? <meta name="robots" content="noindex" /> : null}
+    {robotsFollow ? <meta name="robots" content="noindex, follow" /> : null}
     <link rel="preload" href={plex400} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={serif700} as="font" type="font/woff2" crossorigin />
     <meta name="theme-color" content="#E8EEF4" />

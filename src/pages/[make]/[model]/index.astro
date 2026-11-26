@@ -13,6 +13,7 @@ import { modelInvestigationCount } from "../../../lib/investigations.js";
 import { makeComplaintPath } from "../../../lib/make-complaints.js";
 import { hybridPairsForModel } from "../../../lib/hybrid-pairs.js";
 import { modelAnswer } from "../../../lib/answer.js";
+import { modelComparisonText } from "../../../lib/model-comparisons.js";
 import { modelFacts } from "../../../lib/model-facts.js";
 import { formatNumber, metaDescription, money, span } from "../../../lib/format.js";
 import { dataset } from "../../../lib/schema.js";
@@ -30,6 +31,12 @@ const received = receivedYearSeries(loadModel(makeSlug, modelSlug), meta.dates.c
 const years = [...model.years].sort((a, b) => a.y - b.y);
 const text = modelAnswer(make.name, model.name, years, meta.dates);
 const facts = modelFacts(make.name, model.name, years, meta.dates, { makeSlug: make.slug, modelSlug: model.slug });
+const comparisons = modelComparisonText(
+  make.name,
+  { name: model.name, slug: model.slug },
+  years,
+  make.models.map((item) => ({ slug: item.slug, years: item.years })),
+);
 const path = `/${make.slug}/${model.slug}/`;
 const complaintPath = makeComplaintPath(make.slug);
 const latest = years[years.length - 1];
@@ -66,6 +73,10 @@ const crumbs = [
     <Answer text={text} />
     <DataNote />
     <ModelFacts answer={facts.answer} caveat={facts.caveat} caption={facts.caption} rows={facts.rows} />
+    <section id="comparisons">
+      <h2>Comparisons</h2>
+      <p>{comparisons}</p>
+    </section>
     {
       model.yearsPage ? (
         <p>

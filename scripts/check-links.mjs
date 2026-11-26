@@ -7,7 +7,7 @@ import { FUEL_COST_INDEX, loadFuelCostPages } from "../src/lib/fuel-classes.js";
 import { safetyPaths } from "../src/lib/safety-ratings.js";
 import { scorePaths } from "../src/lib/scores.js";
 import { INVESTIGATIONS_INDEX, loadInvestigationPages } from "../src/lib/investigations.js";
-import { complaintSitemapPaths } from "../src/lib/make-complaints.js";
+import { COMPLAINTS_INDEX, complaintSitemapPaths } from "../src/lib/make-complaints.js";
 import { dirname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -181,8 +181,9 @@ for (const path of scorePaths()) {
   if (!sitemapPaths.has(path)) errors.push(`sitemap missing greenhouse gas score ${path}`);
 }
 const complaintPaths = new Set(complaintSitemapPaths());
+if (!sitemapPaths.has(COMPLAINTS_INDEX)) errors.push(`sitemap missing complaints ${COMPLAINTS_INDEX}`);
 for (const path of complaintPaths) {
-  if (!sitemapPaths.has(path)) errors.push(`sitemap missing complaints ${path}`);
+  if (path !== COMPLAINTS_INDEX && sitemapPaths.has(path)) errors.push(`sitemap includes noindex complaints ${path}`);
 }
 for (const path of sitemapPaths) {
   if (path === "/complaints/" || path.endsWith("/complaints/")) {
@@ -226,10 +227,27 @@ for (const entry of inspected.index) {
 if (newestPage && newestIndex && lastmodInstant(newestIndex) !== lastmodInstant(newestPage)) {
   errors.push(`sitemap index lastmod ${newestIndex} is not the newest URL lastmod ${newestPage}`);
 }
+function markedNoindex(path) {
+  if (noindexPaths.has(path)) return true;
+  const bare = path.endsWith("/") ? path.slice(0, -1) : path;
+  return noindexPaths.has(bare) || noindexPaths.has(`${bare}/`);
+}
+
+const indexable = new Set();
+for (const file of htmlByFile.keys()) {
+  const path = slashPath(pageUrl(file));
+  if (!markedNoindex(path)) indexable.add(path);
+}
+for (const path of indexable) {
+  const sources = [...(inlinks.get(path) || [])].filter((source) => indexable.has(source));
+  if (!sources.length) errors.push(`${path} has no inlink from an indexable page`);
+}
 for (const pair of loadHybridPairs()) {
   const path = `/compare/hybrid/${pair.slug}/`;
   const count = inlinks.get(path)?.size || 0;
   if (count < 3) errors.push(`${path} has ${count} internal linking pages`);
+  const indexableSources = [...(inlinks.get(path) || [])].filter((source) => indexable.has(source));
+  if (!indexableSources.length) errors.push(`${path} is linked only from noindexed pages`);
 }
 
 if (errors.length) {

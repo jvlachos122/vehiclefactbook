@@ -79,7 +79,7 @@ Each page shows EPA city, highway, and combined mpg (kWh/100 mi and range on ele
 
 ## Component pages
 
-`/{make}/{model}/{year}/{component}/` is published when the component list on that model year has at least 50 distinct complaints. The list is the top ten components stored for the headline NHTSA name. When the EPA name is not an NHTSA name, the list is the top ten for the matched name with the most complaints, the same list the model year page shows. A component outside that stored top ten is not given a page. The page states the count and the complaint file date. It does not state a rate. Crash, fire, injury, and death figures stay on the model year page.
+`/{make}/{model}/{year}/{component}/` is published when the component list on that model year has at least 50 distinct complaints. The page stays up for visitors with `noindex, follow` and is not in the sitemap. Model `/years/` pages and make `/complaints/` pages are handled the same way. A recall page is `noindex, follow`, and left out of the sitemap, when its article has fewer than 50 unique words. A word counts as unique when it is not inside a 7-word passage repeated on at least 20 percent of recall pages. Model-year pages, make pages, model pages, hubs, guides, tools, and comparisons stay indexable. The list is the top ten components stored for the headline NHTSA name. When the EPA name is not an NHTSA name, the list is the top ten for the matched name with the most complaints, the same list the model year page shows. A component outside that stored top ten is not given a page. The page states the count and the complaint file date. It does not state a rate. Crash, fire, injury, and death figures stay on the model year page.
 
 ## Investigation pages
 

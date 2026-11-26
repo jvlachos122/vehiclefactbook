@@ -1,5 +1,5 @@
 import { loadModel } from "./catalog.js";
-import { span, formatDate, plural } from "./format.js";
+import { formatNumber, span, formatDate, plural } from "./format.js";
 import { sentenceCount } from "./jsonld-audit.js";
 import { campaignFacts, loadMakeCampaigns } from "./make-recalls.js";
 
@@ -171,4 +171,127 @@ export function makeHubCaption(name, dates) {
 export function makeHubFacts(make) {
   const campaigns = loadMakeCampaigns(make);
   return { campaigns, facts: campaignFacts(campaigns), rows: makeHubRows(make, campaigns) };
+}
+
+function matchedSummaryYear(row) {
+  if (!row || row.hasNhtsa === false || row.match === "none") return false;
+  if (row.hasNhtsa === true) return true;
+  return Number.isFinite(Number(row.complaints));
+}
+
+function positiveSpan(min, max) {
+  const low = Number(min);
+  const high = Number(max);
+  if (!(low > 0) || !(high > 0)) return null;
+  return { min: low, max: high };
+}
+
+function absorbSpan(current, next) {
+  if (!next) return current;
+  if (!current) return { ...next };
+  return { min: Math.min(current.min, next.min), max: Math.max(current.max, next.max) };
+}
+
+/**
+ * One row per model year on a make hub. MPG is the span of the model-year
+ * highs and lows. Recall and complaint figures add the matched model-year
+ * counts, so a campaign on two models is counted twice. Stars are model year
+ * 2011 and newer. A missing figure stays "not listed".
+ */
+export function makeYearRows(make) {
+  const byYear = new Map();
+  for (const model of make?.models || []) {
+    for (const year of model.years || []) {
+      if (!Number.isInteger(Number(year?.y))) continue;
+      let bucket = byYear.get(year.y);
+      if (!bucket) {
+        bucket = {
+          y: year.y,
+          models: 0,
+          mpg: null,
+          mpge: null,
+          recalls: 0,
+          complaints: 0,
+          matched: false,
+          starMin: null,
+          starMax: null,
+        };
+        byYear.set(year.y, bucket);
+      }
+      bucket.models += 1;
+      bucket.mpg = absorbSpan(bucket.mpg, positiveSpan(year.mpgMin, year.mpgMax));
+      bucket.mpge = absorbSpan(bucket.mpge, positiveSpan(year.mpgeMin, year.mpgeMax));
+      if (matchedSummaryYear(year)) {
+        bucket.matched = true;
+        bucket.recalls += Number(year.recalls) || 0;
+        bucket.complaints += Number(year.complaints) || 0;
+      }
+      if (year.y >= 2011 && year.starMin != null && year.starMax != null) {
+        bucket.starMin = bucket.starMin == null ? year.starMin : Math.min(bucket.starMin, year.starMin);
+        bucket.starMax = bucket.starMax == null ? year.starMax : Math.max(bucket.starMax, year.starMax);
+      }
+    }
+  }
+  return [...byYear.values()].sort((a, b) => a.y - b.y);
+}
+
+export function makeYearEconomy(row) {
+  if (row?.mpg) return span(row.mpg.min, row.mpg.max, "mpg");
+  if (row?.mpge) return span(row.mpge.min, row.mpge.max, "MPGe");
+  return "not listed";
+}
+
+export function makeYearCount(row, field) {
+  if (!row?.matched) return "not listed";
+  return formatNumber(row[field]);
+}
+
+export function makeYearStars(row) {
+  if (row?.starMin == null || row?.starMax == null) return "not listed";
+  if (row.starMin === row.starMax) return String(row.starMin);
+  return `${row.starMin}–${row.starMax}`;
+}
+
+function yearPairSentence(prior, newest, singular, pluralLabel, valueOf) {
+  const left = valueOf(prior);
+  const right = valueOf(newest);
+  if (left === right) return `The ${prior.y} and ${newest.y} ${pluralLabel} are both ${formatNumber(right)}.`;
+  return `The ${newest.y} ${singular} is ${formatNumber(right)} and the ${prior.y} ${singular} is ${formatNumber(left)}.`;
+}
+
+export function makeYearComparisonText(name, rows) {
+  const ordered = [...(rows || [])].sort((a, b) => a.y - b.y);
+  const sentences = [];
+  const mpgYears = ordered.filter((row) => row.mpg);
+  if (mpgYears.length >= 2) {
+    const prior = mpgYears[mpgYears.length - 2];
+    const newest = mpgYears[mpgYears.length - 1];
+    sentences.push(yearPairSentence(prior, newest, "combined mpg high", "combined mpg highs", (row) => row.mpg.max));
+  } else {
+    const mpgeYears = ordered.filter((row) => row.mpge);
+    if (mpgeYears.length >= 2) {
+      const prior = mpgeYears[mpgeYears.length - 2];
+      const newest = mpgeYears[mpgeYears.length - 1];
+      sentences.push(yearPairSentence(prior, newest, "combined MPGe high", "combined MPGe highs", (row) => row.mpge.max));
+    }
+  }
+  const matched = ordered.filter((row) => row.matched);
+  if (matched.length >= 2) {
+    const prior = matched[matched.length - 2];
+    const newest = matched[matched.length - 1];
+    sentences.push(yearPairSentence(prior, newest, "summed complaint count", "summed complaint counts", (row) => row.complaints));
+    sentences.push(yearPairSentence(prior, newest, "summed recall count", "summed recall counts", (row) => row.recalls));
+  }
+  const text = sentences.length
+    ? sentences.slice(0, 3).join(" ")
+    : `${name} does not have two model years with a combined mpg or two model years with a matched complaint count, so there is no year-to-year comparison.`;
+  const count = sentenceCount(text);
+  if (count < 1 || count > 3) throw new Error(`${name} make year comparison has ${count} sentences`);
+  return guard(text);
+}
+
+export function makeYearCaption(name, dates) {
+  return guard(
+    `${name} by model year. EPA combined is the mpg span across models, or MPGe when no mpg is listed. Recall counts and complaint counts add the matched model-year figures, and a campaign or complaint counted on two models is in both. NCAP overall is the star span for model year 2011 and newer where a model is rated. A blank says not listed. A pre-2011 rating is not shown. EPA file dated ${formatDate(dates.epa)}. Recall file dated ${formatDate(dates.recalls)}. Complaint file dated ${formatDate(dates.complaints)}.`,
+  );
 }

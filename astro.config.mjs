@@ -2,6 +2,7 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import { removedComparePaths } from "./src/lib/compare-pairs.js";
 import { lastmodForPath, readLedger } from "./src/lib/lastmod.js";
+import { noindexFollowPath } from "./src/lib/noindex.js";
 
 const ledger = readLedger();
 const removedCompares = removedComparePaths();
@@ -17,11 +18,14 @@ export default defineConfig({
       entryLimit: 4500,
       filter: (page) => {
         if (page.includes("/404")) return false;
+        let pathname = page;
         try {
-          return !removedCompares.has(new URL(page).pathname);
+          pathname = new URL(page).pathname;
         } catch {
-          return !removedCompares.has(page);
+          pathname = page;
         }
+        if (noindexFollowPath(pathname)) return false;
+        return !removedCompares.has(pathname);
       },
       serialize(item) {
         let pathname = "";

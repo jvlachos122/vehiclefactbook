@@ -7,7 +7,20 @@ import { findMake, loadMeta, makePaths } from "../../lib/catalog.js";
 import { rollup } from "../../lib/answer.js";
 import { makeComplaintPath } from "../../lib/make-complaints.js";
 import { formatNumber, metaDescription } from "../../lib/format.js";
-import { makeHubAnswer, makeHubCaption, makeHubFacts, rangeCell, starCell, yearSpan } from "../../lib/make-hub.js";
+import {
+  makeHubAnswer,
+  makeHubCaption,
+  makeHubFacts,
+  makeYearCaption,
+  makeYearComparisonText,
+  makeYearCount,
+  makeYearEconomy,
+  makeYearRows,
+  makeYearStars,
+  rangeCell,
+  starCell,
+  yearSpan,
+} from "../../lib/make-hub.js";
 import { makeInvestigationCount } from "../../lib/investigations.js";
 import { dataset } from "../../lib/schema.js";
 import { site } from "../../lib/site.js";
@@ -25,6 +38,9 @@ const facts = hub.facts;
 const rows = hub.rows;
 const text = makeHubAnswer(make.name, rows, facts, meta.dates);
 const caption = makeHubCaption(make.name, meta.dates);
+const yearRows = makeYearRows(make);
+const yearComparisons = makeYearComparisonText(make.name, yearRows);
+const yearCaption = makeYearCaption(make.name, meta.dates);
 const totals = rollup(models);
 const path = `/${make.slug}/`;
 const complaintPath = makeComplaintPath(make.slug);
@@ -110,5 +126,42 @@ const crumbs = [
         </tbody>
       </table>
     </div>
+    <section id="make-years">
+      <h2>Figures by model year</h2>
+      <p>{yearComparisons}</p>
+      <p class="years-caveat">
+        Recall and complaint figures add the matched model-year counts. They are not rates.{" "}
+        <a href="/methodology/">How the files are counted</a>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <caption>{yearCaption}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Model year</th>
+              <th class="num" scope="col">Models</th>
+              <th scope="col">EPA combined</th>
+              <th class="num" scope="col">Recall counts, summed</th>
+              <th class="num" scope="col">Complaints, summed</th>
+              <th scope="col">NCAP overall</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              yearRows.map((row) => (
+                <tr>
+                  <td>{row.y}</td>
+                  <td class="num">{formatNumber(row.models)}</td>
+                  <td>{makeYearEconomy(row)}</td>
+                  <td class="num">{makeYearCount(row, "recalls")}</td>
+                  <td class="num">{makeYearCount(row, "complaints")}</td>
+                  <td>{makeYearStars(row)}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
   </article>
 </Base>

@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { componentDocumentTitle, loadComponentPages } from "../src/lib/components.js";
+import { clip } from "../src/lib/format.js";
 
 const root = join(import.meta.dirname, "..");
 
@@ -78,6 +79,35 @@ test("component titles are unique and keep the component name", () => {
     assert.doesNotMatch(title, / component complaints$/);
   }
   assert.ok(seen.size > 1000);
+});
+
+test("the shortened component-complaints fallback is not used", () => {
+  function oldTitle(page) {
+    const limit = 65;
+    const full = `${page.year} ${page.makeName} ${page.modelName}: ${page.component} complaints`;
+    if (full.length <= limit) return full;
+    const shorter = `${page.year} ${page.makeName} ${page.modelName} component complaints`;
+    if (shorter.length <= limit) return shorter;
+    return clip(shorter, limit);
+  }
+  const groups = new Map();
+  for (const page of loadComponentPages()) {
+    const title = oldTitle(page);
+    const list = groups.get(title) || [];
+    list.push(page);
+    groups.set(title, list);
+  }
+  const collided = [...groups.values()].filter((list) => list.length > 1).flat();
+  assert.equal(collided.length, 145);
+  const current = new Set();
+  for (const page of collided) {
+    const title = componentDocumentTitle(page);
+    assert.equal(current.has(title), false, title);
+    current.add(title);
+    assert.doesNotMatch(title, / component complaints$/);
+    const tail = page.component.split(":").map((part) => part.trim()).filter(Boolean).at(-1) || page.component;
+    assert.ok(title.includes(tail) || title.includes(tail.slice(0, 8)), title);
+  }
 });
 
 test("the HTML check rejects a duplicate title in the built site", () => {

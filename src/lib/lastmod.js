@@ -28,6 +28,7 @@ import { loadFuelCostCatalog } from "./fuel-classes.js";
 import { loadHybridPairs } from "./hybrid-pairs.js";
 import { loadInvestigationPages, makeInvestigationCount, modelInvestigationCount } from "./investigations.js";
 import { complaintSitemapPaths, MAKE_COMPLAINT_MIN } from "./make-complaints.js";
+import { noindexFollowPath } from "./noindex.js";
 import { complaintHeadlineGroups } from "./received-years.js";
 import { loadSafetyPages } from "./safety-ratings.js";
 import { loadScorePages } from "./scores.js";
@@ -725,6 +726,10 @@ function buildContent(env) {
         ),
       );
     }
+  }
+
+  for (const url of [...urls.keys()]) {
+    if (noindexFollowPath(url)) urls.delete(url);
   }
 
   const sourceCache = new Map();

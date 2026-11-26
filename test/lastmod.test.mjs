@@ -160,9 +160,11 @@ test("one model year's complaint count moves that page and the hubs that render 
   const yearsPath = `/${sample.make}/${sample.model}/years/`;
   const makePath = `/${sample.make}/`;
   const makeComplaints = `/${sample.make}/complaints/`;
-  for (const path of [yearPath, modelPath, yearsPath, makePath, makeComplaints, "/complaints/"]) {
+  for (const path of [yearPath, modelPath, makePath, "/complaints/"]) {
     assert.ok(changed.has(path), `expected ${path} to move; sample ${sample.make}/${sample.model}/${sample.year}`);
   }
+  assert.equal(next.has(yearsPath), false, `${yearsPath} is noindex and has no sitemap lastmod`);
+  assert.equal(next.has(makeComplaints), false, `${makeComplaints} is noindex and has no sitemap lastmod`);
   const hybridSlugs = new Set(
     loadHybridPairs()
       .filter((pair) => pairUsesSample(pair, sample))

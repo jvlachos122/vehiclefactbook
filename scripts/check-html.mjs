@@ -13,6 +13,7 @@ import {
 } from "../src/lib/make-complaints.js";
 import { selectFuelExamples, wordCount } from "../src/lib/fuel-calculator-examples.js";
 import { auditHtml, classifyPage, visibleText } from "../src/lib/jsonld-audit.js";
+import { noindexFollowPath, pathFromHtmlRel } from "../src/lib/noindex.js";
 import { MODEL_FACTS_BANNED, MODEL_FACTS_CAVEAT, NOT_LISTED } from "../src/lib/model-facts.js";
 import {
   RECEIVED_YEAR_BANNED,
@@ -353,8 +354,12 @@ for (const file of files) {
   if (h1.length !== 1) errors.push(`${rel}: ${h1.length} h1`);
   if (!html.includes('id="main"')) errors.push(`${rel}: main`);
   const noindex = html.includes('content="noindex"');
+  const followNoindex = html.includes('content="noindex, follow"');
   const refresh = /http-equiv="refresh"/i.test(html);
-  if (noindex && rel !== "/404.html" && !refresh) errors.push(`${rel}: unexpected noindex`);
+  const thin = noindexFollowPath(pathFromHtmlRel(rel));
+  if (thin && !followNoindex) errors.push(`${rel}: thin page should be noindex, follow`);
+  if (!thin && followNoindex) errors.push(`${rel}: unexpected noindex, follow`);
+  if (noindex && !thin && rel !== "/404.html" && !refresh) errors.push(`${rel}: unexpected noindex`);
   if (rel === "/404.html" && !noindex) errors.push("404 should be noindex");
   if (refresh && rel.startsWith("/compare/") && !noindex) errors.push(`${rel}: compare refresh should be noindex`);
   if (!html.includes("application/ld+json") && rel !== "/404.html") errors.push(`${rel}: missing JSON-LD`);
